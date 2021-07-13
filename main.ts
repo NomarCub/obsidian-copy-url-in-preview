@@ -1,112 +1,70 @@
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import {
+	Menu, Plugin, Notice, MenuItem
+} from "obsidian";
 
-interface MyPluginSettings {
-	mySetting: string;
+interface Listener {
+	(this: HTMLElement, ev: Event, delegateTarget: HTMLElement): any;
+}
+interface HTMLElement {
+	on(this: HTMLElement, type: string, selector: string, listener: Listener, options?: { capture?: boolean; }): void;
+	off(this: HTMLElement, type: string, selector: string, listener: Listener, options?: { capture?: boolean; }): void;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default'
+function onElement(
+	el: HTMLElement,
+	event: string,
+	selector: string,
+	listener: Listener,
+	options?: { capture?: boolean; }
+) {
+	el.on(event, selector, listener, options);
+	return () => el.off(event, selector, listener, options);
 }
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+export default class CopyUrlInPreview extends Plugin {
+	onload() {
+		this.register(
+			onElement(
+				document,
+				"contextmenu",
+				".external-link",
+				this.onClick.bind(this),
+				{ capture: true }
+			)
+		);
+	}
 
-	async onload() {
-		console.log('loading plugin');
-
-		await this.loadSettings();
-
-		this.addRibbonIcon('dice', 'Sample Plugin', () => {
-			new Notice('This is a notice!');
-		});
-
-		this.addStatusBarItem().setText('Status Bar Text');
-
-		this.addCommand({
-			id: 'open-sample-modal',
-			name: 'Open Sample Modal',
-			// callback: () => {
-			// 	console.log('Simple Callback');
-			// },
-			checkCallback: (checking: boolean) => {
-				let leaf = this.app.workspace.activeLeaf;
-				if (leaf) {
-					if (!checking) {
-						new SampleModal(this.app).open();
+	// Android gives a PointerEvent, a child to MouseEvent.
+	// Positions are not accurate from PointerEvent.
+	// There's also TouchEvent
+	// The event has target, path, toEvent (null on Android) for finding the link
+	onClick(event: (MouseEvent) & { target: { href: string }, contextMenu: Menu }) {
+		const menu = new Menu(this.app);
+		menu.addItem((item: MenuItem) =>
+			item.setIcon("link")
+				.setTitle("Copy url")
+				.onClick(() => {
+					navigator.clipboard.writeText(event.target.href);
+					new Notice("Url copied to your clipboard");
+				})
+		);
+		menu.register(
+			onElement(
+				document,
+				"keydown",
+				"*",
+				(e: KeyboardEvent) => {
+					if (e.key === "Escape") {
+						e.preventDefault();
+						e.stopPropagation();
+						menu.hide();
 					}
-					return true;
-				}
-				return false;
-			}
-		});
+				},
+				{ capture: true }
+			)
+		);
+		menu.showAtPosition({ x: event.pageX, y: event.pageY });
 
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		this.registerCodeMirror((cm: CodeMirror.Editor) => {
-			console.log('codemirror', cm);
-		});
-
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
-
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-	}
-
-	onunload() {
-		console.log('unloading plugin');
-	}
-
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		let {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		let {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
-
-	constructor(app: App, plugin: MyPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
-
-	display(): void {
-		let {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text
-				.setPlaceholder('Enter your secret')
-				.setValue('')
-				.onChange(async (value) => {
-					console.log('Secret: ' + value);
-					this.plugin.settings.mySetting = value;
-					await this.plugin.saveSettings();
-				}));
+		this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
 	}
 }
