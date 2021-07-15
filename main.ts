@@ -37,6 +37,9 @@ export default class CopyUrlInPreview extends Plugin {
 		if (!(event.target instanceof HTMLAnchorElement)) {
 			return;
 		}
+
+		event.preventDefault();
+
 		let link = event.target.href;
 
 		const menu = new Menu(this.app);
