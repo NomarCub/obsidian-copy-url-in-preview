@@ -3,16 +3,12 @@ import {
 } from "obsidian";
 
 interface Listener {
-	(this: HTMLElement, ev: Event, delegateTarget: HTMLElement): any;
-}
-interface HTMLElement {
-	on(this: HTMLElement, type: string, selector: string, listener: Listener, options?: { capture?: boolean; }): void;
-	off(this: HTMLElement, type: string, selector: string, listener: Listener, options?: { capture?: boolean; }): void;
+	(this: Document, ev: Event): any;
 }
 
 function onElement(
-	el: HTMLElement,
-	event: string,
+	el: Document,
+	event: keyof HTMLElementEventMap,
 	selector: string,
 	listener: Listener,
 	options?: { capture?: boolean; }
@@ -26,10 +22,9 @@ export default class CopyUrlInPreview extends Plugin {
 		this.register(
 			onElement(
 				document,
-				"contextmenu",
-				".external-link",
-				this.onClick.bind(this),
-				{ capture: true }
+				"contextmenu" as keyof HTMLElementEventMap,
+				"a.external-link",
+				this.onClick.bind(this)
 			)
 		);
 	}
@@ -38,20 +33,25 @@ export default class CopyUrlInPreview extends Plugin {
 	// Positions are not accurate from PointerEvent.
 	// There's also TouchEvent
 	// The event has target, path, toEvent (null on Android) for finding the link
-	onClick(event: (MouseEvent) & { target: { href: string }, contextMenu: Menu }) {
+	onClick(event: MouseEvent) {
+		if (!(event.target instanceof HTMLAnchorElement)) {
+			return;
+		}
+		let link = event.target.href;
+
 		const menu = new Menu(this.app);
 		menu.addItem((item: MenuItem) =>
 			item.setIcon("link")
 				.setTitle("Copy url")
 				.onClick(() => {
-					navigator.clipboard.writeText(event.target.href);
+					navigator.clipboard.writeText(link);
 					new Notice("Url copied to your clipboard");
 				})
 		);
 		menu.register(
 			onElement(
 				document,
-				"keydown",
+				"keydown" as keyof HTMLElementEventMap,
 				"*",
 				(e: KeyboardEvent) => {
 					if (e.key === "Escape") {
@@ -59,8 +59,7 @@ export default class CopyUrlInPreview extends Plugin {
 						e.stopPropagation();
 						menu.hide();
 					}
-				},
-				{ capture: true }
+				}
 			)
 		);
 		menu.showAtPosition({ x: event.pageX, y: event.pageY });
