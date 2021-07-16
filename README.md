@@ -1,26 +1,21 @@
-# Copy URL in preview mode
+# Danger. Ugly code ahead 😱
 
-This plugin for [Obsidian](https://obsidian.md/) is a copy URL context menu in preview mode that works like the built in one in edit mode.
+- My fork of https://github.com/NomarCub/obsidian-copy-url-in-preview
+- Adds a right-click → Copy image function
 
-![desktop](https://user-images.githubusercontent.com/5298006/125515738-8fb2143d-6502-46d3-a1b8-57b025211c2f.gif)
+# Installation instructions for testing
 
-The plugin also works on mobile, but was only tested on Android.
+1. Open a Terminal
 
-![android](https://user-images.githubusercontent.com/5298006/125515758-bdf77074-a58c-4a6d-affa-88d031991ab2.gif)
+```shell
+$ git clone --branch copy-images https://github.com/luckman212/obsidian-copy-url-in-preview
+$ cd obsidian-copy-url-in-preview
+$ npm i; npm run build
+```
 
-## Compatibility
+2. Copy the files to your Obsidian plugins dir:
 
-The plugin was tested in Obsidian v0.11.13 and subsequent versions, but probably works with older versions.
+- If you already have **copy-url-in-preview** installed: copy `main.js` to your `<vault>/plugins/copy-url-in-preview/` directory (overwriting the original).
+- If you _don't_: create a new folder in your plugins directory, and put `main.js` and `manifest.json` in it.
 
-## Installation
-
-You can install the plugin via the Community Plugins tab within Obsidian.
-You can also manually copy from releases to your `.obsidian/plugins/copy-url-in-preview` folder.
-
-## Credits
-
-Thank you to the makers of the [Tag Wrangler plugin](https://github.com/pjeby/tag-wrangler), as it was a great starting point for working with context menus in Obsidian.
-
-## Support
-
-If you like this plugin you can support me on PayPal here: [![Paypal](https://img.shields.io/badge/paypal-nomarcub-yellow?style=social&logo=paypal)](https://paypal.me/nomarcub)
+3. (Re)launch Obsidian
