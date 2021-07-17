@@ -3,6 +3,8 @@
 - My fork of https://github.com/NomarCub/obsidian-copy-url-in-preview
 - Adds a right-click → Copy image function
 
+![image](https://user-images.githubusercontent.com/1992842/126041872-da60dbaa-2bdc-4511-9d05-6ec77157ed46.png)
+
 # Installation instructions for testing
 
 1. Open a Terminal
