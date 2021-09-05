@@ -1,32 +1,57 @@
 import { Menu, Plugin, Notice, MenuItem, Platform } from "obsidian";
+const SUCCESS_TIMEOUT: number = 1500;
 
 interface Listener {
   (this: Document, ev: Event): any;
 }
 
+function withTimeout(ms: number, promise: any) {
+  let timeout = new Promise((resolve, reject) => {
+    let id = setTimeout(() => {
+      clearTimeout(id);
+      reject(`timed out after ${ms} ms`)
+    }, ms)
+  })
+  return Promise.race([
+    promise,
+    timeout
+  ])
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
+// option?: https://www.npmjs.com/package/html-to-image
 async function copyImage(imgSrc: string) {
-  return new Promise<void>((resolve, reject) => {
-    let image = new Image();
-    image.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = image.width;
-      canvas.height = image.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(image, 0, 0);
-      canvas.toBlob((blob: any) => {
-        // @ts-ignore
-        const data = new ClipboardItem({ [blob.type]: blob });
-        // @ts-ignore
-        navigator.clipboard.write([data]);
-        resolve();
-      });
-    };
-    image.onerror = () => {
-      reject();
-    }
-    image.crossOrigin = 'anonymous';
-    image.src = imgSrc;
-  });
+  const loadImage = () => {
+    return new Promise<boolean>((resolve, reject) => {
+      let image = new Image();
+      image.crossOrigin = 'anonymous';
+      image.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
+        canvas.toBlob((blob: any) => {
+          // @ts-ignore
+          const data = new ClipboardItem({ [blob.type]: blob });
+          // @ts-ignore
+          navigator.clipboard.write([data])
+          .then(new Notice("Image copied to the clipboard!", SUCCESS_TIMEOUT))
+        })
+        resolve(true);
+      };
+      image.onerror = () => {
+        fetch(image.src, {'mode': 'no-cors'})
+        .then(() => reject(true))
+        .catch(() => {
+          new Notice("Error, could not copy the image!");
+          reject(false);
+        });
+      }
+      image.src = imgSrc;
+    });
+  };
+  return withTimeout(5000, loadImage())
 }
 
 function onElement(
@@ -69,9 +94,9 @@ export default class CopyUrlInPreview extends Plugin {
   onClick(event: MouseEvent) {
     event.preventDefault();
     const target = (event.target as any);
-    const elType: String = target.localName;
+    const imgType: String = target.localName;
     const menu = new Menu(this.app);
-    switch (elType) {
+    switch (imgType) {
       case 'img':
         const image = target.currentSrc;
         const thisURL = new URL(image);
@@ -86,13 +111,18 @@ export default class CopyUrlInPreview extends Plugin {
                 .setTitle("Copy image to clipboard")
                 .onClick(async () => {
                   await copyImage(image)
-                  .then(res => new Notice("Image copied to the clipboard!"))
-                  .catch(err => new Notice("Error, could not copy the image!"))
+                  .catch(async (cors) => {
+                    if (cors == true) {
+                      // console.log('possible CORS violation, falling back to allOrigins proxy');
+                      // https://github.com/gnuns/allOrigins
+                      await copyImage(`https://api.allorigins.win/raw?url=${encodeURIComponent(image)}`)
+                    }
+                  })
                 })
-            );
+              )
             break;
           default:
-            new Notice("no handler for `" + Proto +"` protocol");
+            new Notice(`no handler for ${Proto} protocol`);
             return;
         }
         break;
@@ -103,12 +133,12 @@ export default class CopyUrlInPreview extends Plugin {
             .setTitle("Copy URL")
             .onClick(() => {
               navigator.clipboard.writeText(link);
-              new Notice("URL copied to your clipboard");
+              new Notice("URL copied to your clipboard", SUCCESS_TIMEOUT);
             })
         );
         break;
       default:
-        new Notice("no handler for this element type");
+        new Notice("No handler for this image type!");
         return;
     }
     menu.register(
@@ -126,7 +156,6 @@ export default class CopyUrlInPreview extends Plugin {
       )
     );
     menu.showAtPosition({ x: event.pageX, y: event.pageY });
-
     this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
   }
 }
