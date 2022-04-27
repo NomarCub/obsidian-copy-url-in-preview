@@ -1,5 +1,14 @@
-import { Menu, Plugin, Notice, MenuItem, Platform } from "obsidian";
+import { Menu, Plugin, Notice, MenuItem, Platform, FileSystemAdapter } from "obsidian";
 const SUCCESS_TIMEOUT: number = 1500;
+const IMAGE_URL_PREFIX: string = "/_capacitor_file_";
+
+interface ElectronWindow extends Window {
+  WEBVIEW_SERVER_URL: string
+}
+
+interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
+  open(path: string): Promise<void>
+}
 
 interface Listener {
   (this: Document, ev: Event): any;
@@ -66,6 +75,8 @@ function onElement(
 }
 
 export default class CopyUrlInPreview extends Plugin {
+  longTapTimeoutId: number | null = null;
+
   onload() {
     this.register(
       onElement(
@@ -84,7 +95,58 @@ export default class CopyUrlInPreview extends Plugin {
           this.onClick.bind(this)
         )
       )
+    } else {
+      this.register(
+        onElement(
+          document,
+          "touchstart" as keyof HTMLElementEventMap,
+          "img",
+          this.startWaitingForLongTap.bind(this)
+        )
+      );
+  
+      this.register(
+        onElement(
+          document,
+          "touchend" as keyof HTMLElementEventMap,
+          "img",
+          this.stopWaitingForLongTap.bind(this)
+        )
+      );  
+  
+      this.register(
+        onElement(
+          document,
+          "touchmove" as keyof HTMLElementEventMap,
+          "img",
+          this.stopWaitingForLongTap.bind(this)
+        )
+      );
     }
+  }
+
+  
+  startWaitingForLongTap(event: TouchEvent, img: HTMLImageElement) {
+    this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), 500);
+  }
+
+  stopWaitingForLongTap() {
+    if (this.longTapTimeoutId) {
+      clearTimeout(this.longTapTimeoutId);
+      this.longTapTimeoutId = null;
+    }
+  }
+
+  async processLongTap(event: TouchEvent, img: HTMLImageElement) {
+    event.stopPropagation();
+    this.longTapTimeoutId = null;
+    const adapter = this.app.vault.adapter as FileSystemAdapterWithInternalApi;
+    const electronWindow = window as unknown as ElectronWindow;
+    const basePath = adapter.getFullPath("");
+    const webviewServerUrl = electronWindow.WEBVIEW_SERVER_URL;
+    const encodedImageFileRelativePath = img.src.replace(webviewServerUrl + IMAGE_URL_PREFIX + basePath, "");
+    const imageFileRelativePath = decodeURIComponent(encodedImageFileRelativePath);
+    await adapter.open(imageFileRelativePath);
   }
 
   // Android gives a PointerEvent, a child to MouseEvent.
