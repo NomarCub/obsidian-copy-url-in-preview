@@ -126,7 +126,14 @@ export default class CopyUrlInPreview extends Plugin {
 
   
   startWaitingForLongTap(event: TouchEvent, img: HTMLImageElement) {
-    this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), 500);
+    if (this.longTapTimeoutId) {
+      clearTimeout(this.longTapTimeoutId);
+      this.longTapTimeoutId = null;
+    } else {
+      if (event.targetTouches.length == 1) {
+        this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), 500);
+      }
+    }
   }
 
   stopWaitingForLongTap() {
