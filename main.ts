@@ -143,9 +143,30 @@ export default class CopyUrlInPreview extends Plugin {
     const electronWindow = window as unknown as ElectronWindow;
     const basePath = adapter.getFullPath("");
     const webviewServerUrl = electronWindow.WEBVIEW_SERVER_URL;
-    const encodedImageFileRelativePath = img.src.replace(webviewServerUrl + IMAGE_URL_PREFIX + basePath, "");
-    const imageFileRelativePath = decodeURIComponent(encodedImageFileRelativePath);
-    await adapter.open(imageFileRelativePath);
+    const localImagePrefixUrl = webviewServerUrl + IMAGE_URL_PREFIX + basePath;
+    if (img.src.startsWith(localImagePrefixUrl)) {
+      const encodedImageFileRelativePath = img.src.replace(localImagePrefixUrl, "");
+      const imageFileRelativePath = decodeURIComponent(encodedImageFileRelativePath);
+      await adapter.open(imageFileRelativePath);
+    } else {
+      try {
+        const blob = await loadImageBlob(img.src);
+        if (!blob.type.startsWith("image/")) {
+          new Notice(`Unsupported mime type ${blob.type}`);
+          return;
+        }
+        const extension = blob.type.replace("image/", "");
+        const randomGuid = window.URL.createObjectURL(new Blob([])).split("/").pop();
+        const tempFileName = `/.temp-${randomGuid}.${extension}`;
+        const buffer = await blob.arrayBuffer();
+        await adapter.writeBinary(tempFileName, buffer);
+        setTimeout(() => adapter.remove(tempFileName), 60000);
+        new Notice("Image was temporarily saved and will be removed in 1 minute");
+        await adapter.open(tempFileName);
+      } catch {
+        new Notice("Cannot open image");
+      }
+    }
   }
 
   // Android gives a PointerEvent, a child to MouseEvent.
