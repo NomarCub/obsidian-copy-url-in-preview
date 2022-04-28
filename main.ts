@@ -14,9 +14,9 @@ interface Listener {
   (this: Document, ev: Event): any;
 }
 
-function withTimeout(ms: number, promise: any) {
-  let timeout = new Promise((resolve, reject) => {
-    let id = setTimeout(() => {
+function withTimeout<T>(ms: number, promise: Promise<T>) : Promise<T> {
+  const timeout = new Promise((resolve, reject) => {
+    const id = setTimeout(() => {
       clearTimeout(id);
       reject(`timed out after ${ms} ms`)
     }, ms)
@@ -24,15 +24,15 @@ function withTimeout(ms: number, promise: any) {
   return Promise.race([
     promise,
     timeout
-  ])
+  ]) as Promise<T>
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
-async function copyImage(imgSrc: string) {
-  const loadImage = () => {
-    return new Promise<boolean>((resolve, reject) => {
-      let image = new Image();
+async function loadImageBlob(imgSrc: string): Promise<Blob> {
+  const loadImageBlobCore = () => {
+    return new Promise<Blob>((resolve, reject) => {
+      const image = new Image();
       image.crossOrigin = 'anonymous';
       image.onload = () => {
         const canvas = document.createElement('canvas');
@@ -40,27 +40,26 @@ async function copyImage(imgSrc: string) {
         canvas.height = image.height;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(image, 0, 0);
-        canvas.toBlob((blob: any) => {
-          // @ts-ignore
-          const data = new ClipboardItem({ [blob.type]: blob });
-          // @ts-ignore
-          navigator.clipboard.write([data])
-          .then(() => new Notice("Image copied to the clipboard!", SUCCESS_TIMEOUT))
-        })
-        resolve(true);
-      };
-      image.onerror = () => {
-        fetch(image.src, {'mode': 'no-cors'})
-        .then(() => reject(true))
-        .catch(() => {
-          new Notice("Error, could not copy the image!");
-          reject(false);
+        canvas.toBlob((blob: Blob) => {
+          resolve(blob);
         });
+      };
+      image.onerror = async () => {
+        try {
+          await fetch(image.src, {'mode': 'no-cors'});
+
+          // console.log('possible CORS violation, falling back to allOrigins proxy');
+          // https://github.com/gnuns/allOrigins
+          const blob = await loadImageBlob(`https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`);
+          resolve(blob);
+        } catch {
+          reject();
+        }
       }
       image.src = imgSrc;
     });
   };
-  return withTimeout(5000, loadImage())
+  return withTimeout(5000, loadImageBlobCore())
 }
 
 function onElement(
@@ -172,14 +171,14 @@ export default class CopyUrlInPreview extends Plugin {
               item.setIcon("image-file")
                 .setTitle("Copy image to clipboard")
                 .onClick(async () => {
-                  await copyImage(image)
-                  .catch(async (cors) => {
-                    if (cors == true) {
-                      // console.log('possible CORS violation, falling back to allOrigins proxy');
-                      // https://github.com/gnuns/allOrigins
-                      await copyImage(`https://api.allorigins.win/raw?url=${encodeURIComponent(image)}`)
-                    }
-                  })
+                  try{
+                    const blob = await loadImageBlob(image);
+                    const data = new ClipboardItem({ [blob.type]: blob });
+                    await navigator.clipboard.write([data]);
+                    new Notice("Image copied to the clipboard!", SUCCESS_TIMEOUT);
+                  } catch {
+                    new Notice("Error, could not copy the image!");
+                  }
                 })
               )
             break;
