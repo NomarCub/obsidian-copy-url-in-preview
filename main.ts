@@ -36,7 +36,7 @@ async function copyImage(imgSrc: string) {
           const data = new ClipboardItem({ [blob.type]: blob });
           // @ts-ignore
           navigator.clipboard.write([data])
-          .then(new Notice("Image copied to the clipboard!", SUCCESS_TIMEOUT))
+          .then(() => new Notice("Image copied to the clipboard!", SUCCESS_TIMEOUT))
         })
         resolve(true);
       };
