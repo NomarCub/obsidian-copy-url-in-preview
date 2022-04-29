@@ -1,6 +1,9 @@
 import { Menu, Plugin, Notice, MenuItem, Platform, FileSystemAdapter } from "obsidian";
-const SUCCESS_TIMEOUT: number = 1500;
-const IMAGE_URL_PREFIX: string = "/_capacitor_file_";
+const IMAGE_URL_PREFIX = "/_capacitor_file_";
+const SUCCESS_TIMEOUT = 1800;
+const loadImageBlobTimeout = 5000;
+const longTapTimeout = 500;
+const deleteTempFileTimeout = 60000;
 
 interface ElectronWindow extends Window {
   WEBVIEW_SERVER_URL: string
@@ -59,7 +62,7 @@ async function loadImageBlob(imgSrc: string): Promise<Blob> {
       image.src = imgSrc;
     });
   };
-  return withTimeout(5000, loadImageBlobCore())
+  return withTimeout(loadImageBlobTimeout, loadImageBlobCore())
 }
 
 function onElement(
@@ -131,7 +134,7 @@ export default class CopyUrlInPreview extends Plugin {
       this.longTapTimeoutId = null;
     } else {
       if (event.targetTouches.length == 1) {
-        this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), 500);
+        this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), longTapTimeout);
       }
     }
   }
@@ -167,7 +170,7 @@ export default class CopyUrlInPreview extends Plugin {
         const tempFileName = `/.temp-${randomGuid}.${extension}`;
         const buffer = await blob.arrayBuffer();
         await adapter.writeBinary(tempFileName, buffer);
-        setTimeout(() => adapter.remove(tempFileName), 60000);
+        setTimeout(() => adapter.remove(tempFileName), deleteTempFileTimeout);
         new Notice("Image was temporarily saved and will be removed in 1 minute");
         await adapter.open(tempFileName);
       } catch {

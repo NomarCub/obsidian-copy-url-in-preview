@@ -6,7 +6,7 @@ This makes copying URLs in prewiew like it is in edit mode by deafult. For copyi
 
 Copying images:
 
-https://user-images.githubusercontent.com/1992842/132140547-fead74c1-4bec-489a-945c-f28cbba43493.mp4
+[copy-images-vid](https://user-images.githubusercontent.com/1992842/132140547-fead74c1-4bec-489a-945c-f28cbba43493.mp4)
 
 Copying URLs:
 
@@ -30,7 +30,8 @@ You can also manually copy from releases to your `.obsidian/plugins/copy-url-in-
 
 Thank you to the makers of the [Tag Wrangler plugin](https://github.com/pjeby/tag-wrangler), as it was a great starting point for working with context menus in Obsidian.
 
-Copying images developed by [luckman212](https://github.com/luckman212).
+Copying images developed by [luckman212](https://github.com/luckman212).  
+Android image sharing developed by[mnaoumov](https://github.com/mnaoumov).
 
 Original plugin by [NomarCub](https://github.com/luckman212)
 
