@@ -14,7 +14,7 @@ interface Listener {
   (this: Document, ev: Event): any;
 }
 
-function withTimeout<T>(ms: number, promise: Promise<T>) : Promise<T> {
+function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
   const timeout = new Promise((resolve, reject) => {
     const id = setTimeout(() => {
       clearTimeout(id);
@@ -46,7 +46,7 @@ async function loadImageBlob(imgSrc: string): Promise<Blob> {
       };
       image.onerror = async () => {
         try {
-          await fetch(image.src, {'mode': 'no-cors'});
+          await fetch(image.src, { 'mode': 'no-cors' });
 
           // console.log('possible CORS violation, falling back to allOrigins proxy');
           // https://github.com/gnuns/allOrigins
@@ -103,7 +103,7 @@ export default class CopyUrlInPreview extends Plugin {
           this.startWaitingForLongTap.bind(this)
         )
       );
-  
+
       this.register(
         onElement(
           document,
@@ -111,8 +111,8 @@ export default class CopyUrlInPreview extends Plugin {
           "img",
           this.stopWaitingForLongTap.bind(this)
         )
-      );  
-  
+      );
+
       this.register(
         onElement(
           document,
@@ -124,7 +124,7 @@ export default class CopyUrlInPreview extends Plugin {
     }
   }
 
-  
+
   startWaitingForLongTap(event: TouchEvent, img: HTMLImageElement) {
     if (this.longTapTimeoutId) {
       clearTimeout(this.longTapTimeoutId);
@@ -183,13 +183,13 @@ export default class CopyUrlInPreview extends Plugin {
   onClick(event: MouseEvent) {
     event.preventDefault();
     const target = (event.target as any);
-    const imgType: String = target.localName;
+    const imgType: string = target.localName;
     const menu = new Menu(this.app);
     switch (imgType) {
-      case 'img':
+      case 'img': {
         const image = target.currentSrc;
         const thisURL = new URL(image);
-        const Proto: String = thisURL.protocol;
+        const Proto: string = thisURL.protocol;
         switch (Proto) {
           case 'app:':
           case 'data:':
@@ -199,7 +199,7 @@ export default class CopyUrlInPreview extends Plugin {
               item.setIcon("image-file")
                 .setTitle("Copy image to clipboard")
                 .onClick(async () => {
-                  try{
+                  try {
                     const blob = await loadImageBlob(image);
                     const data = new ClipboardItem({ [blob.type]: blob });
                     await navigator.clipboard.write([data]);
@@ -208,15 +208,16 @@ export default class CopyUrlInPreview extends Plugin {
                     new Notice("Error, could not copy the image!");
                   }
                 })
-              )
+            )
             break;
           default:
             new Notice(`no handler for ${Proto} protocol`);
             return;
         }
         break;
-      case 'a':
-        let link = target.href;
+      }
+      case 'a': {
+        const link = target.href;
         menu.addItem((item: MenuItem) =>
           item.setIcon("link")
             .setTitle("Copy URL")
@@ -226,6 +227,7 @@ export default class CopyUrlInPreview extends Plugin {
             })
         );
         break;
+      }
       default:
         new Notice("No handler for this image type!");
         return;
