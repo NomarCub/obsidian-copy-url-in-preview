@@ -14,6 +14,7 @@ interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
 }
 
 interface Listener {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (this: Document, ev: Event): any;
 }
 
@@ -127,7 +128,7 @@ export default class CopyUrlInPreview extends Plugin {
     }
   }
 
-
+  // mobile
   startWaitingForLongTap(event: TouchEvent, img: HTMLImageElement) {
     if (this.longTapTimeoutId) {
       clearTimeout(this.longTapTimeoutId);
@@ -139,6 +140,7 @@ export default class CopyUrlInPreview extends Plugin {
     }
   }
 
+  // mobile
   stopWaitingForLongTap() {
     if (this.longTapTimeoutId) {
       clearTimeout(this.longTapTimeoutId);
@@ -146,6 +148,7 @@ export default class CopyUrlInPreview extends Plugin {
     }
   }
 
+  // mobile
   async processLongTap(event: TouchEvent, img: HTMLImageElement) {
     event.stopPropagation();
     this.longTapTimeoutId = null;
@@ -185,12 +188,12 @@ export default class CopyUrlInPreview extends Plugin {
   // The event has target, path, toEvent (null on Android) for finding the link
   onClick(event: MouseEvent) {
     event.preventDefault();
-    const target = (event.target as any);
+    const target = (event.target as Element);
     const imgType: string = target.localName;
     const menu = new Menu(this.app);
     switch (imgType) {
       case 'img': {
-        const image = target.currentSrc;
+        const image = (target as HTMLImageElement).currentSrc;
         const thisURL = new URL(image);
         const Proto: string = thisURL.protocol;
         switch (Proto) {
@@ -220,7 +223,7 @@ export default class CopyUrlInPreview extends Plugin {
         break;
       }
       case 'a': {
-        const link = target.href;
+        const link = (target as HTMLAnchorElement).href;
         menu.addItem((item: MenuItem) =>
           item.setIcon("link")
             .setTitle("Copy URL")
