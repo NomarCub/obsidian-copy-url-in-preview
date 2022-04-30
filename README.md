@@ -30,8 +30,8 @@ You can also manually copy from releases to your `.obsidian/plugins/copy-url-in-
 
 Thank you to the makers of the [Tag Wrangler plugin](https://github.com/pjeby/tag-wrangler), as it was a great starting point for working with context menus in Obsidian.
 
-Copying images developed by [luckman212](https://github.com/luckman212).  
-Android image sharing developed by[mnaoumov](https://github.com/mnaoumov).
+[Copying](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/2) [images](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/3) developed by [luckman212](https://github.com/luckman212).  
+[Android image sharing](https://github.com/NomarCub/obsidian-copy-url-in-preview/issues/5) developed by [mnaoumov](https://github.com/mnaoumov).
 
 Original plugin by [NomarCub](https://github.com/luckman212)
 

@@ -189,13 +189,13 @@ export default class CopyUrlInPreview extends Plugin {
   onClick(event: MouseEvent) {
     event.preventDefault();
     const target = (event.target as Element);
-    const imgType: string = target.localName;
+    const imgType = target.localName;
     const menu = new Menu(this.app);
     switch (imgType) {
       case 'img': {
         const image = (target as HTMLImageElement).currentSrc;
         const thisURL = new URL(image);
-        const Proto: string = thisURL.protocol;
+        const Proto = thisURL.protocol;
         switch (Proto) {
           case 'app:':
           case 'data:':
