@@ -1,81 +1,10 @@
-import { Menu, Plugin, Notice, MenuItem, Platform, FileSystemAdapter } from "obsidian";
+import { Menu, Plugin, Notice, MenuItem, Platform } from "obsidian";
+import { ElectronWindow, FileSystemAdapterWithInternalApi, loadImageBlob, onElement } from "./helpers"
+
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
 const SUCCESS_TIMEOUT = 1800;
-const loadImageBlobTimeout = 5000;
 const longTapTimeout = 500;
 const deleteTempFileTimeout = 60000;
-
-interface ElectronWindow extends Window {
-  WEBVIEW_SERVER_URL: string
-}
-
-interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
-  open(path: string): Promise<void>
-}
-
-interface Listener {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (this: Document, ev: Event): any;
-}
-
-function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
-  const timeout = new Promise((resolve, reject) => {
-    const id = setTimeout(() => {
-      clearTimeout(id);
-      reject(`timed out after ${ms} ms`)
-    }, ms)
-  })
-  return Promise.race([
-    promise,
-    timeout
-  ]) as Promise<T>
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
-// option?: https://www.npmjs.com/package/html-to-image
-async function loadImageBlob(imgSrc: string): Promise<Blob> {
-  const loadImageBlobCore = () => {
-    return new Promise<Blob>((resolve, reject) => {
-      const image = new Image();
-      image.crossOrigin = "anonymous";
-      image.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = image.width;
-        canvas.height = image.height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(image, 0, 0);
-        canvas.toBlob((blob: Blob) => {
-          resolve(blob);
-        });
-      };
-      image.onerror = async () => {
-        try {
-          await fetch(image.src, { "mode": "no-cors" });
-
-          // console.log("possible CORS violation, falling back to allOrigins proxy");
-          // https://github.com/gnuns/allOrigins
-          const blob = await loadImageBlob(`https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`);
-          resolve(blob);
-        } catch {
-          reject();
-        }
-      }
-      image.src = imgSrc;
-    });
-  };
-  return withTimeout(loadImageBlobTimeout, loadImageBlobCore())
-}
-
-function onElement(
-  el: Document,
-  event: keyof HTMLElementEventMap,
-  selector: string,
-  listener: Listener,
-  options?: { capture?: boolean; }
-) {
-  el.on(event, selector, listener, options);
-  return () => el.off(event, selector, listener, options);
-}
 
 export default class CopyUrlInPreview extends Plugin {
   longTapTimeoutId: number | null = null;
