@@ -1,77 +1,10 @@
-import { Menu, Plugin, Notice, MenuItem, Platform, FileSystemAdapter } from "obsidian";
-const SUCCESS_TIMEOUT: number = 1500;
-const IMAGE_URL_PREFIX: string = "/_capacitor_file_";
+import { Menu, Plugin, Notice, MenuItem, Platform } from "obsidian";
+import { ElectronWindow, FileSystemAdapterWithInternalApi, loadImageBlob, onElement } from "./helpers"
 
-interface ElectronWindow extends Window {
-  WEBVIEW_SERVER_URL: string
-}
-
-interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
-  open(path: string): Promise<void>
-}
-
-interface Listener {
-  (this: Document, ev: Event): any;
-}
-
-function withTimeout<T>(ms: number, promise: Promise<T>) : Promise<T> {
-  const timeout = new Promise((resolve, reject) => {
-    const id = setTimeout(() => {
-      clearTimeout(id);
-      reject(`timed out after ${ms} ms`)
-    }, ms)
-  })
-  return Promise.race([
-    promise,
-    timeout
-  ]) as Promise<T>
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
-// option?: https://www.npmjs.com/package/html-to-image
-async function loadImageBlob(imgSrc: string): Promise<Blob> {
-  const loadImageBlobCore = () => {
-    return new Promise<Blob>((resolve, reject) => {
-      const image = new Image();
-      image.crossOrigin = 'anonymous';
-      image.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = image.width;
-        canvas.height = image.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(image, 0, 0);
-        canvas.toBlob((blob: Blob) => {
-          resolve(blob);
-        });
-      };
-      image.onerror = async () => {
-        try {
-          await fetch(image.src, {'mode': 'no-cors'});
-
-          // console.log('possible CORS violation, falling back to allOrigins proxy');
-          // https://github.com/gnuns/allOrigins
-          const blob = await loadImageBlob(`https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`);
-          resolve(blob);
-        } catch {
-          reject();
-        }
-      }
-      image.src = imgSrc;
-    });
-  };
-  return withTimeout(5000, loadImageBlobCore())
-}
-
-function onElement(
-  el: Document,
-  event: keyof HTMLElementEventMap,
-  selector: string,
-  listener: Listener,
-  options?: { capture?: boolean; }
-) {
-  el.on(event, selector, listener, options);
-  return () => el.off(event, selector, listener, options);
-}
+const IMAGE_URL_PREFIX = "/_capacitor_file_";
+const SUCCESS_NOTICE_TIMEOUT = 1800;
+const longTapTimeout = 500;
+const deleteTempFileTimeout = 60000;
 
 export default class CopyUrlInPreview extends Plugin {
   longTapTimeoutId: number | null = null;
@@ -103,7 +36,7 @@ export default class CopyUrlInPreview extends Plugin {
           this.startWaitingForLongTap.bind(this)
         )
       );
-  
+
       this.register(
         onElement(
           document,
@@ -111,8 +44,8 @@ export default class CopyUrlInPreview extends Plugin {
           "img",
           this.stopWaitingForLongTap.bind(this)
         )
-      );  
-  
+      );
+
       this.register(
         onElement(
           document,
@@ -124,18 +57,19 @@ export default class CopyUrlInPreview extends Plugin {
     }
   }
 
-  
+  // mobile
   startWaitingForLongTap(event: TouchEvent, img: HTMLImageElement) {
     if (this.longTapTimeoutId) {
       clearTimeout(this.longTapTimeoutId);
       this.longTapTimeoutId = null;
     } else {
       if (event.targetTouches.length == 1) {
-        this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), 500);
+        this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), longTapTimeout);
       }
     }
   }
 
+  // mobile
   stopWaitingForLongTap() {
     if (this.longTapTimeoutId) {
       clearTimeout(this.longTapTimeoutId);
@@ -143,6 +77,7 @@ export default class CopyUrlInPreview extends Plugin {
     }
   }
 
+  // mobile
   async processLongTap(event: TouchEvent, img: HTMLImageElement) {
     event.stopPropagation();
     this.longTapTimeoutId = null;
@@ -167,7 +102,7 @@ export default class CopyUrlInPreview extends Plugin {
         const tempFileName = `/.temp-${randomGuid}.${extension}`;
         const buffer = await blob.arrayBuffer();
         await adapter.writeBinary(tempFileName, buffer);
-        setTimeout(() => adapter.remove(tempFileName), 60000);
+        setTimeout(() => adapter.remove(tempFileName), deleteTempFileTimeout);
         new Notice("Image was temporarily saved and will be removed in 1 minute");
         await adapter.open(tempFileName);
       } catch {
@@ -182,50 +117,52 @@ export default class CopyUrlInPreview extends Plugin {
   // The event has target, path, toEvent (null on Android) for finding the link
   onClick(event: MouseEvent) {
     event.preventDefault();
-    const target = (event.target as any);
-    const imgType: String = target.localName;
+    const target = (event.target as Element);
+    const imgType = target.localName;
     const menu = new Menu(this.app);
     switch (imgType) {
-      case 'img':
-        const image = target.currentSrc;
+      case "img": {
+        const image = (target as HTMLImageElement).currentSrc;
         const thisURL = new URL(image);
-        const Proto: String = thisURL.protocol;
+        const Proto = thisURL.protocol;
         switch (Proto) {
-          case 'app:':
-          case 'data:':
-          case 'http:':
-          case 'https:':
+          case "app:":
+          case "data:":
+          case "http:":
+          case "https:":
             menu.addItem((item: MenuItem) =>
               item.setIcon("image-file")
                 .setTitle("Copy image to clipboard")
                 .onClick(async () => {
-                  try{
+                  try {
                     const blob = await loadImageBlob(image);
                     const data = new ClipboardItem({ [blob.type]: blob });
                     await navigator.clipboard.write([data]);
-                    new Notice("Image copied to the clipboard!", SUCCESS_TIMEOUT);
+                    new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
                   } catch {
                     new Notice("Error, could not copy the image!");
                   }
                 })
-              )
+            )
             break;
           default:
             new Notice(`no handler for ${Proto} protocol`);
             return;
         }
         break;
-      case 'a':
-        let link = target.href;
+      }
+      case "a": {
+        const link = (target as HTMLAnchorElement).href;
         menu.addItem((item: MenuItem) =>
           item.setIcon("link")
             .setTitle("Copy URL")
             .onClick(() => {
               navigator.clipboard.writeText(link);
-              new Notice("URL copied to your clipboard", SUCCESS_TIMEOUT);
+              new Notice("URL copied to your clipboard", SUCCESS_NOTICE_TIMEOUT);
             })
         );
         break;
+      }
       default:
         new Notice("No handler for this image type!");
         return;
