@@ -37,12 +37,12 @@ async function loadImageBlob(imgSrc: string): Promise<Blob> {
   const loadImageBlobCore = () => {
     return new Promise<Blob>((resolve, reject) => {
       const image = new Image();
-      image.crossOrigin = 'anonymous';
+      image.crossOrigin = "anonymous";
       image.onload = () => {
-        const canvas = document.createElement('canvas');
+        const canvas = document.createElement("canvas");
         canvas.width = image.width;
         canvas.height = image.height;
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext("2d");
         ctx.drawImage(image, 0, 0);
         canvas.toBlob((blob: Blob) => {
           resolve(blob);
@@ -50,9 +50,9 @@ async function loadImageBlob(imgSrc: string): Promise<Blob> {
       };
       image.onerror = async () => {
         try {
-          await fetch(image.src, { 'mode': 'no-cors' });
+          await fetch(image.src, { "mode": "no-cors" });
 
-          // console.log('possible CORS violation, falling back to allOrigins proxy');
+          // console.log("possible CORS violation, falling back to allOrigins proxy");
           // https://github.com/gnuns/allOrigins
           const blob = await loadImageBlob(`https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`);
           resolve(blob);
@@ -192,15 +192,15 @@ export default class CopyUrlInPreview extends Plugin {
     const imgType = target.localName;
     const menu = new Menu(this.app);
     switch (imgType) {
-      case 'img': {
+      case "img": {
         const image = (target as HTMLImageElement).currentSrc;
         const thisURL = new URL(image);
         const Proto = thisURL.protocol;
         switch (Proto) {
-          case 'app:':
-          case 'data:':
-          case 'http:':
-          case 'https:':
+          case "app:":
+          case "data:":
+          case "http:":
+          case "https:":
             menu.addItem((item: MenuItem) =>
               item.setIcon("image-file")
                 .setTitle("Copy image to clipboard")
@@ -222,7 +222,7 @@ export default class CopyUrlInPreview extends Plugin {
         }
         break;
       }
-      case 'a': {
+      case "a": {
         const link = (target as HTMLAnchorElement).href;
         menu.addItem((item: MenuItem) =>
           item.setIcon("link")
