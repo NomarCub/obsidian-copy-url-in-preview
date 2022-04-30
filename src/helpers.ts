@@ -1,4 +1,5 @@
 import { FileSystemAdapter } from "obsidian";
+
 const loadImageBlobTimeout = 5000;
 
 export interface ElectronWindow extends Window {

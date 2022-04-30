@@ -2,7 +2,7 @@ import { Menu, Plugin, Notice, MenuItem, Platform } from "obsidian";
 import { ElectronWindow, FileSystemAdapterWithInternalApi, loadImageBlob, onElement } from "./helpers"
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
-const SUCCESS_TIMEOUT = 1800;
+const SUCCESS_NOTICE_TIMEOUT = 1800;
 const longTapTimeout = 500;
 const deleteTempFileTimeout = 60000;
 
@@ -138,7 +138,7 @@ export default class CopyUrlInPreview extends Plugin {
                     const blob = await loadImageBlob(image);
                     const data = new ClipboardItem({ [blob.type]: blob });
                     await navigator.clipboard.write([data]);
-                    new Notice("Image copied to the clipboard!", SUCCESS_TIMEOUT);
+                    new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
                   } catch {
                     new Notice("Error, could not copy the image!");
                   }
@@ -158,7 +158,7 @@ export default class CopyUrlInPreview extends Plugin {
             .setTitle("Copy URL")
             .onClick(() => {
               navigator.clipboard.writeText(link);
-              new Notice("URL copied to your clipboard", SUCCESS_TIMEOUT);
+              new Notice("URL copied to your clipboard", SUCCESS_NOTICE_TIMEOUT);
             })
         );
         break;

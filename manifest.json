@@ -1,7 +1,7 @@
 {
 	"id": "copy-url-in-preview",
 	"name": "Copy Image and URL in Preview",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"minAppVersion": "0.11.13",
 	"description": "Copy Image and Copy URL context menu in preview mode",
 	"author": "NomarCub",
