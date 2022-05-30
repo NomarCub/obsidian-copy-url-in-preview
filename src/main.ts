@@ -5,6 +5,8 @@ const IMAGE_URL_PREFIX = "/_capacitor_file_";
 const SUCCESS_NOTICE_TIMEOUT = 1800;
 const longTapTimeout = 500;
 const deleteTempFileTimeout = 60000;
+const OPEN_PDF_MENU_BORDER_SIZE = 100;
+const OPEN_PDF_MENU_TIMEOUT = 5000;
 
 export default class CopyUrlInPreview extends Plugin {
   longTapTimeoutId: number | null = null;
@@ -24,7 +26,7 @@ export default class CopyUrlInPreview extends Plugin {
       onElement(
         document,
         "mouseover" as keyof HTMLElementEventMap,
-        "div.pdf-embed iframe, div.pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf] iframe",
+        ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf] iframe",
         this.showOpenPdfMenu.bind(this)
       )
     )
@@ -82,8 +84,19 @@ export default class CopyUrlInPreview extends Plugin {
       return;
     }
 
+    const rect = el.getBoundingClientRect();
+    console.log(rect);
+    console.log(event);
+    if (rect.left + OPEN_PDF_MENU_BORDER_SIZE < event.x
+       && event.x < rect.right - OPEN_PDF_MENU_BORDER_SIZE
+       && rect.top + OPEN_PDF_MENU_BORDER_SIZE < event.y
+      && event.y < rect.bottom - OPEN_PDF_MENU_BORDER_SIZE) {
+      return;
+    }
+
     const menu = new Menu(this.app);
     this.registerEscapeButton(menu);
+    menu.onHide(() => this.openPdfMenu = null);
     menu.addItem((item: MenuItem) =>
           item.setIcon("pdf-file")
             .setTitle("Open PDF")
@@ -108,7 +121,7 @@ export default class CopyUrlInPreview extends Plugin {
     menu.showAtMouseEvent(event);
     this.openPdfMenu = menu;
 
-    setTimeout(this.hideOpenPdfMenu.bind(this), 5000);
+    setTimeout(this.hideOpenPdfMenu.bind(this), OPEN_PDF_MENU_TIMEOUT);
   }
 
   registerEscapeButton(menu: Menu) {
@@ -131,7 +144,6 @@ export default class CopyUrlInPreview extends Plugin {
   hideOpenPdfMenu() {
     if (this.openPdfMenu) {
       this.openPdfMenu.hide();
-      this.openPdfMenu = null;
     }
   }
 
