@@ -1,4 +1,4 @@
-import { FileSystemAdapter } from "obsidian";
+import { App, FileSystemAdapter } from "obsidian";
 
 const loadImageBlobTimeout = 5000;
 
@@ -8,6 +8,10 @@ export interface ElectronWindow extends Window {
 
 export interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
     open(path: string): Promise<void>
+}
+
+export interface AppWithDesktopInternalApi extends App {
+    openWithDefaultApp(path: string): Promise<void>
 }
 
 export interface Listener {

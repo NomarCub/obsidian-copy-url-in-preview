@@ -1,5 +1,5 @@
-import { Menu, Plugin, Notice, MenuItem, Platform } from "obsidian";
-import { ElectronWindow, FileSystemAdapterWithInternalApi, loadImageBlob, onElement } from "./helpers"
+import { Menu, Plugin, Notice, MenuItem, Platform, TFile } from "obsidian";
+import { ElectronWindow, FileSystemAdapterWithInternalApi, loadImageBlob, onElement, AppWithDesktopInternalApi } from "./helpers"
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
 const SUCCESS_NOTICE_TIMEOUT = 1800;
@@ -8,6 +8,7 @@ const deleteTempFileTimeout = 60000;
 
 export default class CopyUrlInPreview extends Plugin {
   longTapTimeoutId: number | null = null;
+  openPdfMenu: Menu;
 
   onload() {
     this.register(
@@ -18,6 +19,25 @@ export default class CopyUrlInPreview extends Plugin {
         this.onClick.bind(this)
       )
     )
+
+    this.register(
+      onElement(
+        document,
+        "mouseover" as keyof HTMLElementEventMap,
+        "div.pdf-embed iframe, div.pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf] iframe",
+        this.showOpenPdfMenu.bind(this)
+      )
+    )
+
+    this.register(
+      onElement(
+        document,
+        "mousemove" as keyof HTMLElementEventMap,
+        ".pdf-canvas",
+        this.showOpenPdfMenu.bind(this)
+      )
+    )
+
     if (Platform.isDesktop) {
       this.register(
         onElement(
@@ -54,6 +74,64 @@ export default class CopyUrlInPreview extends Plugin {
           this.stopWaitingForLongTap.bind(this)
         )
       );
+    }
+  }
+
+  showOpenPdfMenu(event: MouseEvent | PointerEvent, el: HTMLElement) {
+    if (this.openPdfMenu) {
+      return;
+    }
+
+    const menu = new Menu(this.app);
+    this.registerEscapeButton(menu);
+    menu.addItem((item: MenuItem) =>
+          item.setIcon("pdf-file")
+            .setTitle("Open PDF")
+            .onClick(async () => {
+              this.hideOpenPdfMenu();
+              const pdfEmbed = el.closest(".pdf-embed");
+              let pdfFile: TFile;
+              if (pdfEmbed) {
+                const pdfLink = pdfEmbed.getAttr("src");
+                const currentNotePath = this.app.workspace.getActiveFile().path;
+                pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink, currentNotePath);
+              } else {
+                pdfFile = this.app.workspace.getActiveFile();
+              } 
+              if (Platform.isDesktop) {
+                await (this.app as AppWithDesktopInternalApi).openWithDefaultApp(pdfFile.path);
+              } else {
+                await (this.app.vault.adapter as FileSystemAdapterWithInternalApi).open(pdfFile.path);
+              }
+            })
+        );
+    menu.showAtMouseEvent(event);
+    this.openPdfMenu = menu;
+
+    setTimeout(this.hideOpenPdfMenu.bind(this), 5000);
+  }
+
+  registerEscapeButton(menu: Menu) {
+    menu.register(
+      onElement(
+        document,
+        "keydown" as keyof HTMLElementEventMap,
+        "*",
+        (e: KeyboardEvent) => {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            e.stopPropagation();
+            menu.hide();
+          }
+        }
+      )
+    );
+  }
+
+  hideOpenPdfMenu() {
+    if (this.openPdfMenu) {
+      this.openPdfMenu.hide();
+      this.openPdfMenu = null;
     }
   }
 
@@ -167,20 +245,7 @@ export default class CopyUrlInPreview extends Plugin {
         new Notice("No handler for this image type!");
         return;
     }
-    menu.register(
-      onElement(
-        document,
-        "keydown" as keyof HTMLElementEventMap,
-        "*",
-        (e: KeyboardEvent) => {
-          if (e.key === "Escape") {
-            e.preventDefault();
-            e.stopPropagation();
-            menu.hide();
-          }
-        }
-      )
-    );
+    this.registerEscapeButton(menu);
     menu.showAtPosition({ x: event.pageX, y: event.pageY });
     this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
   }
