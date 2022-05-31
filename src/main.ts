@@ -88,8 +88,8 @@ export default class CopyUrlInPreview extends Plugin {
     console.log(rect);
     console.log(event);
     if (rect.left + OPEN_PDF_MENU_BORDER_SIZE < event.x
-       && event.x < rect.right - OPEN_PDF_MENU_BORDER_SIZE
-       && rect.top + OPEN_PDF_MENU_BORDER_SIZE < event.y
+      && event.x < rect.right - OPEN_PDF_MENU_BORDER_SIZE
+      && rect.top + OPEN_PDF_MENU_BORDER_SIZE < event.y
       && event.y < rect.bottom - OPEN_PDF_MENU_BORDER_SIZE) {
       return;
     }
@@ -98,26 +98,26 @@ export default class CopyUrlInPreview extends Plugin {
     this.registerEscapeButton(menu);
     menu.onHide(() => this.openPdfMenu = null);
     menu.addItem((item: MenuItem) =>
-          item.setIcon("pdf-file")
-            .setTitle("Open PDF")
-            .onClick(async () => {
-              this.hideOpenPdfMenu();
-              const pdfEmbed = el.closest(".pdf-embed");
-              let pdfFile: TFile;
-              if (pdfEmbed) {
-                const pdfLink = pdfEmbed.getAttr("src");
-                const currentNotePath = this.app.workspace.getActiveFile().path;
-                pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink, currentNotePath);
-              } else {
-                pdfFile = this.app.workspace.getActiveFile();
-              } 
-              if (Platform.isDesktop) {
-                await (this.app as AppWithDesktopInternalApi).openWithDefaultApp(pdfFile.path);
-              } else {
-                await (this.app.vault.adapter as FileSystemAdapterWithInternalApi).open(pdfFile.path);
-              }
-            })
-        );
+      item.setIcon("pdf-file")
+        .setTitle("Open PDF externally")
+        .onClick(async () => {
+          this.hideOpenPdfMenu();
+          const pdfEmbed = el.closest(".pdf-embed");
+          let pdfFile: TFile;
+          if (pdfEmbed) {
+            const pdfLink = pdfEmbed.getAttr("src");
+            const currentNotePath = this.app.workspace.getActiveFile().path;
+            pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink, currentNotePath);
+          } else {
+            pdfFile = this.app.workspace.getActiveFile();
+          }
+          if (Platform.isDesktop) {
+            await (this.app as AppWithDesktopInternalApi).openWithDefaultApp(pdfFile.path);
+          } else {
+            await (this.app.vault.adapter as FileSystemAdapterWithInternalApi).open(pdfFile.path);
+          }
+        })
+    );
     menu.showAtMouseEvent(event);
     this.openPdfMenu = menu;
 
