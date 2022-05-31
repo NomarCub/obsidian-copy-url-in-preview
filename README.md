@@ -1,20 +1,24 @@
 # Copy Image and URL in Preview
 
-This plugin creates a Copy Image and Copy URL context menu in preview mode in [Obsidian](https://obsidian.md/).
+This plugin creates a Copy Image, Copy URL and Open PDF externally context menu in preview mode in [Obsidian](https://obsidian.md/).
 
 This makes copying URLs in prewiew like it is in edit mode by deafult. For copying images in edit mode check out [Ozan's Image in Editor Plugin](https://github.com/ozntel/oz-image-in-editor-obsidian)
 
 Copying images:
 
-[copy-images-vid](https://user-images.githubusercontent.com/1992842/132140547-fead74c1-4bec-489a-945c-f28cbba43493.mp4)
+[Copying images video](https://user-images.githubusercontent.com/1992842/132140547-fead74c1-4bec-489a-945c-f28cbba43493.mp4)
 
 Copying URLs:
 
-![desktop](https://user-images.githubusercontent.com/5298006/125515738-8fb2143d-6502-46d3-a1b8-57b025211c2f.gif)
+![Copying URLs on desktop](https://user-images.githubusercontent.com/5298006/125515738-8fb2143d-6502-46d3-a1b8-57b025211c2f.gif)
+
+Opening PDFs externally:
+
+![Opening PDFs externally on desktop](https://user-images.githubusercontent.com/5298006/171170626-5a94f5dc-61fc-4661-a9f2-38a0fb0181f5.gif)
 
 All features work on mobile, but were only tested on Android:
 
-![android](https://user-images.githubusercontent.com/5298006/125515758-bdf77074-a58c-4a6d-affa-88d031991ab2.gif)
+![Copying URLs on Android](https://user-images.githubusercontent.com/5298006/125515758-bdf77074-a58c-4a6d-affa-88d031991ab2.gif)
 
 ## Compatibility
 
@@ -34,6 +38,6 @@ Thank you to the makers of the [Tag Wrangler plugin](https://github.com/pjeby/ta
 [Android image sharing](https://github.com/NomarCub/obsidian-copy-url-in-preview/issues/5) developed by [mnaoumov](https://github.com/mnaoumov).  
 [Open PDF externally](https://github.com/NomarCub/obsidian-copy-url-in-preview/issues/9) feature developed by [mnaoumov](https://github.com/mnaoumov).
 
-Original plugin by [NomarCub](https://github.com/luckman212)
+Original plugin by [NomarCub](https://github.com/NomarCub)
 
 If you like this plugin you can support me on PayPal here: [![Paypal](https://img.shields.io/badge/paypal-nomarcub-yellow?style=social&logo=paypal)](https://paypal.me/nomarcub)
