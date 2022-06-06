@@ -11,6 +11,7 @@ const OPEN_PDF_MENU_TIMEOUT = 5000;
 export default class CopyUrlInPreview extends Plugin {
   longTapTimeoutId: number | null = null;
   openPdfMenu: Menu;
+  preventReopenPdfMenu: boolean;
 
   onload() {
     this.register(
@@ -80,7 +81,7 @@ export default class CopyUrlInPreview extends Plugin {
   }
 
   showOpenPdfMenu(event: MouseEvent | PointerEvent, el: HTMLElement) {
-    if (this.openPdfMenu) {
+    if (this.openPdfMenu || this.preventReopenPdfMenu) {
       return;
     }
 
@@ -99,6 +100,8 @@ export default class CopyUrlInPreview extends Plugin {
       item.setIcon("pdf-file")
         .setTitle("Open PDF externally")
         .onClick(async () => {
+          this.preventReopenPdfMenu = true;
+          setTimeout(() => { this.preventReopenPdfMenu = false; }, OPEN_PDF_MENU_TIMEOUT);
           this.hideOpenPdfMenu();
           const pdfEmbed = el.closest(".pdf-embed");
           let pdfFile: TFile;
