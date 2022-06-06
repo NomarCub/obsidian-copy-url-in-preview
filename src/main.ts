@@ -85,8 +85,6 @@ export default class CopyUrlInPreview extends Plugin {
     }
 
     const rect = el.getBoundingClientRect();
-    console.log(rect);
-    console.log(event);
     if (rect.left + OPEN_PDF_MENU_BORDER_SIZE < event.x
       && event.x < rect.right - OPEN_PDF_MENU_BORDER_SIZE
       && rect.top + OPEN_PDF_MENU_BORDER_SIZE < event.y
