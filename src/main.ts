@@ -106,7 +106,7 @@ export default class CopyUrlInPreview extends Plugin {
           const pdfEmbed = el.closest(".pdf-embed");
           let pdfFile: TFile;
           if (pdfEmbed) {
-            const pdfLink = pdfEmbed.getAttr("src");
+            const pdfLink = pdfEmbed.getAttr("src").replace(/#page=\d+$/, '');
             const currentNotePath = this.app.workspace.getActiveFile().path;
             pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink, currentNotePath);
           } else {
