@@ -26,18 +26,17 @@ The plugin was tested in Obsidian v0.11.13 and subsequent versions, but probably
 
 ## Installation
 
-You can install the plugin via the Community Plugins tab within Obsidian.
-
-You can also manually copy from releases to your `.obsidian/plugins/copy-url-in-preview` folder.
+[Here](https://obsidian.md/plugins?id=open-vscode)'s the plugin in Obsidian's Community Plugins website.  
+You can also install the plugin via the Community Plugins tab within the Obsidian app.
+You can install the plugin manually by copying a release to your `.obsidian/plugins/copy-url-in-preview` folder.
 
 ## Attributions
 
-Thank you to the makers of the [Tag Wrangler plugin](https://github.com/pjeby/tag-wrangler), as it was a great starting point for working with context menus in Obsidian.
+Original plugin by [NomarCub](https://github.com/NomarCub)  
+If you like this plugin you can support me on PayPal here: [![Paypal](https://img.shields.io/badge/paypal-nomarcub-yellow?style=social&logo=paypal)](https://paypal.me/nomarcub)
 
 [Copying](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/2) [images](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/3) developed by [luckman212](https://github.com/luckman212).  
 [Android image sharing](https://github.com/NomarCub/obsidian-copy-url-in-preview/issues/5) developed by [mnaoumov](https://github.com/mnaoumov).  
 [Open PDF externally](https://github.com/NomarCub/obsidian-copy-url-in-preview/issues/9) feature developed by [mnaoumov](https://github.com/mnaoumov).
 
-Original plugin by [NomarCub](https://github.com/NomarCub)
-
-If you like this plugin you can support me on PayPal here: [![Paypal](https://img.shields.io/badge/paypal-nomarcub-yellow?style=social&logo=paypal)](https://paypal.me/nomarcub)
+Thank you to the makers of the [Tag Wrangler plugin](https://github.com/pjeby/tag-wrangler), as it was a great starting point for working with context menus in Obsidian.
