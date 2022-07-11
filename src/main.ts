@@ -1,4 +1,4 @@
-import { Menu, Plugin, Notice, MenuItem, Platform, TFile } from "obsidian";
+import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView, Editor, EditorPosition } from "obsidian";
 import { ElectronWindow, FileSystemAdapterWithInternalApi, loadImageBlob, onElement, AppWithDesktopInternalApi } from "./helpers"
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
@@ -8,10 +8,18 @@ const deleteTempFileTimeout = 60000;
 const OPEN_PDF_MENU_BORDER_SIZE = 100;
 const OPEN_PDF_MENU_TIMEOUT = 5000;
 
+interface EditorInternalApi extends Editor {
+  posAtMouse(event: MouseEvent): EditorPosition;
+  getClickableTokenAt(position: EditorPosition): {
+    text: String
+  };
+}
+
 export default class CopyUrlInPreview extends Plugin {
   longTapTimeoutId: number | null = null;
   openPdfMenu: Menu;
   preventReopenPdfMenu: boolean;
+  lastHoveredLinkTarget: String;
 
   onload() {
     this.register(
@@ -50,6 +58,24 @@ export default class CopyUrlInPreview extends Plugin {
           this.onClick.bind(this)
         )
       )
+
+      this.register(
+        onElement(
+          document,
+          "mouseover" as keyof HTMLElementEventMap,
+          ".cm-link, .cm-hmd-internal-link",
+          this.storeLastHoveredLinkInEditor.bind(this)
+        )
+      );
+
+      this.register(
+        onElement(
+          document,
+          "mouseover" as keyof HTMLElementEventMap,
+          "a.internal-link",
+          this.storeLastHoveredLinkInPreview.bind(this)
+        )
+      );
     } else {
       this.register(
         onElement(
@@ -80,6 +106,17 @@ export default class CopyUrlInPreview extends Plugin {
     }
   }
 
+  storeLastHoveredLinkInEditor(event: MouseEvent) {
+    const editor = (app.workspace.activeLeaf.view as MarkdownView).editor as EditorInternalApi;
+    const position = editor.posAtMouse(event);
+    const token = editor.getClickableTokenAt(position);
+    this.lastHoveredLinkTarget = token.text;
+  }
+
+  storeLastHoveredLinkInPreview(event: MouseEvent, link: HTMLAnchorElement) {
+    this.lastHoveredLinkTarget = link.getAttribute("data-href");
+  }
+
   showOpenPdfMenu(event: MouseEvent | PointerEvent, el: HTMLElement) {
     if (this.openPdfMenu || this.preventReopenPdfMenu) {
       return;
@@ -93,6 +130,25 @@ export default class CopyUrlInPreview extends Plugin {
       return;
     }
 
+    const pdfEmbed = el.closest(".pdf-embed");
+    let pdfFile: TFile;
+    if (pdfEmbed) {
+      let pdfLink;
+      if (pdfEmbed.hasClass("popover")) {
+        pdfLink = this.lastHoveredLinkTarget;
+      }
+      else {
+        pdfLink = pdfEmbed.getAttr("src");
+      }
+
+      pdfLink = pdfLink.replace(/#page=\d+$/, '');
+
+      const currentNotePath = this.app.workspace.getActiveFile().path;
+      pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink, currentNotePath);
+    } else {
+      pdfFile = this.app.workspace.getActiveFile();
+    }
+
     const menu = new Menu(this.app);
     this.registerEscapeButton(menu);
     menu.onHide(() => this.openPdfMenu = null);
@@ -103,15 +159,6 @@ export default class CopyUrlInPreview extends Plugin {
           this.preventReopenPdfMenu = true;
           setTimeout(() => { this.preventReopenPdfMenu = false; }, OPEN_PDF_MENU_TIMEOUT);
           this.hideOpenPdfMenu();
-          const pdfEmbed = el.closest(".pdf-embed");
-          let pdfFile: TFile;
-          if (pdfEmbed) {
-            const pdfLink = pdfEmbed.getAttr("src").replace(/#page=\d+$/, '');
-            const currentNotePath = this.app.workspace.getActiveFile().path;
-            pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink, currentNotePath);
-          } else {
-            pdfFile = this.app.workspace.getActiveFile();
-          }
           if (Platform.isDesktop) {
             await (this.app as AppWithDesktopInternalApi).openWithDefaultApp(pdfFile.path);
           } else {
