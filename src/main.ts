@@ -1,5 +1,5 @@
-import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView, Editor, EditorPosition } from "obsidian";
-import { ElectronWindow, FileSystemAdapterWithInternalApi, loadImageBlob, onElement, AppWithDesktopInternalApi } from "./helpers"
+import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
+import { ElectronWindow, FileSystemAdapterWithInternalApi, loadImageBlob, onElement, AppWithDesktopInternalApi, EditorInternalApi } from "./helpers"
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
 const SUCCESS_NOTICE_TIMEOUT = 1800;
@@ -8,18 +8,11 @@ const deleteTempFileTimeout = 60000;
 const OPEN_PDF_MENU_BORDER_SIZE = 100;
 const OPEN_PDF_MENU_TIMEOUT = 5000;
 
-interface EditorInternalApi extends Editor {
-  posAtMouse(event: MouseEvent): EditorPosition;
-  getClickableTokenAt(position: EditorPosition): {
-    text: String
-  };
-}
-
 export default class CopyUrlInPreview extends Plugin {
   longTapTimeoutId: number | null = null;
   openPdfMenu: Menu;
   preventReopenPdfMenu: boolean;
-  lastHoveredLinkTarget: String;
+  lastHoveredLinkTarget: string;
 
   onload() {
     this.register(
