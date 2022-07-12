@@ -50,7 +50,7 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob> {
                 const canvas = document.createElement("canvas");
                 canvas.width = image.width;
                 canvas.height = image.height;
-                const ctx = canvas.getContext("2d");
+                const ctx = canvas.getContext("2d")!;
                 ctx.drawImage(image, 0, 0);
                 canvas.toBlob((blob: Blob) => {
                     resolve(blob);

@@ -10,7 +10,7 @@ const OPEN_PDF_MENU_TIMEOUT = 5000;
 
 export default class CopyUrlInPreview extends Plugin {
   longTapTimeoutId: number | null = null;
-  openPdfMenu: Menu;
+  openPdfMenu: Menu | null;
   preventReopenPdfMenu: boolean;
   lastHoveredLinkTarget: string;
 
@@ -100,14 +100,14 @@ export default class CopyUrlInPreview extends Plugin {
   }
 
   storeLastHoveredLinkInEditor(event: MouseEvent) {
-    const editor = (app.workspace.activeLeaf.view as MarkdownView).editor as EditorInternalApi;
+    const editor = (app.workspace.activeLeaf!.view as MarkdownView).editor as EditorInternalApi;
     const position = editor.posAtMouse(event);
     const token = editor.getClickableTokenAt(position);
     this.lastHoveredLinkTarget = token.text;
   }
 
   storeLastHoveredLinkInPreview(event: MouseEvent, link: HTMLAnchorElement) {
-    this.lastHoveredLinkTarget = link.getAttribute("data-href");
+    this.lastHoveredLinkTarget = link.getAttribute("data-href")!;
   }
 
   showOpenPdfMenu(event: MouseEvent | PointerEvent, el: HTMLElement) {
@@ -126,20 +126,20 @@ export default class CopyUrlInPreview extends Plugin {
     const pdfEmbed = el.closest(".pdf-embed");
     let pdfFile: TFile;
     if (pdfEmbed) {
-      let pdfLink;
+      let pdfLink = "";
       if (pdfEmbed.hasClass("popover")) {
         pdfLink = this.lastHoveredLinkTarget;
       }
       else {
-        pdfLink = pdfEmbed.getAttr("src");
+        pdfLink = pdfEmbed.getAttr("src") ?? "";
       }
 
-      pdfLink = pdfLink.replace(/#page=\d+$/, '');
+      pdfLink = pdfLink?.replace(/#page=\d+$/, '');
 
-      const currentNotePath = this.app.workspace.getActiveFile().path;
-      pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink, currentNotePath);
+      const currentNotePath = this.app.workspace.getActiveFile()!.path;
+      pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink!, currentNotePath!)!;
     } else {
-      pdfFile = this.app.workspace.getActiveFile();
+      pdfFile = this.app.workspace.getActiveFile()!;
     }
 
     const menu = new Menu(this.app);
