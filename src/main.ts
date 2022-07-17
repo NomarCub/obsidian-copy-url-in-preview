@@ -101,8 +101,14 @@ export default class CopyUrlInPreview extends Plugin {
 
   storeLastHoveredLinkInEditor(event: MouseEvent) {
     const editor = (app.workspace.activeLeaf!.view as MarkdownView).editor as EditorInternalApi;
+    if (!editor) {
+      return;
+    }
     const position = editor.posAtMouse(event);
     const token = editor.getClickableTokenAt(position);
+    if (!token) {
+      return;
+    }
     this.lastHoveredLinkTarget = token.text;
   }
 
