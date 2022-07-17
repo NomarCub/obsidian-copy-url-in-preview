@@ -10,7 +10,7 @@ export interface EditorInternalApi extends Editor {
     posAtMouse(event: MouseEvent): EditorPosition;
     getClickableTokenAt(position: EditorPosition): {
         text: string
-    };
+    } | null;
 }
 
 export interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
