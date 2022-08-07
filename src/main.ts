@@ -15,6 +15,14 @@ export default class CopyUrlInPreview extends Plugin {
   lastHoveredLinkTarget: string;
 
   onload() {
+    this.registerDocument(document);
+    app.workspace.on("window-open",
+      (workspaceWindow, window) => {
+        this.registerDocument(window.document);
+      });
+  }
+
+  registerDocument(document: Document) {
     this.register(
       onElement(
         document,
@@ -100,7 +108,7 @@ export default class CopyUrlInPreview extends Plugin {
   }
 
   storeLastHoveredLinkInEditor(event: MouseEvent) {
-    const editor = (app.workspace.activeLeaf!.view as MarkdownView).editor as EditorInternalApi;
+    const editor = app.workspace.getActiveViewOfType(MarkdownView)?.editor as EditorInternalApi;
     if (!editor) {
       return;
     }
@@ -171,7 +179,7 @@ export default class CopyUrlInPreview extends Plugin {
     setTimeout(this.hideOpenPdfMenu.bind(this), OPEN_PDF_MENU_TIMEOUT);
   }
 
-  registerEscapeButton(menu: Menu) {
+  registerEscapeButton(menu: Menu, document: Document = activeDocument) {
     menu.register(
       onElement(
         document,
