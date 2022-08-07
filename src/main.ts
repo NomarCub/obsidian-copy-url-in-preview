@@ -148,7 +148,7 @@ export default class CopyUrlInPreview extends Plugin {
       pdfFile = this.app.workspace.getActiveFile()!;
     }
 
-    const menu = new Menu(this.app);
+    const menu = new Menu();
     this.registerEscapeButton(menu);
     menu.onHide(() => this.openPdfMenu = null);
     menu.addItem((item: MenuItem) =>
@@ -256,7 +256,7 @@ export default class CopyUrlInPreview extends Plugin {
     event.preventDefault();
     const target = (event.target as Element);
     const imgType = target.localName;
-    const menu = new Menu(this.app);
+    const menu = new Menu();
     switch (imgType) {
       case "img": {
         const image = (target as HTMLImageElement).currentSrc;
