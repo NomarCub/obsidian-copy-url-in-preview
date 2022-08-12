@@ -20,17 +20,18 @@ All features work on mobile, but were only tested on Android:
 
 ![Copying URLs on Android](https://user-images.githubusercontent.com/5298006/125515758-bdf77074-a58c-4a6d-affa-88d031991ab2.gif)
 
-## Compatibility
-
-The plugin was tested in Obsidian v0.11.13 and subsequent versions, but probably works with older versions.
-
 ## Installation
 
+You can install the plugin via the Community Plugins tab within the Obsidian app.  
 [Here](https://obsidian.md/plugins?id=open-vscode)'s the plugin in Obsidian's Community Plugins website.  
-You can also install the plugin via the Community Plugins tab within the Obsidian app.  
 You can install the plugin manually by copying a release to your `.obsidian/plugins/copy-url-in-preview` folder.
 
-## Attributions
+## Development
+
+This plugin follows the structure of the [Obsidian Sample Plugin](https://github.com/obsidianmd/obsidian-sample-plugin), see further details there.  
+Contributions are welcome.
+
+## Credits
 
 Original plugin by [NomarCub](https://github.com/NomarCub).  
 If you like this plugin you can sponsor me here on GitHub: [![Sponsor NomarCub](https://img.shields.io/static/v1?label=Sponsor%20NomarCub&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/NomarCub), or on PayPal here: [![Paypal](https://img.shields.io/badge/paypal-nomarcub-yellow?style=social&logo=paypal)](https://paypal.me/nomarcub).
