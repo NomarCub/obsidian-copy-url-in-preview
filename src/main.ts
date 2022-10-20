@@ -140,7 +140,7 @@ export default class CopyUrlInPreview extends Plugin {
     const pdfEmbed = el.closest(".pdf-embed");
     let pdfFile: TFile;
     if (pdfEmbed) {
-      let pdfLink = "";
+      let pdfLink: string;
       if (pdfEmbed.hasClass("popover")) {
         pdfLink = this.lastHoveredLinkTarget;
       }
