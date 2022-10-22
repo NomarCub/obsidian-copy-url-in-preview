@@ -268,9 +268,9 @@ export default class CopyUrlInPreview extends Plugin {
     switch (imgType) {
       case "img": {
         const image = (target as HTMLImageElement).currentSrc;
-        const thisURL = new URL(image);
-        const Proto = thisURL.protocol;
-        switch (Proto) {
+        const url = new URL(image);
+        const protocol = url.protocol;
+        switch (protocol) {
           case "app:":
           case "data:":
           case "http:":
@@ -288,10 +288,27 @@ export default class CopyUrlInPreview extends Plugin {
                     new Notice("Error, could not copy the image!");
                   }
                 })
-            )
+            );
+            if (protocol === "app:" && Platform.isDesktop) {
+              // href probably also works
+              // getResourcePath("") also works for root path
+              const baseFilePath = (app.vault.adapter as FileSystemAdapterWithInternalApi).getFilePath("");
+              const baseFilePathName: string = (baseFilePath as any).pathname;
+              const urlPathName: string = (url as any).pathname;
+              if (urlPathName.startsWith(baseFilePathName)) {
+                let relativePath = urlPathName.replace(baseFilePathName, "");
+                relativePath = decodeURI(relativePath);
+
+                menu.addItem((item: MenuItem) =>
+                  item.setIcon("arrow-up-right")
+                    .setTitle("Open in default app")
+                    .onClick(() => (app as AppWithDesktopInternalApi).openWithDefaultApp(relativePath))
+                )
+              }
+            }
             break;
           default:
-            new Notice(`no handler for ${Proto} protocol`);
+            new Notice(`no handler for ${protocol} protocol`);
             return;
         }
         break;
