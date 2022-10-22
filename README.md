@@ -1,6 +1,12 @@
 # Copy Image and URL context menu
 
-This plugin creates a Copy Image, Copy URL and Open PDF externally context menu in reading view (formerly preview mode) in [Obsidian](https://obsidian.md/).
+This plugin creates a
+- Copy Image
+- Open image in default app
+- Copy URL
+- Open PDF externally
+
+context menu in reading view (formerly preview mode) in [Obsidian](https://obsidian.md/).
 
 This makes copying URLs in reading view like it is in editing view by deafult. For copying images in edit mode check out [Ozan's Image in Editor Plugin](https://github.com/ozntel/oz-image-in-editor-obsidian)
 
