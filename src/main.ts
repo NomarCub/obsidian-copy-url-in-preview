@@ -145,7 +145,7 @@ export default class CopyUrlInPreview extends Plugin {
         pdfLink = this.lastHoveredLinkTarget;
       }
       else {
-        pdfLink = pdfEmbed.getAttr("src") ?? "";
+        pdfLink = pdfEmbed.getAttr("src") ?? this.lastHoveredLinkTarget;
       }
 
       pdfLink = pdfLink?.replace(/#page=\d+$/, '');
