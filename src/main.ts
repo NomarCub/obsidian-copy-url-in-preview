@@ -159,19 +159,19 @@ export default class CopyUrlInPreview extends Plugin {
     const menu = new Menu();
     this.registerEscapeButton(menu);
     menu.onHide(() => this.openPdfMenu = null);
-    menu.addItem((item: MenuItem) =>
-      item.setIcon("pdf-file")
-        .setTitle("Open PDF externally")
-        .onClick(async () => {
-          this.preventReopenPdfMenu = true;
-          setTimeout(() => { this.preventReopenPdfMenu = false; }, OPEN_PDF_MENU_TIMEOUT);
-          this.hideOpenPdfMenu();
-          if (Platform.isDesktop) {
-            await (this.app as AppWithDesktopInternalApi).openWithDefaultApp(pdfFile.path);
-          } else {
-            await (this.app.vault.adapter as FileSystemAdapterWithInternalApi).open(pdfFile.path);
-          }
-        })
+    menu.addItem((item: MenuItem) => item
+      .setIcon("pdf-file")
+      .setTitle("Open PDF externally")
+      .onClick(async () => {
+        this.preventReopenPdfMenu = true;
+        setTimeout(() => { this.preventReopenPdfMenu = false; }, OPEN_PDF_MENU_TIMEOUT);
+        this.hideOpenPdfMenu();
+        if (Platform.isDesktop) {
+          await (this.app as AppWithDesktopInternalApi).openWithDefaultApp(pdfFile.path);
+        } else {
+          await (this.app.vault.adapter as FileSystemAdapterWithInternalApi).open(pdfFile.path);
+        }
+      })
     );
     menu.showAtMouseEvent(event);
     this.openPdfMenu = menu;
@@ -275,19 +275,19 @@ export default class CopyUrlInPreview extends Plugin {
           case "data:":
           case "http:":
           case "https:":
-            menu.addItem((item: MenuItem) =>
-              item.setIcon("image-file")
-                .setTitle("Copy image to clipboard")
-                .onClick(async () => {
-                  try {
-                    const blob = await loadImageBlob(image);
-                    const data = new ClipboardItem({ [blob.type]: blob });
-                    await navigator.clipboard.write([data]);
-                    new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
-                  } catch {
-                    new Notice("Error, could not copy the image!");
-                  }
-                })
+            menu.addItem((item: MenuItem) => item
+              .setIcon("image-file")
+              .setTitle("Copy image to clipboard")
+              .onClick(async () => {
+                try {
+                  const blob = await loadImageBlob(image);
+                  const data = new ClipboardItem({ [blob.type]: blob });
+                  await navigator.clipboard.write([data]);
+                  new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
+                } catch {
+                  new Notice("Error, could not copy the image!");
+                }
+              })
             );
             if (protocol === "app:" && Platform.isDesktop) {
               // href probably also works
@@ -299,11 +299,11 @@ export default class CopyUrlInPreview extends Plugin {
                 let relativePath = urlPathName.replace(baseFilePathName, "");
                 relativePath = decodeURI(relativePath);
 
-                menu.addItem((item: MenuItem) =>
-                  item.setIcon("arrow-up-right")
-                    .setTitle("Open in default app")
-                    .onClick(() => (app as AppWithDesktopInternalApi).openWithDefaultApp(relativePath))
-                )
+                menu.addItem((item: MenuItem) => item
+                  .setIcon("arrow-up-right")
+                  .setTitle("Open in default app")
+                  .onClick(() => (app as AppWithDesktopInternalApi).openWithDefaultApp(relativePath))
+                );
               }
             }
             break;
@@ -315,13 +315,13 @@ export default class CopyUrlInPreview extends Plugin {
       }
       case "a": {
         const link = (target as HTMLAnchorElement).href;
-        menu.addItem((item: MenuItem) =>
-          item.setIcon("link")
-            .setTitle("Copy URL")
-            .onClick(() => {
-              navigator.clipboard.writeText(link);
-              new Notice("URL copied to your clipboard", SUCCESS_NOTICE_TIMEOUT);
-            })
+        menu.addItem((item: MenuItem) => item
+          .setIcon("link")
+          .setTitle("Copy URL")
+          .onClick(() => {
+            navigator.clipboard.writeText(link);
+            new Notice("URL copied to your clipboard", SUCCESS_NOTICE_TIMEOUT);
+          })
         );
         break;
       }
