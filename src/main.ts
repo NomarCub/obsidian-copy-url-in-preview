@@ -39,7 +39,7 @@ export default class CopyUrlInPreview extends Plugin {
       onElement(
         document,
         "mouseover" as keyof HTMLElementEventMap,
-        ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf] iframe",
+        ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
         this.showOpenPdfMenu.bind(this)
       )
     )
