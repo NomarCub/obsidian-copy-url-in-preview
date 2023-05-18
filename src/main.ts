@@ -1,5 +1,8 @@
 import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
-import { ElectronWindow, FileSystemAdapterWithInternalApi, loadImageBlob, onElement, AppWithDesktopInternalApi, EditorInternalApi } from "./helpers"
+import {
+  ElectronWindow, FileSystemAdapterWithInternalApi,
+  loadImageBlob, onElement, AppWithDesktopInternalApi, EditorInternalApi
+} from "./helpers"
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
 const SUCCESS_NOTICE_TIMEOUT = 1800;
@@ -303,6 +306,21 @@ export default class CopyUrlInPreview extends Plugin {
                   .setIcon("arrow-up-right")
                   .setTitle("Open in default app")
                   .onClick(() => (app as AppWithDesktopInternalApi).openWithDefaultApp(relativePath))
+                );
+                menu.addItem((item: MenuItem) => item
+                  .setIcon("arrow-up-right")
+                  .setTitle(Platform.isMacOS ? "Reveal in finder" : "Show in system explorer")
+                  .onClick(() => {
+                    (app as AppWithDesktopInternalApi).showInFolder(relativePath);
+                  })
+                );
+                menu.addItem((item: MenuItem) => item
+                  .setIcon("folder")
+                  .setTitle("Reveal file in navigation")
+                  .onClick(() => {
+                    const abstractFilePath = app.vault.getAbstractFileByPath(relativePath.substring(1));
+                    (app as any).internalPlugins.getEnabledPluginById("file-explorer").revealInFolder(abstractFilePath);
+                  })
                 );
               }
             }

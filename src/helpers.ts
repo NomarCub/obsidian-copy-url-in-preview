@@ -18,7 +18,8 @@ export interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
 }
 
 export interface AppWithDesktopInternalApi extends App {
-    openWithDefaultApp(path: string): Promise<void>
+    openWithDefaultApp(path: string): Promise<void>;
+    showInFolder(path: string): Promise<void>;
 }
 
 export interface Listener {
