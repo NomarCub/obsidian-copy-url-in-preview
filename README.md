@@ -32,7 +32,7 @@ All features work on mobile, but were only tested on Android:
 ## Installation
 
 You can install the plugin via the Community Plugins tab within the Obsidian app.  
-[Here](https://obsidian.md/plugins?id=open-vscode)'s the plugin in Obsidian's Community Plugins website.  
+[Here](https://obsidian.md/plugins?id=copy-url-in-preview)'s the plugin in Obsidian's Community Plugins website.  
 You can install the plugin manually by copying a release to your `.obsidian/plugins/copy-url-in-preview` folder.
 
 ## Development
