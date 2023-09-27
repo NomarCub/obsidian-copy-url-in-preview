@@ -3,6 +3,7 @@ import {
   ElectronWindow, FileSystemAdapterWithInternalApi,
   loadImageBlob, onElement, AppWithDesktopInternalApi, EditorInternalApi
 } from "./helpers"
+import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
 const SUCCESS_NOTICE_TIMEOUT = 1800;
@@ -17,7 +18,17 @@ export default class CopyUrlInPreview extends Plugin {
   preventReopenPdfMenu: boolean;
   lastHoveredLinkTarget: string;
 
-  onload() {
+  settings: CopyUrlInPreviewSettings;
+  async loadSettings() {
+    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+  }
+  async saveSettings() {
+    this.saveData(this.settings);
+  }
+
+  async onload() {
+    await this.loadSettings();
+    this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
     this.registerDocument(document);
     app.workspace.on("window-open",
       (workspaceWindow, window) => {
@@ -128,7 +139,7 @@ export default class CopyUrlInPreview extends Plugin {
   }
 
   showOpenPdfMenu(event: MouseEvent | PointerEvent, el: HTMLElement) {
-    if (this.openPdfMenu || this.preventReopenPdfMenu) {
+    if (!this.settings.pdfMenu || this.openPdfMenu || this.preventReopenPdfMenu) {
       return;
     }
 
