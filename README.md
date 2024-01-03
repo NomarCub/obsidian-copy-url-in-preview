@@ -11,7 +11,11 @@ This plugin context the following context menus
 
 in reading view in [Obsidian](https://obsidian.md/).
 
-This makes copying URLs in reading view like it is in editing view by deafult. For copying images in edit mode check out [Ozan's Image in Editor Plugin](https://github.com/ozntel/oz-image-in-editor-obsidian)
+This makes copying URLs in reading view like it is in editing view by deafult.
+
+See these other plugins for related functionality:
+- [Ozan's Image in Editor Plugin](https://github.com/ozntel/oz-image-in-editor-obsidian)
+- [Image Toolkit](https://github.com/sissilab/obsidian-image-toolkit)
 
 Copying images:
 
@@ -25,7 +29,7 @@ Opening PDFs externally:
 
 ![Opening PDFs externally on desktop](https://user-images.githubusercontent.com/5298006/171170626-5a94f5dc-61fc-4661-a9f2-38a0fb0181f5.gif)
 
-All features work on mobile, but were only tested on Android:
+All features work on mobile, but were only tested on Android. Mobile uses the native image sharing functionality instead of the clipboard, and it downloads online images temporarily so they can be shared.
 
 ![Copying URLs on Android](https://user-images.githubusercontent.com/5298006/125515758-bdf77074-a58c-4a6d-affa-88d031991ab2.gif)
 

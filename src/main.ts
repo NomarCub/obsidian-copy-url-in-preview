@@ -30,7 +30,7 @@ export default class CopyUrlInPreview extends Plugin {
     await this.loadSettings();
     this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
     this.registerDocument(document);
-    app.workspace.on("window-open",
+    this.app.workspace.on("window-open",
       (workspaceWindow, window) => {
         this.registerDocument(window.document);
       });
@@ -122,7 +122,7 @@ export default class CopyUrlInPreview extends Plugin {
   }
 
   storeLastHoveredLinkInEditor(event: MouseEvent) {
-    const editor = app.workspace.getActiveViewOfType(MarkdownView)?.editor as EditorInternalApi;
+    const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor as EditorInternalApi;
     if (!editor) {
       return;
     }
@@ -304,10 +304,9 @@ export default class CopyUrlInPreview extends Plugin {
               })
             );
             if (protocol === "app:" && Platform.isDesktop) {
-              // href probably also works
               // getResourcePath("") also works for root path
-              const baseFilePath = (app.vault.adapter as FileSystemAdapterWithInternalApi).getFilePath("");
-              const baseFilePathName: string = (baseFilePath as any).pathname;
+              const baseFilePath = (this.app.vault.adapter as FileSystemAdapterWithInternalApi).getFilePath("");
+              const baseFilePathName: string = baseFilePath.replace("file://", "");
               const urlPathName: string = (url as any).pathname;
               if (urlPathName.startsWith(baseFilePathName)) {
                 let relativePath = urlPathName.replace(baseFilePathName, "");
@@ -316,21 +315,21 @@ export default class CopyUrlInPreview extends Plugin {
                 menu.addItem((item: MenuItem) => item
                   .setIcon("arrow-up-right")
                   .setTitle("Open in default app")
-                  .onClick(() => (app as AppWithDesktopInternalApi).openWithDefaultApp(relativePath))
+                  .onClick(() => (this.app as AppWithDesktopInternalApi).openWithDefaultApp(relativePath))
                 );
                 menu.addItem((item: MenuItem) => item
                   .setIcon("arrow-up-right")
                   .setTitle(Platform.isMacOS ? "Reveal in finder" : "Show in system explorer")
                   .onClick(() => {
-                    (app as AppWithDesktopInternalApi).showInFolder(relativePath);
+                    (this.app as AppWithDesktopInternalApi).showInFolder(relativePath);
                   })
                 );
                 menu.addItem((item: MenuItem) => item
                   .setIcon("folder")
                   .setTitle("Reveal file in navigation")
                   .onClick(() => {
-                    const abstractFilePath = app.vault.getAbstractFileByPath(relativePath.substring(1));
-                    (app as any).internalPlugins.getEnabledPluginById("file-explorer").revealInFolder(abstractFilePath);
+                    const abstractFilePath = this.app.vault.getAbstractFileByPath(relativePath.substring(1));
+                    (this.app as any).internalPlugins.getEnabledPluginById("file-explorer").revealInFolder(abstractFilePath);
                   })
                 );
               }
