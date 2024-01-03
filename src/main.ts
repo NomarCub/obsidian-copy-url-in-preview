@@ -304,10 +304,9 @@ export default class CopyUrlInPreview extends Plugin {
               })
             );
             if (protocol === "app:" && Platform.isDesktop) {
-              // href probably also works
               // getResourcePath("") also works for root path
               const baseFilePath = (this.app.vault.adapter as FileSystemAdapterWithInternalApi).getFilePath("");
-              const baseFilePathName: string = (baseFilePath as any).pathname;
+              const baseFilePathName: string = baseFilePath.replace("file://", "");
               const urlPathName: string = (url as any).pathname;
               if (urlPathName.startsWith(baseFilePathName)) {
                 let relativePath = urlPathName.replace(baseFilePathName, "");
