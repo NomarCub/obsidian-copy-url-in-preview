@@ -1,6 +1,6 @@
 import { App, Editor, EditorPosition, FileSystemAdapter } from "obsidian";
 
-const loadImageBlobTimeout = 5000;
+const loadImageBlobTimeout = 5_000;
 
 export interface ElectronWindow extends Window {
     WEBVIEW_SERVER_URL: string

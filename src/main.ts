@@ -6,11 +6,11 @@ import {
 import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
-const SUCCESS_NOTICE_TIMEOUT = 1800;
+const SUCCESS_NOTICE_TIMEOUT = 1_800;
 const longTapTimeout = 500;
-const deleteTempFileTimeout = 60000;
+const deleteTempFileTimeout = 60_000;
 const OPEN_PDF_MENU_BORDER_SIZE = 100;
-const OPEN_PDF_MENU_TIMEOUT = 5000;
+const OPEN_PDF_MENU_TIMEOUT = 5_000;
 
 export default class CopyUrlInPreview extends Plugin {
   longTapTimeoutId: number | null = null;
