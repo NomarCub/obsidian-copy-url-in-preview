@@ -61,7 +61,7 @@ export default class CopyUrlInPreview extends Plugin {
           document,
           "contextmenu" as keyof HTMLElementEventMap,
           "img",
-          this.onClick.bind(this)
+          this.onClickImage.bind(this)
         )
       )
 
@@ -265,7 +265,7 @@ export default class CopyUrlInPreview extends Plugin {
   // Positions are not accurate from PointerEvent.
   // There's also TouchEvent
   // The event has target, path, toEvent (null on Android) for finding the link
-  onClick(event: MouseEvent) {
+  onClickImage(event: MouseEvent) {
     const target = (event.target as Element);
     if (target.localName != "img") {
       new Notice("No handler for this image type!");
