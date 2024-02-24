@@ -6,11 +6,11 @@ import {
 import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
-const SUCCESS_NOTICE_TIMEOUT = 1800;
+const SUCCESS_NOTICE_TIMEOUT = 1_800;
 const longTapTimeout = 500;
-const deleteTempFileTimeout = 60000;
+const deleteTempFileTimeout = 60_000;
 const OPEN_PDF_MENU_BORDER_SIZE = 100;
-const OPEN_PDF_MENU_TIMEOUT = 5000;
+const OPEN_PDF_MENU_TIMEOUT = 5_000;
 
 export default class CopyUrlInPreview extends Plugin {
   longTapTimeoutId: number | null = null;
@@ -40,15 +40,6 @@ export default class CopyUrlInPreview extends Plugin {
     this.register(
       onElement(
         document,
-        "contextmenu" as keyof HTMLElementEventMap,
-        "a.external-link",
-        this.onClick.bind(this)
-      )
-    )
-
-    this.register(
-      onElement(
-        document,
         "mouseover" as keyof HTMLElementEventMap,
         ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
         this.showOpenPdfMenu.bind(this)
@@ -70,7 +61,7 @@ export default class CopyUrlInPreview extends Plugin {
           document,
           "contextmenu" as keyof HTMLElementEventMap,
           "img",
-          this.onClick.bind(this)
+          this.onClickImage.bind(this)
         )
       )
 
@@ -274,89 +265,76 @@ export default class CopyUrlInPreview extends Plugin {
   // Positions are not accurate from PointerEvent.
   // There's also TouchEvent
   // The event has target, path, toEvent (null on Android) for finding the link
-  onClick(event: MouseEvent) {
-    event.preventDefault();
-    const target = (event.target as Element);
-    const imgType = target.localName;
-    const menu = new Menu();
-    switch (imgType) {
-      case "img": {
-        const image = (target as HTMLImageElement).currentSrc;
-        const url = new URL(image);
-        const protocol = url.protocol;
-        switch (protocol) {
-          case "app:":
-          case "data:":
-          case "http:":
-          case "https:":
-            menu.addItem((item: MenuItem) => item
-              .setIcon("image-file")
-              .setTitle("Copy image to clipboard")
-              .onClick(async () => {
-                try {
-                  const blob = await loadImageBlob(image);
-                  const data = new ClipboardItem({ [blob.type]: blob });
-                  await navigator.clipboard.write([data]);
-                  new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
-                } catch {
-                  new Notice("Error, could not copy the image!");
-                }
-              })
-            );
-            if (protocol === "app:" && Platform.isDesktop) {
-              // getResourcePath("") also works for root path
-              const baseFilePath = (this.app.vault.adapter as FileSystemAdapterWithInternalApi).getFilePath("");
-              const baseFilePathName: string = baseFilePath.replace("file://", "");
-              const urlPathName: string = (url as any).pathname;
-              if (urlPathName.startsWith(baseFilePathName)) {
-                let relativePath = urlPathName.replace(baseFilePathName, "");
-                relativePath = decodeURI(relativePath);
+  onClickImage(event: MouseEvent) {
+    const imgElement = event.target;
+    if (!(imgElement instanceof HTMLImageElement)) {
+      console.error("imgElement is supposed to be a HTMLImageElement. imgElement:");
+      console.error(imgElement);
+      return;
+    }
 
-                menu.addItem((item: MenuItem) => item
-                  .setIcon("arrow-up-right")
-                  .setTitle("Open in default app")
-                  .onClick(() => (this.app as AppWithDesktopInternalApi).openWithDefaultApp(relativePath))
-                );
-                menu.addItem((item: MenuItem) => item
-                  .setIcon("arrow-up-right")
-                  .setTitle(Platform.isMacOS ? "Reveal in finder" : "Show in system explorer")
-                  .onClick(() => {
-                    (this.app as AppWithDesktopInternalApi).showInFolder(relativePath);
-                  })
-                );
-                menu.addItem((item: MenuItem) => item
-                  .setIcon("folder")
-                  .setTitle("Reveal file in navigation")
-                  .onClick(() => {
-                    const abstractFilePath = this.app.vault.getAbstractFileByPath(relativePath.substring(1));
-                    (this.app as any).internalPlugins.getEnabledPluginById("file-explorer").revealInFolder(abstractFilePath);
-                  })
-                );
-              }
-            }
-            break;
-          default:
-            new Notice(`no handler for ${protocol} protocol`);
-            return;
-        }
-        break;
-      }
-      case "a": {
-        const link = (target as HTMLAnchorElement).href;
+    event.preventDefault();
+    const menu = new Menu();
+    const image = imgElement.currentSrc;
+    const url = new URL(image);
+    const protocol = url.protocol;
+    switch (protocol) {
+      case "app:":
+      case "data:":
+      case "http:":
+      case "https:":
         menu.addItem((item: MenuItem) => item
-          .setIcon("link")
-          .setTitle("Copy URL")
-          .onClick(() => {
-            navigator.clipboard.writeText(link);
-            new Notice("URL copied to your clipboard", SUCCESS_NOTICE_TIMEOUT);
+          .setIcon("image-file")
+          .setTitle("Copy image to clipboard")
+          .onClick(async () => {
+            try {
+              const blob = await loadImageBlob(image);
+              const data = new ClipboardItem({ [blob.type]: blob });
+              await navigator.clipboard.write([data]);
+              new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
+            } catch {
+              new Notice("Error, could not copy the image!");
+            }
           })
         );
+        if (protocol === "app:" && Platform.isDesktop) {
+          // getResourcePath("") also works for root path
+          const baseFilePath = (this.app.vault.adapter as FileSystemAdapterWithInternalApi).getFilePath("");
+          const baseFilePathName: string = baseFilePath.replace("file://", "");
+          const urlPathName: string = url.pathname;
+          if (urlPathName.startsWith(baseFilePathName)) {
+            let relativePath = urlPathName.replace(baseFilePathName, "");
+            relativePath = decodeURI(relativePath);
+
+            menu.addItem((item: MenuItem) => item
+              .setIcon("arrow-up-right")
+              .setTitle("Open in default app")
+              .onClick(() => (this.app as AppWithDesktopInternalApi).openWithDefaultApp(relativePath))
+            );
+            menu.addItem((item: MenuItem) => item
+              .setIcon("arrow-up-right")
+              .setTitle(Platform.isMacOS ? "Reveal in finder" : "Show in system explorer")
+              .onClick(() => {
+                (this.app as AppWithDesktopInternalApi).showInFolder(relativePath);
+              })
+            );
+            menu.addItem((item: MenuItem) => item
+              .setIcon("folder")
+              .setTitle("Reveal file in navigation")
+              .onClick(() => {
+                const file = this.app.vault.getFileByPath(relativePath.substring(1));
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (this.app as any).internalPlugins.getEnabledPluginById("file-explorer").revealInFolder(file);
+              })
+            );
+          }
+        }
         break;
-      }
       default:
-        new Notice("No handler for this image type!");
+        new Notice(`no handler for ${protocol} protocol`);
         return;
     }
+
     this.registerEscapeButton(menu);
     menu.showAtPosition({ x: event.pageX, y: event.pageY });
     this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);

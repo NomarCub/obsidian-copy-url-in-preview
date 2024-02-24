@@ -1,17 +1,14 @@
-# Copy Image and URL context menu
+# Image Context Menus
 
-This plugin context the following context menus
-- for images
-  - Copy Image
-  - Open image in default app
-  - Show in system explorer
-  - Reveal file in navigation
-- Copy URL
-- Open PDF externally
+This plugin provides the following context menus for images in [Obsidian](https://obsidian.md/):
+- Copy Image
+- Open image in default app
+- Show in system explorer
+- Reveal file in navigation
 
-in reading view in [Obsidian](https://obsidian.md/).
+It also has an `Open PDF externally` context menu for PDFs.
 
-This makes copying URLs in reading view like it is in editing view by deafult.
+> This plugin used to be called "Copy Image and URL context menu". It had link URL copying functionality (see [1.5.2](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.5.2) and prior), but that was removed when it was included in Obsidian 1.5.
 
 See these other plugins for related functionality:
 - [Ozan's Image in Editor Plugin](https://github.com/ozntel/oz-image-in-editor-obsidian)
@@ -21,17 +18,11 @@ Copying images:
 
 [Copying images video](https://user-images.githubusercontent.com/1992842/132140547-fead74c1-4bec-489a-945c-f28cbba43493.mp4)
 
-Copying URLs:
-
-![Copying URLs on desktop](https://user-images.githubusercontent.com/5298006/125515738-8fb2143d-6502-46d3-a1b8-57b025211c2f.gif)
-
 Opening PDFs externally:
 
 ![Opening PDFs externally on desktop](https://user-images.githubusercontent.com/5298006/171170626-5a94f5dc-61fc-4661-a9f2-38a0fb0181f5.gif)
 
 All features work on mobile, but were only tested on Android. Mobile uses the native image sharing functionality instead of the clipboard, and it downloads online images temporarily so they can be shared.
-
-![Copying URLs on Android](https://user-images.githubusercontent.com/5298006/125515758-bdf77074-a58c-4a6d-affa-88d031991ab2.gif)
 
 ## Installation
 
