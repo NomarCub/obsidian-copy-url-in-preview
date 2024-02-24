@@ -266,15 +266,16 @@ export default class CopyUrlInPreview extends Plugin {
   // There's also TouchEvent
   // The event has target, path, toEvent (null on Android) for finding the link
   onClickImage(event: MouseEvent) {
-    const target = (event.target as Element);
-    if (target.localName != "img") {
-      new Notice("No handler for this image type!");
+    const imgElement = event.target;
+    if (!(imgElement instanceof HTMLImageElement)) {
+      console.error("imgElement is supposed to be a HTMLImageElement. imgElement:");
+      console.error(imgElement);
       return;
     }
 
     event.preventDefault();
     const menu = new Menu();
-    const image = (target as HTMLImageElement).currentSrc;
+    const image = imgElement.currentSrc;
     const url = new URL(image);
     const protocol = url.protocol;
     switch (protocol) {
@@ -300,7 +301,7 @@ export default class CopyUrlInPreview extends Plugin {
           // getResourcePath("") also works for root path
           const baseFilePath = (this.app.vault.adapter as FileSystemAdapterWithInternalApi).getFilePath("");
           const baseFilePathName: string = baseFilePath.replace("file://", "");
-          const urlPathName: string = (url as any).pathname;
+          const urlPathName: string = url.pathname;
           if (urlPathName.startsWith(baseFilePathName)) {
             let relativePath = urlPathName.replace(baseFilePathName, "");
             relativePath = decodeURI(relativePath);
@@ -322,6 +323,7 @@ export default class CopyUrlInPreview extends Plugin {
               .setTitle("Reveal file in navigation")
               .onClick(() => {
                 const file = this.app.vault.getFileByPath(relativePath.substring(1));
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (this.app as any).internalPlugins.getEnabledPluginById("file-explorer").revealInFolder(file);
               })
             );
