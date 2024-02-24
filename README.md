@@ -8,7 +8,7 @@ This plugin provides the following context menus for images in [Obsidian](https:
 
 It also has an `Open PDF externally` context menu for PDFs.
 
-> This plugin used to have link URL copying functionality (see [1.5.2](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.5.2) and prior), but was removed when that was included in Obsidian 1.5.
+> This plugin used to be called "Copy Image and URL context menu". It had link URL copying functionality (see [1.5.2](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.5.2) and prior), but that was removed when it was included in Obsidian 1.5.
 
 See these other plugins for related functionality:
 - [Ozan's Image in Editor Plugin](https://github.com/ozntel/oz-image-in-editor-obsidian)
