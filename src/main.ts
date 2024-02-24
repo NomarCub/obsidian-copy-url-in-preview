@@ -321,8 +321,8 @@ export default class CopyUrlInPreview extends Plugin {
               .setIcon("folder")
               .setTitle("Reveal file in navigation")
               .onClick(() => {
-                const abstractFilePath = this.app.vault.getAbstractFileByPath(relativePath.substring(1));
-                (this.app as any).internalPlugins.getEnabledPluginById("file-explorer").revealInFolder(abstractFilePath);
+                const file = this.app.vault.getFileByPath(relativePath.substring(1));
+                (this.app as any).internalPlugins.getEnabledPluginById("file-explorer").revealInFolder(file);
               })
             );
           }
