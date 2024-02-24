@@ -1,14 +1,12 @@
-# Copy Image context menu
+# Image Context Menus
 
-This plugin context the following context menus
-- for images
-  - Copy Image
-  - Open image in default app
-  - Show in system explorer
-  - Reveal file in navigation
-- Open PDF externally
+This plugin provides the following context menus for images in [Obsidian](https://obsidian.md/):
+- Copy Image
+- Open image in default app
+- Show in system explorer
+- Reveal file in navigation
 
-in reading view in [Obsidian](https://obsidian.md/).
+It also has an `Open PDF externally` context menu for PDFs.
 
 > This plugin used to have link URL copying functionality (see [1.5.2](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.5.2) and prior), but was removed when that was included in Obsidian 1.5.
 
