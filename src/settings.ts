@@ -18,7 +18,7 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
     display() {
         const { containerEl } = this;
         containerEl.empty();
-        containerEl.createEl("h3", { text: "Copy Image and URL context menu settings" });
+        containerEl.createEl("h3", { text: "Copy Image context menu settings" });
         new Setting(containerEl)
             .setName("PDF context menu")
             .addToggle((toggle) => {
