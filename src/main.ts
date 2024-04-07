@@ -40,7 +40,7 @@ export default class CopyUrlInPreview extends Plugin {
     this.register(
       onElement(
         document,
-        "mouseover" as keyof HTMLElementEventMap,
+        "mouseover",
         ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
         this.showOpenPdfMenu.bind(this)
       )
@@ -49,7 +49,7 @@ export default class CopyUrlInPreview extends Plugin {
     this.register(
       onElement(
         document,
-        "mousemove" as keyof HTMLElementEventMap,
+        "mousemove",
         ".pdf-canvas",
         this.showOpenPdfMenu.bind(this)
       )
@@ -59,7 +59,7 @@ export default class CopyUrlInPreview extends Plugin {
       this.register(
         onElement(
           document,
-          "contextmenu" as keyof HTMLElementEventMap,
+          "contextmenu",
           "img",
           this.onClickImage.bind(this)
         )
@@ -68,7 +68,7 @@ export default class CopyUrlInPreview extends Plugin {
       this.register(
         onElement(
           document,
-          "mouseover" as keyof HTMLElementEventMap,
+          "mouseover",
           ".cm-link, .cm-hmd-internal-link",
           this.storeLastHoveredLinkInEditor.bind(this)
         )
@@ -77,7 +77,7 @@ export default class CopyUrlInPreview extends Plugin {
       this.register(
         onElement(
           document,
-          "mouseover" as keyof HTMLElementEventMap,
+          "mouseover",
           "a.internal-link",
           this.storeLastHoveredLinkInPreview.bind(this)
         )
@@ -86,7 +86,7 @@ export default class CopyUrlInPreview extends Plugin {
       this.register(
         onElement(
           document,
-          "touchstart" as keyof HTMLElementEventMap,
+          "touchstart",
           "img",
           this.startWaitingForLongTap.bind(this)
         )
@@ -95,7 +95,7 @@ export default class CopyUrlInPreview extends Plugin {
       this.register(
         onElement(
           document,
-          "touchend" as keyof HTMLElementEventMap,
+          "touchend",
           "img",
           this.stopWaitingForLongTap.bind(this)
         )
@@ -104,7 +104,7 @@ export default class CopyUrlInPreview extends Plugin {
       this.register(
         onElement(
           document,
-          "touchmove" as keyof HTMLElementEventMap,
+          "touchmove",
           "img",
           this.stopWaitingForLongTap.bind(this)
         )
@@ -188,7 +188,7 @@ export default class CopyUrlInPreview extends Plugin {
     menu.register(
       onElement(
         document,
-        "keydown" as keyof HTMLElementEventMap,
+        "keydown",
         "*",
         (e: KeyboardEvent) => {
           if (e.key === "Escape") {
