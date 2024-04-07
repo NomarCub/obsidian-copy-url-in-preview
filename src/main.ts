@@ -13,8 +13,8 @@ const OPEN_PDF_MENU_BORDER_SIZE = 100;
 const OPEN_PDF_MENU_TIMEOUT = 5_000;
 
 export default class CopyUrlInPreview extends Plugin {
-  longTapTimeoutId: number | null = null;
-  openPdfMenu: Menu | null;
+  longTapTimeoutId?: number;
+  openPdfMenu?: Menu;
   preventReopenPdfMenu: boolean;
   lastHoveredLinkTarget: string;
 
@@ -163,7 +163,7 @@ export default class CopyUrlInPreview extends Plugin {
 
     const menu = new Menu();
     this.registerEscapeButton(menu);
-    menu.onHide(() => this.openPdfMenu = null);
+    menu.onHide(() => this.openPdfMenu = undefined);
     menu.addItem((item: MenuItem) => item
       .setIcon("pdf-file")
       .setTitle("Open PDF externally")
@@ -211,7 +211,7 @@ export default class CopyUrlInPreview extends Plugin {
   startWaitingForLongTap(event: TouchEvent, img: HTMLImageElement) {
     if (this.longTapTimeoutId) {
       clearTimeout(this.longTapTimeoutId);
-      this.longTapTimeoutId = null;
+      this.longTapTimeoutId = undefined;
     } else {
       if (event.targetTouches.length == 1) {
         this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), longTapTimeout);
@@ -223,14 +223,14 @@ export default class CopyUrlInPreview extends Plugin {
   stopWaitingForLongTap() {
     if (this.longTapTimeoutId) {
       clearTimeout(this.longTapTimeoutId);
-      this.longTapTimeoutId = null;
+      this.longTapTimeoutId = undefined;
     }
   }
 
   // mobile
   async processLongTap(event: TouchEvent, img: HTMLImageElement) {
     event.stopPropagation();
-    this.longTapTimeoutId = null;
+    this.longTapTimeoutId = undefined;
     const adapter = this.app.vault.adapter as FileSystemAdapterWithInternalApi;
     const electronWindow = window as unknown as ElectronWindow;
     const basePath = adapter.getFullPath("");
