@@ -1,4 +1,4 @@
-import { App, Editor, EditorPosition, FileSystemAdapter } from "obsidian";
+import { FileSystemAdapter } from "obsidian";
 
 const loadImageBlobTimeout = 5_000;
 
@@ -6,20 +6,8 @@ export interface ElectronWindow extends Window {
     WEBVIEW_SERVER_URL: string
 }
 
-export interface EditorInternalApi extends Editor {
-    posAtMouse(event: MouseEvent): EditorPosition;
-    getClickableTokenAt(position: EditorPosition): {
-        text: string
-    } | null;
-}
-
 export interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
     open(path: string): Promise<void>
-}
-
-export interface AppWithDesktopInternalApi extends App {
-    openWithDefaultApp(path: string): Promise<void>;
-    showInFolder(path: string): Promise<void>;
 }
 
 export interface Listener {

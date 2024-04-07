@@ -1,8 +1,10 @@
-import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
+import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView, Events, TFolder } from "obsidian";
 import {
-  ElectronWindow, FileSystemAdapterWithInternalApi,
-  loadImageBlob, onElement, AppWithDesktopInternalApi, EditorInternalApi
+  loadImageBlob, onElement,
+  ElectronWindow, FileSystemAdapterWithInternalApi
 } from "./helpers"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import * as internal from 'obsidian-typings';
 import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
@@ -113,7 +115,7 @@ export default class CopyUrlInPreview extends Plugin {
   }
 
   storeLastHoveredLinkInEditor(event: MouseEvent) {
-    const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor as EditorInternalApi;
+    const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
     if (!editor) {
       return;
     }
@@ -172,7 +174,7 @@ export default class CopyUrlInPreview extends Plugin {
         setTimeout(() => { this.preventReopenPdfMenu = false; }, OPEN_PDF_MENU_TIMEOUT);
         this.hideOpenPdfMenu();
         if (Platform.isDesktop) {
-          await (this.app as AppWithDesktopInternalApi).openWithDefaultApp(pdfFile.path);
+          this.app.openWithDefaultApp(pdfFile.path);
         } else {
           await (this.app.vault.adapter as FileSystemAdapterWithInternalApi).open(pdfFile.path);
         }
@@ -309,13 +311,13 @@ export default class CopyUrlInPreview extends Plugin {
             menu.addItem((item: MenuItem) => item
               .setIcon("arrow-up-right")
               .setTitle("Open in default app")
-              .onClick(() => (this.app as AppWithDesktopInternalApi).openWithDefaultApp(relativePath))
+              .onClick(() => this.app.openWithDefaultApp(relativePath))
             );
             menu.addItem((item: MenuItem) => item
               .setIcon("arrow-up-right")
               .setTitle(Platform.isMacOS ? "Reveal in finder" : "Show in system explorer")
               .onClick(() => {
-                (this.app as AppWithDesktopInternalApi).showInFolder(relativePath);
+                this.app.showInFolder(relativePath);
               })
             );
             menu.addItem((item: MenuItem) => item
@@ -323,8 +325,8 @@ export default class CopyUrlInPreview extends Plugin {
               .setTitle("Reveal file in navigation")
               .onClick(() => {
                 const file = this.app.vault.getFileByPath(relativePath.substring(1));
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (this.app as any).internalPlugins.getEnabledPluginById("file-explorer").revealInFolder(file);
+                // workaround for https://github.com/Fevol/obsidian-typings/issues/42
+                this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file as unknown as TFolder);
               })
             );
           }
@@ -337,6 +339,7 @@ export default class CopyUrlInPreview extends Plugin {
 
     this.registerEscapeButton(menu);
     menu.showAtPosition({ x: event.pageX, y: event.pageY });
-    this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
+    // workaround for https://github.com/Fevol/obsidian-typings/issues/41
+    (this.app.workspace as Events).trigger("copy-url-in-preview:contextmenu", menu);
   }
 }
