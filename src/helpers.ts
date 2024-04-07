@@ -23,8 +23,7 @@ export interface AppWithDesktopInternalApi extends App {
 }
 
 export interface Listener {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this: Document, ev: Event): any;
+    (this: Document, ev: Event): unknown;
 }
 
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
