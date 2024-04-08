@@ -1,4 +1,4 @@
-import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView, Events, TFolder } from "obsidian";
+import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
 import {
   loadImageBlob, onElement,
   ElectronWindow, FileSystemAdapterWithInternalApi
@@ -325,8 +325,11 @@ export default class CopyUrlInPreview extends Plugin {
               .setTitle("Reveal file in navigation")
               .onClick(() => {
                 const file = this.app.vault.getFileByPath(relativePath.substring(1));
-                // workaround for https://github.com/Fevol/obsidian-typings/issues/42
-                this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file as unknown as TFolder);
+                if (!file) {
+                  console.warn(`getFileByPath returned null for ${relativePath}`)
+                  return;
+                }
+                this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
               })
             );
           }
@@ -339,7 +342,6 @@ export default class CopyUrlInPreview extends Plugin {
 
     this.registerEscapeButton(menu);
     menu.showAtPosition({ x: event.pageX, y: event.pageY });
-    // workaround for https://github.com/Fevol/obsidian-typings/issues/41
-    (this.app.workspace as Events).trigger("copy-url-in-preview:contextmenu", menu);
+    this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
   }
 }
