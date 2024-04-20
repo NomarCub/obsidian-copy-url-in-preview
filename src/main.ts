@@ -1,6 +1,6 @@
 import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
 import {
-  loadImageBlob, onElement,
+  loadImageBlob, onElement, openImageFromMouseEvent,
   ElectronWindow, FileSystemAdapterWithInternalApi
 } from "./helpers"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -63,9 +63,18 @@ export default class CopyUrlInPreview extends Plugin {
           document,
           "contextmenu",
           "img",
-          this.onClickImage.bind(this)
+          this.onClickImage_contextmenu.bind(this)
         )
-      )
+      );
+
+      this.register(
+        onElement(
+          document,
+          "mouseup",
+          "img",
+          this.onClickImage_click.bind(this)
+        )
+      );
 
       this.register(
         onElement(
@@ -267,7 +276,7 @@ export default class CopyUrlInPreview extends Plugin {
   // Positions are not accurate from PointerEvent.
   // There's also TouchEvent
   // The event has target, path, toEvent (null on Android) for finding the link
-  onClickImage(event: MouseEvent) {
+  onClickImage_contextmenu(event: MouseEvent) {
     const imgElement = event.target;
     if (!(imgElement instanceof HTMLImageElement)) {
       console.error("imgElement is supposed to be a HTMLImageElement. imgElement:");
@@ -310,6 +319,13 @@ export default class CopyUrlInPreview extends Plugin {
 
             menu.addItem((item: MenuItem) => item
               .setIcon("arrow-up-right")
+              .setTitle("Open in new tab")
+              .onClick(() => {
+                openImageFromMouseEvent(event);
+              })
+            );
+            menu.addItem((item: MenuItem) => item
+              .setIcon("arrow-up-right")
               .setTitle("Open in default app")
               .onClick(() => this.app.openWithDefaultApp(relativePath))
             );
@@ -343,5 +359,13 @@ export default class CopyUrlInPreview extends Plugin {
     this.registerEscapeButton(menu);
     menu.showAtPosition({ x: event.pageX, y: event.pageY });
     this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
+  }
+
+  onClickImage_click(event: MouseEvent) {
+    if (event.button == 1) { //middle mouse button
+      if (this.settings.openInNewTabOnMiddleMouseClick) {
+        openImageFromMouseEvent(event);
+      }
+    }
   }
 }
