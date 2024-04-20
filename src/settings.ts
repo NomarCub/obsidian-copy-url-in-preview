@@ -8,7 +8,7 @@ export interface CopyUrlInPreviewSettings {
 
 export const DEFAULT_SETTINGS: CopyUrlInPreviewSettings = {
     pdfMenu: true,
-    openInNewTabOnMiddleMouseClick: false
+    openInNewTabOnMiddleMouseClick: true
 }
 
 export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
