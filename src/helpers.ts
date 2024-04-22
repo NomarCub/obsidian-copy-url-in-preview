@@ -87,7 +87,6 @@ export function openImageFromMouseEvent(event: MouseEvent) {
         if (url.pathname.startsWith(basePath)) {
             const titleContainerEl = leaf.view.titleContainerEl;
             titleContainerEl.empty();
-            console.log(basePath, '|', url.pathname);
             titleContainerEl.createEl("div", { text: url.pathname.substring(basePath.length) })
         }
 
