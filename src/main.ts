@@ -72,7 +72,7 @@ export default class CopyUrlInPreview extends Plugin {
           document,
           "mouseup",
           "img",
-          this.onClickImage_click.bind(this)
+          this.onClickImage_mouseup.bind(this)
         )
       );
 
@@ -361,7 +361,7 @@ export default class CopyUrlInPreview extends Plugin {
     this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
   }
 
-  onClickImage_click(event: MouseEvent) {
+  onClickImage_mouseup(event: MouseEvent) {
     if (event.button == 1) { //middle mouse button
       if (this.settings.openInNewTabOnMiddleMouseClick) {
         openImageFromMouseEvent(event);

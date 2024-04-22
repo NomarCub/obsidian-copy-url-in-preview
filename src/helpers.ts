@@ -79,20 +79,23 @@ export function openImageFromMouseEvent(event: MouseEvent) {
         const img_src = image.currentSrc;
         const url = new URL(img_src);
       
+        const basePath = this.app.vault.adapter.basePath + require('path').sep;
+
         const leaf = this.app.workspace.getLeaf(true);
         this.app.workspace.setActiveLeaf(leaf, {focus: true});
 
-        const titleContainerEl = leaf.view.titleContainerEl;
-        titleContainerEl.empty();
-        titleContainerEl.createEl("div", { text: url.pathname })
-        
+        if (url.pathname.startsWith(basePath)) {
+            const titleContainerEl = leaf.view.titleContainerEl;
+            titleContainerEl.empty();
+            console.log(basePath, '|', url.pathname);
+            titleContainerEl.createEl("div", { text: url.pathname.substring(basePath.length) })
+        }
+
         const contentEl = leaf.view.contentEl;
         contentEl.empty();
-        const basePath = this.app.vault.adapter.basePath + require('path').sep;
-        if (url.pathname.startsWith(basePath)) {
-            let div = contentEl.createEl("div", {});
-            let img = div.appendChild(document.createElement("img"));
-            img.src = img_src;
-        }
+
+        let div = contentEl.createEl("div", {});
+        let img = div.appendChild(document.createElement("img"));
+        img.src = img_src;
     }
 }
