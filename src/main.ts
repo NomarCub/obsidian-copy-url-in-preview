@@ -362,8 +362,8 @@ export default class CopyUrlInPreview extends Plugin {
   }
 
   onClickImage_mouseup(event: MouseEvent) {
-    if (event.button == 1) { //middle mouse button
-      if (this.settings.openInNewTabOnMiddleMouseClick) {
+    if (event.button == 1) { // middle mouse button
+      if (this.settings.middleClickNewTab) {
         openImageFromMouseEvent(event);
       }
     }
