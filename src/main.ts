@@ -26,7 +26,7 @@ export default class CopyUrlInPreview extends Plugin {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
   }
   async saveSettings() {
-    this.saveData(this.settings);
+    await this.saveData(this.settings);
   }
 
   async onload() {
@@ -150,7 +150,7 @@ export default class CopyUrlInPreview extends Plugin {
       pdfLink = pdfLink?.replace(/#page=\d+$/, '');
 
       const currentNotePath = this.app.workspace.getActiveFile()!.path;
-      pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink!, currentNotePath!)!;
+      pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink!, currentNotePath)!;
     } else {
       pdfFile = this.app.workspace.getActiveFile()!;
     }
@@ -298,7 +298,7 @@ export default class CopyUrlInPreview extends Plugin {
               .setIcon("arrow-up-right")
               .setTitle("Open in new tab")
               .onClick(() => {
-                openImageFromMouseEvent(event);
+                openImageFromMouseEvent(event, this.app);
               })
             );
             menu.addItem((item: MenuItem) => item
@@ -341,7 +341,7 @@ export default class CopyUrlInPreview extends Plugin {
   onImageMouseUp(event: MouseEvent) {
     const middleButtonNumber = 1;
     if (event.button == middleButtonNumber && this.settings.middleClickNewTab) {
-      openImageFromMouseEvent(event);
+      openImageFromMouseEvent(event, this.app);
     }
   }
 }

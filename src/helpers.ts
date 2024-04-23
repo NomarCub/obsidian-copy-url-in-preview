@@ -1,4 +1,4 @@
-import { FileSystemAdapter } from "obsidian";
+import { App, FileSystemAdapter } from "obsidian";
 
 const loadImageBlobTimeout = 5_000;
 
@@ -20,7 +20,7 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
             clearTimeout(id);
             reject(`timed out after ${ms} ms`)
         }, ms)
-    }) as Promise<T>;
+    }) as unknown as Promise<T>;
     return Promise.race([
         promise,
         timeout
@@ -80,17 +80,17 @@ export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement 
     }
 }
 
-export function openImageFromMouseEvent(event: MouseEvent) {
+export function openImageFromMouseEvent(event: MouseEvent, app: App) {
     const image = imageElementFromMouseEvent(event);
     if (!image) return;
 
     const imageSrc = image.currentSrc;
     const url = new URL(imageSrc);
 
-    const basePath = this.app.vault.adapter.basePath + require('path').sep;
+    const basePath = app.vault.adapter.basePath + require('path').sep;
 
-    const leaf = this.app.workspace.getLeaf(true);
-    this.app.workspace.setActiveLeaf(leaf, { focus: true });
+    const leaf = app.workspace.getLeaf(true);
+    app.workspace.setActiveLeaf(leaf, { focus: true });
 
     if (url.pathname.startsWith(basePath)) {
         const titleContainerEl = leaf.view.titleContainerEl;
