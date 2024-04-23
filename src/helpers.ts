@@ -93,12 +93,12 @@ export function openImageFromMouseEvent(event: MouseEvent, app: App) {
     app.workspace.setActiveLeaf(leaf, { focus: true });
 
     if (url.pathname.startsWith(basePath)) {
-        const titleContainerEl = leaf.view.titleContainerEl;
+        const titleContainerEl = (leaf.view as any).titleContainerEl;
         titleContainerEl.empty();
         titleContainerEl.createEl("div", { text: url.pathname.substring(basePath.length) })
     }
 
-    const contentEl = leaf.view.contentEl;
+    const contentEl = (leaf.view as any).contentEl;
     contentEl.empty();
 
     const div = contentEl.createEl("div", {});
