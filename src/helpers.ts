@@ -93,8 +93,8 @@ export function openImageFromMouseEvent(event: MouseEvent) {
         const contentEl = leaf.view.contentEl;
         contentEl.empty();
 
-        let div = contentEl.createEl("div", {});
-        let img = div.appendChild(document.createElement("img"));
+        const div = contentEl.createEl("div", {});
+        const img = div.appendChild(document.createElement("img"));
         img.src = img_src;
     }
 }
