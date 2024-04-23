@@ -20,45 +20,43 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
             clearTimeout(id);
             reject(`timed out after ${ms} ms`)
         }, ms)
-    })
+    }) as Promise<T>;
     return Promise.race([
         promise,
         timeout
-    ]) as Promise<T>
+    ]);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
 export async function loadImageBlob(imgSrc: string): Promise<Blob> {
-    const loadImageBlobCore = () => {
-        return new Promise<Blob>((resolve, reject) => {
-            const image = new Image();
-            image.crossOrigin = "anonymous";
-            image.onload = () => {
-                const canvas = document.createElement("canvas");
-                canvas.width = image.width;
-                canvas.height = image.height;
-                const ctx = canvas.getContext("2d")!;
-                ctx.drawImage(image, 0, 0);
-                canvas.toBlob((blob: Blob) => {
-                    resolve(blob);
-                });
-            };
-            image.onerror = async () => {
-                try {
-                    await fetch(image.src, { "mode": "no-cors" });
+    const loadImageBlobCore = () => new Promise<Blob>((resolve, reject) => {
+        const image = new Image();
+        image.crossOrigin = "anonymous";
+        image.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = image.width;
+            canvas.height = image.height;
+            const ctx = canvas.getContext("2d")!;
+            ctx.drawImage(image, 0, 0);
+            canvas.toBlob((blob: Blob) => {
+                resolve(blob);
+            });
+        };
+        image.onerror = async () => {
+            try {
+                await fetch(image.src, { "mode": "no-cors" });
 
-                    // console.log("possible CORS violation, falling back to allOrigins proxy");
-                    // https://github.com/gnuns/allOrigins
-                    const blob = await loadImageBlob(`https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`);
-                    resolve(blob);
-                } catch {
-                    reject();
-                }
+                // console.log("possible CORS violation, falling back to allOrigins proxy");
+                // https://github.com/gnuns/allOrigins
+                const blob = await loadImageBlob(`https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`);
+                resolve(blob);
+            } catch {
+                reject();
             }
-            image.src = imgSrc;
-        });
-    };
+        }
+        image.src = imgSrc;
+    });
     return withTimeout(loadImageBlobTimeout, loadImageBlobCore())
 }
 
