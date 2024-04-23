@@ -15,7 +15,7 @@ export interface Listener {
 }
 
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
-    const timeout = new Promise((resolve, reject) => {
+    const timeout = new Promise((_resolve, reject) => {
         const id = setTimeout(() => {
             clearTimeout(id);
             reject(`timed out after ${ms} ms`)
