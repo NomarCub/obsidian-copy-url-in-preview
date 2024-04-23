@@ -33,7 +33,7 @@ export default class CopyUrlInPreview extends Plugin {
     this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
     this.registerDocument(document);
     this.app.workspace.on("window-open",
-      (workspaceWindow, window) => {
+      (_workspaceWindow, window) => {
         this.registerDocument(window.document);
       });
   }
@@ -63,7 +63,7 @@ export default class CopyUrlInPreview extends Plugin {
           document,
           "contextmenu",
           "img",
-          this.onClickImage_contextmenu.bind(this)
+          this.onImageContextMenu.bind(this)
         )
       );
 
@@ -72,7 +72,7 @@ export default class CopyUrlInPreview extends Plugin {
           document,
           "mouseup",
           "img",
-          this.onClickImage_mouseup.bind(this)
+          this.onImageMouseUp.bind(this)
         )
       );
 
@@ -136,7 +136,7 @@ export default class CopyUrlInPreview extends Plugin {
     this.lastHoveredLinkTarget = token.text;
   }
 
-  storeLastHoveredLinkInPreview(event: MouseEvent, link: HTMLAnchorElement) {
+  storeLastHoveredLinkInPreview(_event: MouseEvent, link: HTMLAnchorElement) {
     this.lastHoveredLinkTarget = link.getAttribute("data-href")!;
   }
 
@@ -276,7 +276,7 @@ export default class CopyUrlInPreview extends Plugin {
   // Positions are not accurate from PointerEvent.
   // There's also TouchEvent
   // The event has target, path, toEvent (null on Android) for finding the link
-  onClickImage_contextmenu(event: MouseEvent) {
+  onImageContextMenu(event: MouseEvent) {
     const imgElement = event.target;
     if (!(imgElement instanceof HTMLImageElement)) {
       console.error("imgElement is supposed to be a HTMLImageElement. imgElement:");
@@ -361,7 +361,7 @@ export default class CopyUrlInPreview extends Plugin {
     this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
   }
 
-  onClickImage_mouseup(event: MouseEvent) {
+  onImageMouseUp(event: MouseEvent) {
     const middleButtonNumber = 1;
     if (event.button == middleButtonNumber && this.settings.middleClickNewTab) {
       openImageFromMouseEvent(event);
