@@ -63,9 +63,7 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob> {
 }
 
 export function onElement(
-    el: Document,
-    event: keyof HTMLElementEventMap,
-    selector: string,
+    el: Document, event: keyof HTMLElementEventMap, selector: string,
     listener: Listener,
     options?: { capture?: boolean; }
 ) {
