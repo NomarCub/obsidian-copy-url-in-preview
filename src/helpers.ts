@@ -87,7 +87,7 @@ export function openImageFromMouseEvent(event: MouseEvent, app: App) {
     const imageSrc = image.currentSrc;
     const url = new URL(imageSrc);
 
-    const basePath = app.vault.adapter.basePath + require('path').sep;
+    const basePath = app.vault.adapter.basePath;
 
     const leaf = app.workspace.getLeaf(true);
     app.workspace.setActiveLeaf(leaf, { focus: true });
@@ -95,7 +95,7 @@ export function openImageFromMouseEvent(event: MouseEvent, app: App) {
     if (url.pathname.startsWith(basePath)) {
         const titleContainerEl = (leaf.view as any).titleContainerEl;
         titleContainerEl.empty();
-        titleContainerEl.createEl("div", { text: url.pathname.substring(basePath.length) })
+        titleContainerEl.createEl("div", { text: url.pathname.substring(basePath.length + 1) })
     }
 
     const contentEl = (leaf.view as any).contentEl;
