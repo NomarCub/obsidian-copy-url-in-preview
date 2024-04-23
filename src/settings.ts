@@ -30,7 +30,7 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
                 })
             })
         new Setting(containerEl)
-            .setName("Middle mouse to open in new tab")
+            .setName("Middle mouse click on image link to open in new tab")
             .addToggle((toggle) => {
                 toggle.setValue(this.plugin.settings.middleClickNewTab).onChange((value) => {
                     this.plugin.settings.middleClickNewTab = value;
