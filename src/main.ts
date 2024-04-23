@@ -1,7 +1,8 @@
 import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
 import {
   loadImageBlob, onElement, openImageFromMouseEvent,
-  ElectronWindow, FileSystemAdapterWithInternalApi
+  ElectronWindow, FileSystemAdapterWithInternalApi,
+  imageElementFromMouseEvent
 } from "./helpers"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as internal from 'obsidian-typings';
@@ -257,16 +258,12 @@ export default class CopyUrlInPreview extends Plugin {
   // There's also TouchEvent
   // The event has target, path, toEvent (null on Android) for finding the link
   onImageContextMenu(event: MouseEvent) {
-    const imgElement = event.target;
-    if (!(imgElement instanceof HTMLImageElement)) {
-      console.error("imgElement is supposed to be a HTMLImageElement. imgElement:");
-      console.error(imgElement);
-      return;
-    }
+    const imageElement = imageElementFromMouseEvent(event);
+    if (!imageElement) return;
 
     event.preventDefault();
     const menu = new Menu();
-    const image = imgElement.currentSrc;
+    const image = imageElement.currentSrc;
     const url = new URL(image);
     const protocol = url.protocol;
     switch (protocol) {

@@ -71,28 +71,39 @@ export function onElement(
     return () => el.off(event, selector, listener, options);
 }
 
-export function openImageFromMouseEvent(event: MouseEvent) {
-    const image = event.target;
-    if (image != null) {
-        const img_src = image.currentSrc;
-        const url = new URL(img_src);
-
-        const basePath = this.app.vault.adapter.basePath + require('path').sep;
-
-        const leaf = this.app.workspace.getLeaf(true);
-        this.app.workspace.setActiveLeaf(leaf, { focus: true });
-
-        if (url.pathname.startsWith(basePath)) {
-            const titleContainerEl = leaf.view.titleContainerEl;
-            titleContainerEl.empty();
-            titleContainerEl.createEl("div", { text: url.pathname.substring(basePath.length) })
-        }
-
-        const contentEl = leaf.view.contentEl;
-        contentEl.empty();
-
-        const div = contentEl.createEl("div", {});
-        const img = div.appendChild(document.createElement("img"));
-        img.src = img_src;
+export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement | undefined {
+    const imageElement = event.target;
+    if (!(imageElement instanceof HTMLImageElement)) {
+        console.error("imageElement is supposed to be a HTMLImageElement. imageElement:");
+        console.error(imageElement);
     }
+    else {
+        return imageElement;
+    }
+}
+
+export function openImageFromMouseEvent(event: MouseEvent) {
+    const image = imageElementFromMouseEvent(event);
+    if (!image) return;
+
+    const imageSrc = image.currentSrc;
+    const url = new URL(imageSrc);
+
+    const basePath = this.app.vault.adapter.basePath + require('path').sep;
+
+    const leaf = this.app.workspace.getLeaf(true);
+    this.app.workspace.setActiveLeaf(leaf, { focus: true });
+
+    if (url.pathname.startsWith(basePath)) {
+        const titleContainerEl = leaf.view.titleContainerEl;
+        titleContainerEl.empty();
+        titleContainerEl.createEl("div", { text: url.pathname.substring(basePath.length) })
+    }
+
+    const contentEl = leaf.view.contentEl;
+    contentEl.empty();
+
+    const div = contentEl.createEl("div", {});
+    const img = div.appendChild(document.createElement("img"));
+    img.src = imageSrc;
 }
