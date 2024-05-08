@@ -2,7 +2,7 @@ import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "o
 import {
   loadImageBlob, onElement, openImageFromMouseEvent,
   ElectronWindow, FileSystemAdapterWithInternalApi,
-  imageElementFromMouseEvent, getVaultRootPath
+  imageElementFromMouseEvent, getRelativePath
 } from "./helpers"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as internal from 'obsidian-typings';
@@ -286,12 +286,8 @@ export default class CopyUrlInPreview extends Plugin {
           })
         );
         if (protocol === "app:" && Platform.isDesktop) {
-          const baseFilePathName: string = getVaultRootPath(this.app);
-          const urlPathName: string = url.pathname;
-          if (urlPathName.startsWith(baseFilePathName)) {
-            let relativePath = urlPathName.replace(baseFilePathName, "");
-            relativePath = decodeURI(relativePath);
-
+          const relativePath = getRelativePath(url, this.app);
+          if (relativePath) {
             menu.addItem((item: MenuItem) => item
               .setIcon("arrow-up-right")
               .setTitle("Open in new tab")
@@ -315,7 +311,7 @@ export default class CopyUrlInPreview extends Plugin {
               .setIcon("folder")
               .setTitle("Reveal file in navigation")
               .onClick(() => {
-                const file = this.app.vault.getFileByPath(relativePath.substring(1));
+                const file = this.app.vault.getFileByPath(relativePath);
                 if (!file) {
                   console.warn(`getFileByPath returned null for ${relativePath}`)
                   return;

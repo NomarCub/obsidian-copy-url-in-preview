@@ -80,36 +80,35 @@ export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement 
     }
 }
 
-export function getVaultRootPath(app: App): string {
+export function getRelativePath(url: URL, app: App): string | undefined {
     // getResourcePath("") also works for root path
-    // TODO: use `app.vault.adapter.basePath`?
-    const baseFilePath = app.vault.adapter.getFilePath("");
-    return baseFilePath.replace("file://", "");
+    const baseFileUrl = app.vault.adapter.getFilePath("");
+    const basePath = baseFileUrl.replace("file://", "");
+
+    const urlPathName: string = url.pathname;
+    if (urlPathName.startsWith(basePath)) {
+      const relativePath = urlPathName.substring(basePath.length + 1);
+      return decodeURI(relativePath);
+    }
 }
 
 export function openImageFromMouseEvent(event: MouseEvent, app: App) {
     const image = imageElementFromMouseEvent(event);
     if (!image) return;
 
-    const imageSrc = image.currentSrc;
-    const url = new URL(imageSrc);
-
-    const basePath = getVaultRootPath(app);
-
     const leaf = app.workspace.getLeaf(true);
     app.workspace.setActiveLeaf(leaf, { focus: true });
 
-    if (url.pathname.startsWith(basePath)) {
+    const relativePath = getRelativePath(new URL(image.currentSrc), app);
+    if (relativePath) {
         const titleContainerEl = (leaf.view as View & { titleContainerEl: Node }).titleContainerEl;
         titleContainerEl.empty();
-        const title = decodeURI(url.pathname.substring(basePath.length + 1));
-        titleContainerEl.createEl("div", { text: title })
+        titleContainerEl.createEl("div", { text: relativePath })
     }
 
     const contentEl = (leaf.view as View & { contentEl: Node }).contentEl;
     contentEl.empty();
-
     const div = contentEl.createEl("div", {});
     const img = div.appendChild(document.createElement("img"));
-    img.src = imageSrc;
+    img.src = image.currentSrc;
 }
