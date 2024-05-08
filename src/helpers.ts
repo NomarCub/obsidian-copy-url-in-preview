@@ -80,6 +80,13 @@ export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement 
     }
 }
 
+export function getVaultRootPath(app: App): string {
+    // getResourcePath("") also works for root path
+    // TODO: use `app.vault.adapter.basePath`?
+    const baseFilePath = app.vault.adapter.getFilePath("");
+    return baseFilePath.replace("file://", "");
+}
+
 export function openImageFromMouseEvent(event: MouseEvent, app: App) {
     const image = imageElementFromMouseEvent(event);
     if (!image) return;
@@ -87,7 +94,7 @@ export function openImageFromMouseEvent(event: MouseEvent, app: App) {
     const imageSrc = image.currentSrc;
     const url = new URL(imageSrc);
 
-    const basePath = app.vault.adapter.basePath;
+    const basePath = getVaultRootPath(app);
 
     const leaf = app.workspace.getLeaf(true);
     app.workspace.setActiveLeaf(leaf, { focus: true });
@@ -95,7 +102,8 @@ export function openImageFromMouseEvent(event: MouseEvent, app: App) {
     if (url.pathname.startsWith(basePath)) {
         const titleContainerEl = (leaf.view as any).titleContainerEl;
         titleContainerEl.empty();
-        titleContainerEl.createEl("div", { text: url.pathname.substring(basePath.length + 1) })
+        const title = decodeURI(url.pathname.substring(basePath.length + 1));
+        titleContainerEl.createEl("div", { text: title })
     }
 
     const contentEl = (leaf.view as any).contentEl;

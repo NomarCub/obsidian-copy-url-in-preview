@@ -2,7 +2,7 @@ import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "o
 import {
   loadImageBlob, onElement, openImageFromMouseEvent,
   ElectronWindow, FileSystemAdapterWithInternalApi,
-  imageElementFromMouseEvent
+  imageElementFromMouseEvent, getVaultRootPath
 } from "./helpers"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as internal from 'obsidian-typings';
@@ -286,9 +286,7 @@ export default class CopyUrlInPreview extends Plugin {
           })
         );
         if (protocol === "app:" && Platform.isDesktop) {
-          // getResourcePath("") also works for root path
-          const baseFilePath = this.app.vault.adapter.getFilePath("");
-          const baseFilePathName: string = baseFilePath.replace("file://", "");
+          const baseFilePathName: string = getVaultRootPath(this.app);
           const urlPathName: string = url.pathname;
           if (urlPathName.startsWith(baseFilePathName)) {
             let relativePath = urlPathName.replace(baseFilePathName, "");
