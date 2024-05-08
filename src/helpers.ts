@@ -1,4 +1,4 @@
-import { App, FileSystemAdapter } from "obsidian";
+import { App, FileSystemAdapter, View } from "obsidian";
 
 const loadImageBlobTimeout = 5_000;
 
@@ -100,13 +100,13 @@ export function openImageFromMouseEvent(event: MouseEvent, app: App) {
     app.workspace.setActiveLeaf(leaf, { focus: true });
 
     if (url.pathname.startsWith(basePath)) {
-        const titleContainerEl = (leaf.view as any).titleContainerEl;
+        const titleContainerEl = (leaf.view as View & { titleContainerEl: Node }).titleContainerEl;
         titleContainerEl.empty();
         const title = decodeURI(url.pathname.substring(basePath.length + 1));
         titleContainerEl.createEl("div", { text: title })
     }
 
-    const contentEl = (leaf.view as any).contentEl;
+    const contentEl = (leaf.view as View & { contentEl: Node }).contentEl;
     contentEl.empty();
 
     const div = contentEl.createEl("div", {});
