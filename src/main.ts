@@ -1,7 +1,8 @@
 import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
 import {
-  loadImageBlob, onElement,
-  ElectronWindow, FileSystemAdapterWithInternalApi
+  loadImageBlob, onElement, openImageFromMouseEvent,
+  ElectronWindow, FileSystemAdapterWithInternalApi,
+  imageElementFromMouseEvent, getRelativePath
 } from "./helpers"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as internal from 'obsidian-typings';
@@ -25,7 +26,7 @@ export default class CopyUrlInPreview extends Plugin {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
   }
   async saveSettings() {
-    this.saveData(this.settings);
+    await this.saveData(this.settings);
   }
 
   async onload() {
@@ -33,7 +34,7 @@ export default class CopyUrlInPreview extends Plugin {
     this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
     this.registerDocument(document);
     this.app.workspace.on("window-open",
-      (workspaceWindow, window) => {
+      (_workspaceWindow, window) => {
         this.registerDocument(window.document);
       });
   }
@@ -41,18 +42,14 @@ export default class CopyUrlInPreview extends Plugin {
   registerDocument(document: Document) {
     this.register(
       onElement(
-        document,
-        "mouseover",
-        ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
+        document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
         this.showOpenPdfMenu.bind(this)
       )
     )
 
     this.register(
       onElement(
-        document,
-        "mousemove",
-        ".pdf-canvas",
+        document, "mousemove", ".pdf-canvas",
         this.showOpenPdfMenu.bind(this)
       )
     )
@@ -60,54 +57,49 @@ export default class CopyUrlInPreview extends Plugin {
     if (Platform.isDesktop) {
       this.register(
         onElement(
-          document,
-          "contextmenu",
-          "img",
-          this.onClickImage.bind(this)
+          document, "contextmenu", "img",
+          this.onImageContextMenu.bind(this)
         )
-      )
+      );
 
       this.register(
         onElement(
-          document,
-          "mouseover",
-          ".cm-link, .cm-hmd-internal-link",
+          document, "mouseup", "img",
+          this.onImageMouseUp.bind(this)
+        )
+      );
+
+      this.register(
+        onElement(
+          document, "mouseover", ".cm-link, .cm-hmd-internal-link",
           this.storeLastHoveredLinkInEditor.bind(this)
         )
       );
 
       this.register(
         onElement(
-          document,
-          "mouseover",
-          "a.internal-link",
+          document, "mouseover", "a.internal-link",
           this.storeLastHoveredLinkInPreview.bind(this)
         )
       );
     } else {
       this.register(
         onElement(
-          document,
-          "touchstart",
-          "img",
+          document, "touchstart", "img",
           this.startWaitingForLongTap.bind(this)
         )
       );
 
       this.register(
         onElement(
-          document,
-          "touchend",
-          "img",
+          document, "touchend", "img",
           this.stopWaitingForLongTap.bind(this)
         )
       );
 
       this.register(
         onElement(
-          document,
-          "touchmove",
-          "img",
+          document, "touchmove", "img",
           this.stopWaitingForLongTap.bind(this)
         )
       );
@@ -127,7 +119,7 @@ export default class CopyUrlInPreview extends Plugin {
     this.lastHoveredLinkTarget = token.text;
   }
 
-  storeLastHoveredLinkInPreview(event: MouseEvent, link: HTMLAnchorElement) {
+  storeLastHoveredLinkInPreview(_event: MouseEvent, link: HTMLAnchorElement) {
     this.lastHoveredLinkTarget = link.getAttribute("data-href")!;
   }
 
@@ -158,7 +150,7 @@ export default class CopyUrlInPreview extends Plugin {
       pdfLink = pdfLink?.replace(/#page=\d+$/, '');
 
       const currentNotePath = this.app.workspace.getActiveFile()!.path;
-      pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink!, currentNotePath!)!;
+      pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink!, currentNotePath)!;
     } else {
       pdfFile = this.app.workspace.getActiveFile()!;
     }
@@ -189,9 +181,7 @@ export default class CopyUrlInPreview extends Plugin {
   registerEscapeButton(menu: Menu, document: Document = activeDocument) {
     menu.register(
       onElement(
-        document,
-        "keydown",
-        "*",
+        document, "keydown", "*",
         (e: KeyboardEvent) => {
           if (e.key === "Escape") {
             e.preventDefault();
@@ -267,17 +257,13 @@ export default class CopyUrlInPreview extends Plugin {
   // Positions are not accurate from PointerEvent.
   // There's also TouchEvent
   // The event has target, path, toEvent (null on Android) for finding the link
-  onClickImage(event: MouseEvent) {
-    const imgElement = event.target;
-    if (!(imgElement instanceof HTMLImageElement)) {
-      console.error("imgElement is supposed to be a HTMLImageElement. imgElement:");
-      console.error(imgElement);
-      return;
-    }
+  onImageContextMenu(event: MouseEvent) {
+    const imageElement = imageElementFromMouseEvent(event);
+    if (!imageElement) return;
 
     event.preventDefault();
     const menu = new Menu();
-    const image = imgElement.currentSrc;
+    const image = imageElement.currentSrc;
     const url = new URL(image);
     const protocol = url.protocol;
     switch (protocol) {
@@ -300,14 +286,15 @@ export default class CopyUrlInPreview extends Plugin {
           })
         );
         if (protocol === "app:" && Platform.isDesktop) {
-          // getResourcePath("") also works for root path
-          const baseFilePath = this.app.vault.adapter.getFilePath("");
-          const baseFilePathName: string = baseFilePath.replace("file://", "");
-          const urlPathName: string = url.pathname;
-          if (urlPathName.startsWith(baseFilePathName)) {
-            let relativePath = urlPathName.replace(baseFilePathName, "");
-            relativePath = decodeURI(relativePath);
-
+          const relativePath = getRelativePath(url, this.app);
+          if (relativePath) {
+            menu.addItem((item: MenuItem) => item
+              .setIcon("arrow-up-right")
+              .setTitle("Open in new tab")
+              .onClick(() => {
+                openImageFromMouseEvent(event, this.app);
+              })
+            );
             menu.addItem((item: MenuItem) => item
               .setIcon("arrow-up-right")
               .setTitle("Open in default app")
@@ -324,7 +311,7 @@ export default class CopyUrlInPreview extends Plugin {
               .setIcon("folder")
               .setTitle("Reveal file in navigation")
               .onClick(() => {
-                const file = this.app.vault.getFileByPath(relativePath.substring(1));
+                const file = this.app.vault.getFileByPath(relativePath);
                 if (!file) {
                   console.warn(`getFileByPath returned null for ${relativePath}`)
                   return;
@@ -343,5 +330,12 @@ export default class CopyUrlInPreview extends Plugin {
     this.registerEscapeButton(menu);
     menu.showAtPosition({ x: event.pageX, y: event.pageY });
     this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
+  }
+
+  onImageMouseUp(event: MouseEvent) {
+    const middleButtonNumber = 1;
+    if (event.button == middleButtonNumber && this.settings.middleClickNewTab) {
+      openImageFromMouseEvent(event, this.app);
+    }
   }
 }

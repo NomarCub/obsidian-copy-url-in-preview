@@ -3,10 +3,12 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 
 export interface CopyUrlInPreviewSettings {
     pdfMenu: boolean;
+    middleClickNewTab: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopyUrlInPreviewSettings = {
-    pdfMenu: true
+    pdfMenu: true,
+    middleClickNewTab: true
 }
 
 export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
@@ -26,6 +28,14 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
                     this.plugin.settings.pdfMenu = value;
                     this.plugin.saveSettings();
                 })
+            })
+        new Setting(containerEl)
+            .setName("Middle mouse click on image link to open in new tab")
+            .addToggle((toggle) => {
+                toggle.setValue(this.plugin.settings.middleClickNewTab).onChange((value) => {
+                    this.plugin.settings.middleClickNewTab = value;
+                    this.plugin.saveSettings();
+                });
             })
     }
 }
