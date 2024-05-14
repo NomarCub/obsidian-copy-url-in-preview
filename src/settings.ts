@@ -7,7 +7,7 @@ export interface CopyUrlInPreviewSettings {
 }
 
 export const DEFAULT_SETTINGS: CopyUrlInPreviewSettings = {
-    pdfMenu: true,
+    pdfMenu: false,
     middleClickNewTab: true
 }
 
