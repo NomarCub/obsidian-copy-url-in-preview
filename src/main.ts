@@ -302,7 +302,7 @@ export default class CopyUrlInPreview extends Plugin {
             );
             menu.addItem((item: MenuItem) => item
               .setIcon("arrow-up-right")
-              .setTitle(Platform.isMacOS ? "Reveal in finder" : "Show in system explorer")
+              .setTitle(Platform.isMacOS ? "Reveal in Finder" : "Show in system explorer")
               .onClick(() => {
                 this.app.showInFolder(relativePath);
               })
