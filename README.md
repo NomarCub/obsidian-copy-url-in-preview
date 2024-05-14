@@ -32,6 +32,12 @@ You can install the plugin via the Community Plugins tab within the Obsidian app
 [Here](https://obsidian.md/plugins?id=copy-url-in-preview)'s the plugin in Obsidian's Community Plugins website.  
 You can install the plugin manually by copying a release to your `.obsidian/plugins/copy-url-in-preview` folder.
 
+## This plugin on other sites
+
+[Obsidian Stats page](https://www.moritzjung.dev/obsidian-stats/plugins/copy-url-in-preview/)  
+[Obsidian Addict page](https://obsidianaddict.com/plugin/copy-url-in-preview/)  
+[Obsidian Hub page](https://publish.obsidian.md/hub/02+-+Community+Expansions/02.05+All+Community+Expansions/Plugins/copy-url-in-preview)
+
 ## Development
 
 This plugin follows the structure of the [Obsidian Sample Plugin](https://github.com/obsidianmd/obsidian-sample-plugin), see further details there.  
