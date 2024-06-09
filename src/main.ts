@@ -126,6 +126,33 @@ export default class CopyUrlInPreview extends Plugin {
 				}
 			})
 		);
+		this.registerEvent(
+			this.app.workspace.on("url-menu", (menu, url) => {
+				if (url.match(/(avif|bmp|gif|jpe?g|png|svg|webp)$/gi)) {
+					menu.addItem((item) => {
+						item.setIcon("image-file")
+							.setTitle("Copy image to clipboard")
+							.onClick(async () => {
+								try {
+									const blob = await loadImageBlob(url);
+									const data = new ClipboardItem({
+										[blob.type]: blob,
+									});
+									await navigator.clipboard.write([data]);
+									new Notice(
+										"Image copied to the clipboard!",
+										SUCCESS_NOTICE_TIMEOUT
+									);
+								} catch {
+									new Notice(
+										"Error, could not copy the image!"
+									);
+								}
+							});
+					});
+				}
+			})
+		);
 	}
 
 	onunload(): void {
