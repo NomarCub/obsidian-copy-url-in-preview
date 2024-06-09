@@ -103,22 +103,6 @@ export function openImageFromMouseEvent(event: MouseEvent, app: App) {
 	const image = imageElementFromMouseEvent(event);
 	if (!image) return;
 
-	/* const leaf = app.workspace.getLeaf(true);
-    app.workspace.setActiveLeaf(leaf, { focus: true });
-
-    const relativePath = getRelativePath(new URL(image.currentSrc), app);
-    if (relativePath) {
-        const titleContainerEl = (leaf.view as View & { titleContainerEl: Node }).titleContainerEl;
-        titleContainerEl.empty();
-        titleContainerEl.createEl("div", { text: relativePath })
-    }
-
-    const contentEl = (leaf.view as View & { contentEl: Node }).contentEl;
-    contentEl.empty();
-    const div = contentEl.createEl("div", {});
-    const img = div.appendChild(document.createElement("img"));
-    img.src = image.currentSrc; */
-
 	const activeFile = app.workspace.getActiveFile();
 	const imageAsTFile = activeFile
 		? app.metadataCache.getFirstLinkpathDest(image.alt, activeFile.path)
