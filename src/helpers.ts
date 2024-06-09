@@ -1,4 +1,4 @@
-import { App, FileSystemAdapter, normalizePath, TFile, View } from "obsidian";
+import { App, FileSystemAdapter, TFile } from "obsidian";
 
 const loadImageBlobTimeout = 5_000;
 
