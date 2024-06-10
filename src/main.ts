@@ -1,28 +1,11 @@
+import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
 import {
-	Menu,
-	Plugin,
-	Notice,
-	MenuItem,
-	Platform,
-	TFile,
-	MarkdownView,
-} from "obsidian";
-import {
-	loadImageBlob,
-	onElement,
-	openImageFromMouseEvent,
-	ElectronWindow,
-	FileSystemAdapterWithInternalApi,
-	imageElementFromMouseEvent,
-	getRelativePath,
+	loadImageBlob, onElement, openImageFromMouseEvent,
+	ElectronWindow, FileSystemAdapterWithInternalApi, imageElementFromMouseEvent, getRelativePath,
 } from "./helpers";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as internal from "obsidian-typings";
-import {
-	CopyUrlInPreviewSettingTab,
-	CopyUrlInPreviewSettings,
-	DEFAULT_SETTINGS,
-} from "settings";
+import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
 const SUCCESS_NOTICE_TIMEOUT = 1_800;
@@ -39,9 +22,7 @@ export default class CopyUrlInPreview extends Plugin {
 
 	settings: CopyUrlInPreviewSettings;
 	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
+		this.settings = Object.assign({}, DEFAULT_SETTINGS,
 			await this.loadData()
 		);
 	}
@@ -59,35 +40,24 @@ export default class CopyUrlInPreview extends Plugin {
 		//register the image menu for canvas
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu, file, source) => {
-				if (
-					source === "canvas-menu" &&
-					file instanceof TFile &&
-					file.extension.match(/(avif|bmp|gif|jpe?g|png|svg|webp)/i)
-				) {
+				if (source === "canvas-menu"
+					&& file instanceof TFile
+					&& file.extension.match(/(avif|bmp|gif|jpe?g|png|svg|webp)/i)) {
 					menu.addItem((item) => {
-						item.setIcon("image-file")
+						item
+							.setIcon("image-file")
 							.setSection("system")
 							.setTitle("Copy image to clipboard")
 							.onClick(async () => {
-								const imageBuffer =
-									await this.app.vault.readBinary(file);
-								const blob = new Blob([imageBuffer], {
-									type: "image/png",
-								});
+								const imageBuffer = await this.app.vault.readBinary(file);
+								const blob = new Blob([imageBuffer], { type: "image/png", });
 								try {
-									const data = new ClipboardItem({
-										[blob.type]: blob,
-									});
+									const data = new ClipboardItem({ [blob.type]: blob, });
 									await navigator.clipboard.write([data]);
-									new Notice(
-										"Image copied to the clipboard!",
-										SUCCESS_NOTICE_TIMEOUT
-									);
+									new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
 								} catch (e) {
 									console.log(e);
-									new Notice(
-										"Error, could not copy the image!"
-									);
+									new Notice("Error, could not copy the image!");
 								}
 							});
 					});
@@ -108,18 +78,11 @@ export default class CopyUrlInPreview extends Plugin {
 							.onClick(async () => {
 								try {
 									const blob = await loadImageBlob(url);
-									const data = new ClipboardItem({
-										[blob.type]: blob,
-									});
+									const data = new ClipboardItem({ [blob.type]: blob, });
 									await navigator.clipboard.write([data]);
-									new Notice(
-										"Image copied to the clipboard!",
-										SUCCESS_NOTICE_TIMEOUT
-									);
+									new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
 								} catch {
-									new Notice(
-										"Error, could not copy the image!"
-									);
+									new Notice("Error, could not copy the image!");
 								}
 							});
 					});
@@ -135,18 +98,11 @@ export default class CopyUrlInPreview extends Plugin {
 							.onClick(async () => {
 								try {
 									const blob = await loadImageBlob(url);
-									const data = new ClipboardItem({
-										[blob.type]: blob,
-									});
+									const data = new ClipboardItem({ [blob.type]: blob, });
 									await navigator.clipboard.write([data]);
-									new Notice(
-										"Image copied to the clipboard!",
-										SUCCESS_NOTICE_TIMEOUT
-									);
+									new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
 								} catch {
-									new Notice(
-										"Error, could not copy the image!"
-									);
+									new Notice("Error, could not copy the image!");
 								}
 							});
 					});
@@ -162,18 +118,14 @@ export default class CopyUrlInPreview extends Plugin {
 	registerDocument(document: Document) {
 		this.register(
 			onElement(
-				document,
-				"mouseover",
-				".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
+				document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
 				this.showOpenPdfMenu.bind(this)
 			)
 		);
 
 		this.register(
 			onElement(
-				document,
-				"mousemove",
-				".pdf-canvas",
+				document, "mousemove", ".pdf-canvas",
 				this.showOpenPdfMenu.bind(this)
 			)
 		);
@@ -181,63 +133,48 @@ export default class CopyUrlInPreview extends Plugin {
 		if (Platform.isDesktop) {
 			this.register(
 				onElement(
-					document,
-					"contextmenu",
-					"img",
+					document, "contextmenu", "img",
 					this.onImageContextMenu.bind(this)
 				)
 			);
 
 			this.register(
 				onElement(
-					document,
-					"mouseup",
-					"img",
+					document, "mouseup", "img",
 					this.onImageMouseUp.bind(this)
 				)
 			);
 
 			this.register(
 				onElement(
-					document,
-					"mouseover",
-					".cm-link, .cm-hmd-internal-link",
+					document, "mouseover", ".cm-link, .cm-hmd-internal-link",
 					this.storeLastHoveredLinkInEditor.bind(this)
 				)
 			);
 
 			this.register(
 				onElement(
-					document,
-					"mouseover",
-					"a.internal-link",
-					this.storeLastHoveredLinkInPreview.bind(this)
+					document, "mouseover", "a.internal-link", this.storeLastHoveredLinkInPreview.bind(this)
 				)
 			);
 		} else {
 			this.register(
 				onElement(
-					document,
-					"touchstart",
-					"img",
+					document, "touchstart", "img",
 					this.startWaitingForLongTap.bind(this)
 				)
 			);
 
 			this.register(
 				onElement(
-					document,
-					"touchend",
-					"img",
+					document, "touchend", "img",
 					this.stopWaitingForLongTap.bind(this)
 				)
 			);
 
 			this.register(
 				onElement(
-					document,
-					"touchmove",
-					"img",
+					document, "touchmove", "img",
 					this.stopWaitingForLongTap.bind(this)
 				)
 			);
@@ -263,21 +200,15 @@ export default class CopyUrlInPreview extends Plugin {
 	}
 
 	showOpenPdfMenu(event: MouseEvent | PointerEvent, el: HTMLElement) {
-		if (
-			!this.settings.pdfMenu ||
-			this.openPdfMenu ||
-			this.preventReopenPdfMenu
-		) {
+		if (!this.settings.pdfMenu || this.openPdfMenu || this.preventReopenPdfMenu) {
 			return;
 		}
 		if (this.app.workspace.getActiveFile()?.extension === "canvas") return;
 		const rect = el.getBoundingClientRect();
-		if (
-			rect.left + OPEN_PDF_MENU_BORDER_SIZE < event.x &&
-			event.x < rect.right - OPEN_PDF_MENU_BORDER_SIZE &&
-			rect.top + OPEN_PDF_MENU_BORDER_SIZE < event.y &&
-			event.y < rect.bottom - OPEN_PDF_MENU_BORDER_SIZE
-		) {
+		if (rect.left + OPEN_PDF_MENU_BORDER_SIZE < event.x
+			&& event.x < rect.right - OPEN_PDF_MENU_BORDER_SIZE
+			&& rect.top + OPEN_PDF_MENU_BORDER_SIZE < event.y
+			&& event.y < rect.bottom - OPEN_PDF_MENU_BORDER_SIZE) {
 			return;
 		}
 
@@ -287,17 +218,15 @@ export default class CopyUrlInPreview extends Plugin {
 			let pdfLink: string;
 			if (pdfEmbed.hasClass("popover")) {
 				pdfLink = this.lastHoveredLinkTarget;
-			} else {
+			}
+			else {
 				pdfLink = pdfEmbed.getAttr("src") ?? this.lastHoveredLinkTarget;
 			}
 
 			pdfLink = pdfLink?.replace(/#page=\d+$/, "");
 
 			const currentNotePath = this.app.workspace.getActiveFile()!.path;
-			pdfFile = this.app.metadataCache.getFirstLinkpathDest(
-				pdfLink!,
-				currentNotePath
-			)!;
+			pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink!, currentNotePath)!;
 		} else {
 			pdfFile = this.app.workspace.getActiveFile()!;
 		}
@@ -305,25 +234,19 @@ export default class CopyUrlInPreview extends Plugin {
 		const menu = new Menu();
 		this.registerEscapeButton(menu);
 		menu.onHide(() => (this.openPdfMenu = undefined));
-		menu.addItem((item: MenuItem) =>
-			item
-				.setIcon("pdf-file")
-				.setTitle("Open PDF externally")
-				.onClick(async () => {
-					this.preventReopenPdfMenu = true;
-					setTimeout(() => {
-						this.preventReopenPdfMenu = false;
-					}, OPEN_PDF_MENU_TIMEOUT);
-					this.hideOpenPdfMenu();
-					if (Platform.isDesktop) {
-						this.app.openWithDefaultApp(pdfFile.path);
-					} else {
-						await (
-							this.app.vault
-								.adapter as FileSystemAdapterWithInternalApi
-						).open(pdfFile.path);
-					}
-				})
+		menu.addItem((item: MenuItem) => item
+			.setIcon("pdf-file")
+			.setTitle("Open PDF externally")
+			.onClick(async () => {
+				this.preventReopenPdfMenu = true;
+				setTimeout(() => { this.preventReopenPdfMenu = false; }, OPEN_PDF_MENU_TIMEOUT);
+				this.hideOpenPdfMenu();
+				if (Platform.isDesktop) {
+					this.app.openWithDefaultApp(pdfFile.path);
+				} else {
+					await (this.app.vault.adapter as FileSystemAdapterWithInternalApi).open(pdfFile.path);
+				}
+			})
 		);
 		menu.showAtMouseEvent(event);
 		this.openPdfMenu = menu;
@@ -333,13 +256,15 @@ export default class CopyUrlInPreview extends Plugin {
 
 	registerEscapeButton(menu: Menu, document: Document = activeDocument) {
 		menu.register(
-			onElement(document, "keydown", "*", (e: KeyboardEvent) => {
-				if (e.key === "Escape") {
-					e.preventDefault();
-					e.stopPropagation();
-					menu.hide();
-				}
-			})
+			onElement(
+				document, "keydown", "*",
+				(e: KeyboardEvent) => {
+					if (e.key === "Escape") {
+						e.preventDefault();
+						e.stopPropagation();
+						menu.hide();
+					}
+				})
 		);
 	}
 
@@ -356,10 +281,7 @@ export default class CopyUrlInPreview extends Plugin {
 			this.longTapTimeoutId = undefined;
 		} else {
 			if (event.targetTouches.length == 1) {
-				this.longTapTimeoutId = window.setTimeout(
-					this.processLongTap.bind(this, event, img),
-					longTapTimeout
-				);
+				this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), longTapTimeout);
 			}
 		}
 	}
@@ -376,21 +298,14 @@ export default class CopyUrlInPreview extends Plugin {
 	async processLongTap(event: TouchEvent, img: HTMLImageElement) {
 		event.stopPropagation();
 		this.longTapTimeoutId = undefined;
-		const adapter = this.app.vault
-			.adapter as FileSystemAdapterWithInternalApi;
+		const adapter = this.app.vault.adapter as FileSystemAdapterWithInternalApi;
 		const electronWindow = window as unknown as ElectronWindow;
 		const basePath = adapter.getFullPath("");
 		const webviewServerUrl = electronWindow.WEBVIEW_SERVER_URL;
-		const localImagePrefixUrl =
-			webviewServerUrl + IMAGE_URL_PREFIX + basePath;
+		const localImagePrefixUrl = webviewServerUrl + IMAGE_URL_PREFIX + basePath;
 		if (img.src.startsWith(localImagePrefixUrl)) {
-			const encodedImageFileRelativePath = img.src.replace(
-				localImagePrefixUrl,
-				""
-			);
-			const imageFileRelativePath = decodeURIComponent(
-				encodedImageFileRelativePath
-			);
+			const encodedImageFileRelativePath = img.src.replace(localImagePrefixUrl, "");
+			const imageFileRelativePath = decodeURIComponent(encodedImageFileRelativePath);
 			await adapter.open(imageFileRelativePath);
 		} else {
 			try {
@@ -400,19 +315,12 @@ export default class CopyUrlInPreview extends Plugin {
 					return;
 				}
 				const extension = blob.type.replace("image/", "");
-				const randomGuid = window.URL.createObjectURL(new Blob([]))
-					.split("/")
-					.pop();
+				const randomGuid = window.URL.createObjectURL(new Blob([])).split("/").pop();
 				const tempFileName = `/.temp-${randomGuid}.${extension}`;
 				const buffer = await blob.arrayBuffer();
 				await adapter.writeBinary(tempFileName, buffer);
-				setTimeout(
-					() => adapter.remove(tempFileName),
-					deleteTempFileTimeout
-				);
-				new Notice(
-					"Image was temporarily saved and will be removed in 1 minute"
-				);
+				setTimeout(() => adapter.remove(tempFileName), deleteTempFileTimeout);
+				new Notice("Image was temporarily saved and will be removed in 1 minute");
 				await adapter.open(tempFileName);
 			} catch {
 				new Notice("Cannot open image");
@@ -441,76 +349,51 @@ export default class CopyUrlInPreview extends Plugin {
 			case "data:":
 			case "http:":
 			case "https:":
-				menu.addItem((item: MenuItem) =>
-					item
-						.setIcon("image-file")
-						.setTitle("Copy image to clipboard")
-						.onClick(async () => {
-							try {
-								const blob = await loadImageBlob(image);
-								const data = new ClipboardItem({
-									[blob.type]: blob,
-								});
-								await navigator.clipboard.write([data]);
-								new Notice(
-									"Image copied to the clipboard!",
-									SUCCESS_NOTICE_TIMEOUT
-								);
-							} catch {
-								new Notice("Error, could not copy the image!");
-							}
-						})
+				menu.addItem((item: MenuItem) => item
+					.setIcon("image-file")
+					.setTitle("Copy image to clipboard")
+					.onClick(async () => {
+						try {
+							const blob = await loadImageBlob(image);
+							const data = new ClipboardItem({ [blob.type]: blob });
+							await navigator.clipboard.write([data]);
+							new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
+						} catch {
+							new Notice("Error, could not copy the image!");
+						}
+					})
 				);
 				if (protocol === "app:" && Platform.isDesktop) {
 					const relativePath = getRelativePath(url, this.app);
 					if (relativePath) {
-						menu.addItem((item: MenuItem) =>
-							item
-								.setIcon("arrow-up-right")
-								.setTitle("Open in new tab")
-								.onClick(() => {
-									openImageFromMouseEvent(event, this.app);
-								})
+						menu.addItem((item: MenuItem) => item
+							.setIcon("arrow-up-right")
+							.setTitle("Open in new tab")
+							.onClick(() => { openImageFromMouseEvent(event, this.app); })
 						);
-						menu.addItem((item: MenuItem) =>
-							item
-								.setIcon("arrow-up-right")
-								.setTitle("Open in default app")
-								.onClick(() =>
-									this.app.openWithDefaultApp(relativePath)
-								)
+						menu.addItem((item: MenuItem) => item
+							.setIcon("arrow-up-right")
+							.setTitle("Open in default app")
+							.onClick(() => this.app.openWithDefaultApp(relativePath))
 						);
-						menu.addItem((item: MenuItem) =>
-							item
-								.setIcon("arrow-up-right")
-								.setTitle(
-									Platform.isMacOS
-										? "Reveal in Finder"
-										: "Show in system explorer"
-								)
-								.onClick(() => {
-									this.app.showInFolder(relativePath);
-								})
+						menu.addItem((item: MenuItem) => item
+							.setIcon("arrow-up-right")
+							.setTitle(
+								Platform.isMacOS ? "Reveal in Finder" : "Show in system explorer"
+							)
+							.onClick(() => { this.app.showInFolder(relativePath); })
 						);
-						menu.addItem((item: MenuItem) =>
-							item
-								.setIcon("folder")
-								.setTitle("Reveal file in navigation")
-								.onClick(() => {
-									const file =
-										this.app.vault.getFileByPath(
-											relativePath
-										);
-									if (!file) {
-										console.warn(
-											`getFileByPath returned null for ${relativePath}`
-										);
-										return;
-									}
-									this.app.internalPlugins
-										.getEnabledPluginById("file-explorer")
-										?.revealInFolder(file);
-								})
+						menu.addItem((item: MenuItem) => item
+							.setIcon("folder")
+							.setTitle("Reveal file in navigation")
+							.onClick(() => {
+								const file = this.app.vault.getFileByPath(relativePath);
+								if (!file) {
+									console.warn(`getFileByPath returned null for ${relativePath}`);
+									return;
+								}
+								this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
+							})
 						);
 					}
 				}
@@ -528,10 +411,7 @@ export default class CopyUrlInPreview extends Plugin {
 
 	onImageMouseUp(event: MouseEvent) {
 		const middleButtonNumber = 1;
-		if (
-			event.button == middleButtonNumber &&
-			this.settings.middleClickNewTab
-		) {
+		if (event.button == middleButtonNumber && this.settings.middleClickNewTab) {
 			openImageFromMouseEvent(event, this.app);
 		}
 	}
