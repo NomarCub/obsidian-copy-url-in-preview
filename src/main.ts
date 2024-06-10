@@ -1,10 +1,11 @@
 import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
 import {
 	loadImageBlob, onElement, openImageFromMouseEvent,
-	ElectronWindow, FileSystemAdapterWithInternalApi, imageElementFromMouseEvent, getRelativePath,
-} from "./helpers";
+	ElectronWindow, FileSystemAdapterWithInternalApi,
+	imageElementFromMouseEvent, getRelativePath
+} from "./helpers"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import * as internal from "obsidian-typings";
+import * as internal from 'obsidian-typings';
 import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
 
 const IMAGE_URL_PREFIX = "/_capacitor_file_";
@@ -22,9 +23,7 @@ export default class CopyUrlInPreview extends Plugin {
 
 	settings: CopyUrlInPreviewSettings;
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS,
-			await this.loadData()
-		);
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
 	}
 	async saveSettings() {
 		await this.saveData(this.settings);
@@ -43,24 +42,22 @@ export default class CopyUrlInPreview extends Plugin {
 				if (source === "canvas-menu"
 					&& file instanceof TFile
 					&& file.extension.match(/(avif|bmp|gif|jpe?g|png|svg|webp)/i)) {
-					menu.addItem((item) => {
-						item
-							.setIcon("image-file")
-							.setSection("system")
-							.setTitle("Copy image to clipboard")
-							.onClick(async () => {
-								const imageBuffer = await this.app.vault.readBinary(file);
-								const blob = new Blob([imageBuffer], { type: "image/png", });
-								try {
-									const data = new ClipboardItem({ [blob.type]: blob, });
-									await navigator.clipboard.write([data]);
-									new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
-								} catch (e) {
-									console.log(e);
-									new Notice("Error, could not copy the image!");
-								}
-							});
-					});
+					menu.addItem((item) => item
+						.setIcon("image-file")
+						.setSection("system")
+						.setTitle("Copy image to clipboard")
+						.onClick(async () => {
+							const imageBuffer = await this.app.vault.readBinary(file);
+							const blob = new Blob([imageBuffer], { type: "image/png", });
+							try {
+								const data = new ClipboardItem({ [blob.type]: blob, });
+								await navigator.clipboard.write([data]);
+								new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
+							} catch (e) {
+								console.log(e);
+								new Notice("Error, could not copy the image!");
+							}
+						}));
 				}
 			})
 		);
@@ -71,41 +68,40 @@ export default class CopyUrlInPreview extends Plugin {
 					//@ts-ignore
 					const url = node.unknownData?.url;
 
-					menu.addItem((item) => {
-						item.setSection("canvas")
-							.setIcon("image-file")
-							.setTitle("Copy image to the clipboard")
-							.onClick(async () => {
-								try {
-									const blob = await loadImageBlob(url);
-									const data = new ClipboardItem({ [blob.type]: blob, });
-									await navigator.clipboard.write([data]);
-									new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
-								} catch {
-									new Notice("Error, could not copy the image!");
-								}
-							});
-					});
+					menu.addItem((item) => item
+						.setSection("canvas")
+						.setIcon("image-file")
+						.setTitle("Copy image to the clipboard")
+						.onClick(async () => {
+							try {
+								const blob = await loadImageBlob(url);
+								const data = new ClipboardItem({ [blob.type]: blob, });
+								await navigator.clipboard.write([data]);
+								new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
+							} catch {
+								new Notice("Error, could not copy the image!");
+							}
+						}));
+
 				}
 			})
 		);
 		this.registerEvent(
 			this.app.workspace.on("url-menu", (menu, url) => {
 				if (url.match(/(avif|bmp|gif|jpe?g|png|svg|webp)$/gi)) {
-					menu.addItem((item) => {
-						item.setIcon("image-file")
-							.setTitle("Copy image to clipboard")
-							.onClick(async () => {
-								try {
-									const blob = await loadImageBlob(url);
-									const data = new ClipboardItem({ [blob.type]: blob, });
-									await navigator.clipboard.write([data]);
-									new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
-								} catch {
-									new Notice("Error, could not copy the image!");
-								}
-							});
-					});
+					menu.addItem((item) => item
+						.setIcon("image-file")
+						.setTitle("Copy image to clipboard")
+						.onClick(async () => {
+							try {
+								const blob = await loadImageBlob(url);
+								const data = new ClipboardItem({ [blob.type]: blob, });
+								await navigator.clipboard.write([data]);
+								new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
+							} catch {
+								new Notice("Error, could not copy the image!");
+							}
+						}));
 				}
 			})
 		);
@@ -121,14 +117,14 @@ export default class CopyUrlInPreview extends Plugin {
 				document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
 				this.showOpenPdfMenu.bind(this)
 			)
-		);
+		)
 
 		this.register(
 			onElement(
 				document, "mousemove", ".pdf-canvas",
 				this.showOpenPdfMenu.bind(this)
 			)
-		);
+		)
 
 		if (Platform.isDesktop) {
 			this.register(
@@ -154,7 +150,8 @@ export default class CopyUrlInPreview extends Plugin {
 
 			this.register(
 				onElement(
-					document, "mouseover", "a.internal-link", this.storeLastHoveredLinkInPreview.bind(this)
+					document, "mouseover", "a.internal-link",
+					this.storeLastHoveredLinkInPreview.bind(this)
 				)
 			);
 		} else {
@@ -182,8 +179,7 @@ export default class CopyUrlInPreview extends Plugin {
 	}
 
 	storeLastHoveredLinkInEditor(event: MouseEvent) {
-		const editor =
-			this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
+		const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
 		if (!editor) {
 			return;
 		}
@@ -223,7 +219,7 @@ export default class CopyUrlInPreview extends Plugin {
 				pdfLink = pdfEmbed.getAttr("src") ?? this.lastHoveredLinkTarget;
 			}
 
-			pdfLink = pdfLink?.replace(/#page=\d+$/, "");
+			pdfLink = pdfLink?.replace(/#page=\d+$/, '');
 
 			const currentNotePath = this.app.workspace.getActiveFile()!.path;
 			pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink!, currentNotePath)!;
@@ -233,7 +229,7 @@ export default class CopyUrlInPreview extends Plugin {
 
 		const menu = new Menu();
 		this.registerEscapeButton(menu);
-		menu.onHide(() => (this.openPdfMenu = undefined));
+		menu.onHide(() => this.openPdfMenu = undefined);
 		menu.addItem((item: MenuItem) => item
 			.setIcon("pdf-file")
 			.setTitle("Open PDF externally")
@@ -369,7 +365,9 @@ export default class CopyUrlInPreview extends Plugin {
 						menu.addItem((item: MenuItem) => item
 							.setIcon("arrow-up-right")
 							.setTitle("Open in new tab")
-							.onClick(() => { openImageFromMouseEvent(event, this.app); })
+							.onClick(() => {
+								openImageFromMouseEvent(event, this.app);
+							})
 						);
 						menu.addItem((item: MenuItem) => item
 							.setIcon("arrow-up-right")
@@ -378,10 +376,10 @@ export default class CopyUrlInPreview extends Plugin {
 						);
 						menu.addItem((item: MenuItem) => item
 							.setIcon("arrow-up-right")
-							.setTitle(
-								Platform.isMacOS ? "Reveal in Finder" : "Show in system explorer"
-							)
-							.onClick(() => { this.app.showInFolder(relativePath); })
+							.setTitle(Platform.isMacOS ? "Reveal in Finder" : "Show in system explorer")
+							.onClick(() => {
+								this.app.showInFolder(relativePath);
+							})
 						);
 						menu.addItem((item: MenuItem) => item
 							.setIcon("folder")

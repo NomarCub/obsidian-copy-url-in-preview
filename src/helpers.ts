@@ -3,11 +3,11 @@ import { App, FileSystemAdapter, TFile } from "obsidian";
 const loadImageBlobTimeout = 5_000;
 
 export interface ElectronWindow extends Window {
-	WEBVIEW_SERVER_URL: string;
+	WEBVIEW_SERVER_URL: string
 }
 
 export interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
-	open(path: string): Promise<void>;
+	open(path: string): Promise<void>
 }
 
 export interface Listener {
@@ -18,71 +18,63 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 	const timeout = new Promise((_resolve, reject) => {
 		const id = setTimeout(() => {
 			clearTimeout(id);
-			reject(`timed out after ${ms} ms`);
-		}, ms);
+			reject(`timed out after ${ms} ms`)
+		}, ms)
 	}) as unknown as Promise<T>;
-	return Promise.race([promise, timeout]);
+	return Promise.race([
+		promise,
+		timeout
+	]);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
 export async function loadImageBlob(imgSrc: string): Promise<Blob> {
-	const loadImageBlobCore = () =>
-		new Promise<Blob>((resolve, reject) => {
-			const image = new Image();
-			image.crossOrigin = "anonymous";
-			image.onload = () => {
-				const canvas = document.createElement("canvas");
-				canvas.width = image.width;
-				canvas.height = image.height;
-				const ctx = canvas.getContext("2d")!;
-				ctx.drawImage(image, 0, 0);
-				canvas.toBlob((blob: Blob) => {
-					resolve(blob);
-				});
-			};
-			image.onerror = async () => {
-				try {
-					await fetch(image.src, { mode: "no-cors" });
+	const loadImageBlobCore = () => new Promise<Blob>((resolve, reject) => {
+		const image = new Image();
+		image.crossOrigin = "anonymous";
+		image.onload = () => {
+			const canvas = document.createElement("canvas");
+			canvas.width = image.width;
+			canvas.height = image.height;
+			const ctx = canvas.getContext("2d")!;
+			ctx.drawImage(image, 0, 0);
+			canvas.toBlob((blob: Blob) => {
+				resolve(blob);
+			});
+		};
+		image.onerror = async () => {
+			try {
+				await fetch(image.src, { "mode": "no-cors" });
 
-					// console.log("possible CORS violation, falling back to allOrigins proxy");
-					// https://github.com/gnuns/allOrigins
-					const blob = await loadImageBlob(
-						`https://api.allorigins.win/raw?url=${encodeURIComponent(
-							imgSrc
-						)}`
-					);
-					resolve(blob);
-				} catch {
-					reject();
-				}
-			};
-			image.src = imgSrc;
-		});
-	return withTimeout(loadImageBlobTimeout, loadImageBlobCore());
+				// console.log("possible CORS violation, falling back to allOrigins proxy");
+				// https://github.com/gnuns/allOrigins
+				const blob = await loadImageBlob(`https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`);
+				resolve(blob);
+			} catch {
+				reject();
+			}
+		}
+		image.src = imgSrc;
+	});
+	return withTimeout(loadImageBlobTimeout, loadImageBlobCore())
 }
 
 export function onElement(
-	el: Document,
-	event: keyof HTMLElementEventMap,
-	selector: string,
+	el: Document, event: keyof HTMLElementEventMap, selector: string,
 	listener: Listener,
-	options?: { capture?: boolean }
+	options?: { capture?: boolean; }
 ) {
 	el.on(event, selector, listener, options);
 	return () => el.off(event, selector, listener, options);
 }
 
-export function imageElementFromMouseEvent(
-	event: MouseEvent
-): HTMLImageElement | undefined {
+export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement | undefined {
 	const imageElement = event.target;
 	if (!(imageElement instanceof HTMLImageElement)) {
-		console.error(
-			"imageElement is supposed to be a HTMLImageElement. imageElement:"
-		);
-		console.error(imageElement);
-	} else {
+		console.error("imageElement is supposed to be a HTMLImageElement. imageElement:", imageElement);
+	}
+	else {
 		return imageElement;
 	}
 }
