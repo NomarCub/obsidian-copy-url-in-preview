@@ -107,10 +107,6 @@ export default class CopyUrlInPreview extends Plugin {
 		);
 	}
 
-	onunload(): void {
-		console.log("unloading plugin");
-	}
-
 	registerDocument(document: Document) {
 		this.register(
 			onElement(
