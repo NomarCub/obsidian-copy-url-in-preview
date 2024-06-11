@@ -36,7 +36,7 @@ export default class CopyUrlInPreview extends Plugin {
 		this.app.workspace.on("window-open", (_workspaceWindow, window) => {
 			this.registerDocument(window.document);
 		});
-		//register the image menu for canvas
+		// register the image menu for canvas
 		this.registerEvent(
 			this.app.workspace.on("file-menu", (menu, file, source) => {
 				if (source === "canvas-menu"
@@ -331,10 +331,8 @@ export default class CopyUrlInPreview extends Plugin {
 	onImageContextMenu(event: MouseEvent) {
 		const imageElement = imageElementFromMouseEvent(event);
 		if (!imageElement) return;
-		//check if the image is in canvas
-		if (this.app.workspace.getActiveFile()?.extension === "canvas") {
-			return;
-		}
+		// check if the image is in canvas
+		if (this.app.workspace.getActiveFile()?.extension === "canvas") return;
 		event.preventDefault();
 		const menu = new Menu();
 		const image = imageElement.currentSrc;
