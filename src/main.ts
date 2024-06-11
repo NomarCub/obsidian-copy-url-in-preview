@@ -15,6 +15,16 @@ const deleteTempFileTimeout = 60_000;
 const OPEN_PDF_MENU_BORDER_SIZE = 100;
 const OPEN_PDF_MENU_TIMEOUT = 5_000;
 
+const strings = {
+	menuItems: {
+		copyImageToClipboard: "Copy image to clipboard"
+	},
+	messages : {
+		imageCopied: "Image copied to the clipboard!",
+		imageCopyFailed: "Error, could not copy the image!",
+	}
+}
+
 export default class CopyUrlInPreview extends Plugin {
 	longTapTimeoutId?: number;
 	openPdfMenu?: Menu;
@@ -45,17 +55,17 @@ export default class CopyUrlInPreview extends Plugin {
 					menu.addItem((item) => item
 						.setIcon("image-file")
 						.setSection("system")
-						.setTitle("Copy image to clipboard")
+						.setTitle(strings.menuItems.copyImageToClipboard)
 						.onClick(async () => {
 							const imageBuffer = await this.app.vault.readBinary(file);
 							const blob = new Blob([imageBuffer], { type: "image/png", });
 							try {
 								const data = new ClipboardItem({ [blob.type]: blob, });
 								await navigator.clipboard.write([data]);
-								new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
+								new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
 							} catch (e) {
 								console.log(e);
-								new Notice("Error, could not copy the image!");
+								new Notice(strings.messages.imageCopyFailed);
 							}
 						}));
 				}
@@ -71,15 +81,15 @@ export default class CopyUrlInPreview extends Plugin {
 					menu.addItem((item) => item
 						.setSection("canvas")
 						.setIcon("image-file")
-						.setTitle("Copy image to the clipboard")
+						.setTitle(strings.menuItems.copyImageToClipboard)
 						.onClick(async () => {
 							try {
 								const blob = await loadImageBlob(url);
 								const data = new ClipboardItem({ [blob.type]: blob, });
 								await navigator.clipboard.write([data]);
-								new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
+								new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
 							} catch {
-								new Notice("Error, could not copy the image!");
+								new Notice(strings.messages.imageCopyFailed);
 							}
 						}));
 
@@ -91,15 +101,15 @@ export default class CopyUrlInPreview extends Plugin {
 				if (url.match(/(avif|bmp|gif|jpe?g|png|svg|webp)$/gi)) {
 					menu.addItem((item) => item
 						.setIcon("image-file")
-						.setTitle("Copy image to clipboard")
+						.setTitle(strings.menuItems.copyImageToClipboard)
 						.onClick(async () => {
 							try {
 								const blob = await loadImageBlob(url);
 								const data = new ClipboardItem({ [blob.type]: blob, });
 								await navigator.clipboard.write([data]);
-								new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
+								new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
 							} catch {
-								new Notice("Error, could not copy the image!");
+								new Notice(strings.messages.imageCopyFailed);
 							}
 						}));
 				}
@@ -341,15 +351,15 @@ export default class CopyUrlInPreview extends Plugin {
 			case "https:":
 				menu.addItem((item: MenuItem) => item
 					.setIcon("image-file")
-					.setTitle("Copy image to clipboard")
+					.setTitle(strings.menuItems.copyImageToClipboard)
 					.onClick(async () => {
 						try {
 							const blob = await loadImageBlob(image);
 							const data = new ClipboardItem({ [blob.type]: blob });
 							await navigator.clipboard.write([data]);
-							new Notice("Image copied to the clipboard!", SUCCESS_NOTICE_TIMEOUT);
+							new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
 						} catch {
-							new Notice("Error, could not copy the image!");
+							new Notice(strings.messages.imageCopyFailed);
 						}
 					})
 				);
