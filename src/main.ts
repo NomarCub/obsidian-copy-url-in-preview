@@ -2,8 +2,7 @@ import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "o
 import {
 	loadImageBlob, onElement, openImageFromMouseEvent,
 	ElectronWindow, FileSystemAdapterWithInternalApi,
-	imageElementFromMouseEvent, getRelativePath,
-	CanvasNodeWithUrl
+	imageElementFromMouseEvent, getRelativePath, CanvasNodeWithUrl
 } from "./helpers"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as internal from 'obsidian-typings';
@@ -40,14 +39,14 @@ export default class CopyUrlInPreview extends Plugin {
 		await this.saveData(this.settings);
 	}
 
-	async copyImage(url: string | ArrayBuffer) {
+	async copyImageToClipboard(url: string | ArrayBuffer) {
 		const blob = url instanceof ArrayBuffer ? new Blob([url], { type: "image/png", }) : await loadImageBlob(url);
 		try {
 			const data = new ClipboardItem({ [blob.type]: blob, });
 			await navigator.clipboard.write([data]);
 			new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 			new Notice(strings.messages.imageCopyFailed);
 		}
 	}
@@ -67,7 +66,7 @@ export default class CopyUrlInPreview extends Plugin {
 					.setIcon("image-file")
 					.setSection("system")
 					.setTitle(strings.menuItems.copyImageToClipboard)
-					.onClick(async () => { await this.copyImage(await this.app.vault.readBinary(file)); }));
+					.onClick(async () => { await this.copyImageToClipboard(await this.app.vault.readBinary(file)); }));
 			}
 		}));
 		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node: CanvasNodeWithUrl) => {
@@ -77,7 +76,7 @@ export default class CopyUrlInPreview extends Plugin {
 					.setSection("canvas")
 					.setIcon("image-file")
 					.setTitle(strings.menuItems.copyImageToClipboard)
-					.onClick(async () => { await this.copyImage(url); }));
+					.onClick(async () => { await this.copyImageToClipboard(url); }));
 			}
 		}));
 		this.registerEvent(this.app.workspace.on("url-menu", (menu, url) => {
@@ -86,7 +85,7 @@ export default class CopyUrlInPreview extends Plugin {
 					.setIcon("image-file")
 					.setTitle(strings.menuItems.copyImageToClipboard)
 					.onClick(async () => {
-						await this.copyImage(url);
+						await this.copyImageToClipboard(url);
 					}));
 			}
 		}));
@@ -315,7 +314,7 @@ export default class CopyUrlInPreview extends Plugin {
 		menu.addItem((item: MenuItem) => item
 			.setIcon("image-file")
 			.setTitle(strings.menuItems.copyImageToClipboard)
-			.onClick(async () => { await this.copyImage(image); })
+			.onClick(async () => { await this.copyImageToClipboard(image); })
 		);
 		const relativePath = getRelativePath(url, this.app);
 		if (protocol === "app:" && Platform.isDesktop && relativePath) {
