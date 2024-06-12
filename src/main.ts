@@ -19,7 +19,7 @@ const strings = {
 	menuItems: {
 		copyImageToClipboard: "Copy image to clipboard"
 	},
-	messages : {
+	messages: {
 		imageCopied: "Image copied to the clipboard!",
 		imageCopyFailed: "Error, could not copy the image!",
 	}
@@ -37,6 +37,18 @@ export default class CopyUrlInPreview extends Plugin {
 	}
 	async saveSettings() {
 		await this.saveData(this.settings);
+	}
+
+	async copyImage(url: string | ArrayBuffer) {
+		const blob = url instanceof ArrayBuffer ? new Blob([url], { type: "image/png", }) : await loadImageBlob(url);
+		try {
+			const data = new ClipboardItem({ [blob.type]: blob, });
+			await navigator.clipboard.write([data]);
+			new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
+		} catch (e) {
+			console.log(e);
+			new Notice(strings.messages.imageCopyFailed);
+		}
 	}
 
 	async onload() {
@@ -57,16 +69,7 @@ export default class CopyUrlInPreview extends Plugin {
 						.setSection("system")
 						.setTitle(strings.menuItems.copyImageToClipboard)
 						.onClick(async () => {
-							const imageBuffer = await this.app.vault.readBinary(file);
-							const blob = new Blob([imageBuffer], { type: "image/png", });
-							try {
-								const data = new ClipboardItem({ [blob.type]: blob, });
-								await navigator.clipboard.write([data]);
-								new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
-							} catch (e) {
-								console.log(e);
-								new Notice(strings.messages.imageCopyFailed);
-							}
+							await this.copyImage(await this.app.vault.readBinary(file));
 						}));
 				}
 			})
@@ -83,14 +86,7 @@ export default class CopyUrlInPreview extends Plugin {
 						.setIcon("image-file")
 						.setTitle(strings.menuItems.copyImageToClipboard)
 						.onClick(async () => {
-							try {
-								const blob = await loadImageBlob(url);
-								const data = new ClipboardItem({ [blob.type]: blob, });
-								await navigator.clipboard.write([data]);
-								new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
-							} catch {
-								new Notice(strings.messages.imageCopyFailed);
-							}
+							await this.copyImage(url);
 						}));
 
 				}
@@ -103,14 +99,7 @@ export default class CopyUrlInPreview extends Plugin {
 						.setIcon("image-file")
 						.setTitle(strings.menuItems.copyImageToClipboard)
 						.onClick(async () => {
-							try {
-								const blob = await loadImageBlob(url);
-								const data = new ClipboardItem({ [blob.type]: blob, });
-								await navigator.clipboard.write([data]);
-								new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
-							} catch {
-								new Notice(strings.messages.imageCopyFailed);
-							}
+							await this.copyImage(url);
 						}));
 				}
 			})
@@ -353,14 +342,7 @@ export default class CopyUrlInPreview extends Plugin {
 					.setIcon("image-file")
 					.setTitle(strings.menuItems.copyImageToClipboard)
 					.onClick(async () => {
-						try {
-							const blob = await loadImageBlob(image);
-							const data = new ClipboardItem({ [blob.type]: blob });
-							await navigator.clipboard.write([data]);
-							new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
-						} catch {
-							new Notice(strings.messages.imageCopyFailed);
-						}
+						await this.copyImage(image);
 					})
 				);
 				if (protocol === "app:" && Platform.isDesktop) {
