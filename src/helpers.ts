@@ -96,9 +96,11 @@ export function openImageFromMouseEvent(event: MouseEvent, app: App) {
 	if (!image) return;
 
 	const activeFile = app.workspace.getActiveFile();
+	const link = getRelativePath(new URL(image.src), app);
+	if (!link) return;
 	const imageAsTFile = activeFile
-		? app.metadataCache.getFirstLinkpathDest(image.alt, activeFile.path)
-		: app.vault.getAbstractFileByPath(image.alt);
+		? app.metadataCache.getFirstLinkpathDest(link, activeFile.path)
+		: app.vault.getAbstractFileByPath(link);
 
 	if (imageAsTFile && imageAsTFile instanceof TFile) {
 		app.workspace.getLeaf(true).openFile(imageAsTFile, { active: true });
