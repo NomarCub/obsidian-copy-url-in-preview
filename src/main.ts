@@ -40,7 +40,9 @@ export default class CopyUrlInPreview extends Plugin {
 	}
 
 	async copyImageToClipboard(url: string | ArrayBuffer) {
-		const blob = url instanceof ArrayBuffer ? new Blob([url], { type: "image/png", }) : await loadImageBlob(url);
+		const blob = url instanceof ArrayBuffer
+			? new Blob([url], { type: "image/png", })
+			: await loadImageBlob(url);
 		try {
 			const data = new ClipboardItem({ [blob.type]: blob, });
 			await navigator.clipboard.write([data]);
