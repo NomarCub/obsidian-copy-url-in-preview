@@ -2,7 +2,8 @@ import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "o
 import {
 	loadImageBlob, onElement, openImageFromMouseEvent,
 	ElectronWindow, FileSystemAdapterWithInternalApi,
-	imageElementFromMouseEvent, getRelativePath
+	imageElementFromMouseEvent, getRelativePath,
+	CanvasNodeWithUrl
 } from "./helpers"
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as internal from 'obsidian-typings';
@@ -75,10 +76,8 @@ export default class CopyUrlInPreview extends Plugin {
 			})
 		);
 		this.registerEvent(
-			this.app.workspace.on("canvas:node-menu", (menu, node) => {
-				//@ts-ignore
+			this.app.workspace.on("canvas:node-menu", (menu, node: CanvasNodeWithUrl) => {
 				if (node.unknownData?.type === "link") {
-					//@ts-ignore
 					const url = node.unknownData?.url;
 
 					menu.addItem((item) => item

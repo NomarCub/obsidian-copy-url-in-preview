@@ -1,4 +1,4 @@
-import { App, FileSystemAdapter, TFile } from "obsidian";
+import { App, CanvasNode, FileSystemAdapter, TFile } from "obsidian";
 
 const loadImageBlobTimeout = 5_000;
 
@@ -8,6 +8,13 @@ export interface ElectronWindow extends Window {
 
 export interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
 	open(path: string): Promise<void>
+}
+
+export interface CanvasNodeWithUrl extends CanvasNode {
+	unknownData: {
+		url: string
+		type: string
+	}
 }
 
 export interface Listener {
@@ -106,3 +113,4 @@ export function openImageFromMouseEvent(event: MouseEvent, app: App) {
 		app.workspace.getLeaf(true).openFile(imageAsTFile, { active: true });
 	}
 }
+
