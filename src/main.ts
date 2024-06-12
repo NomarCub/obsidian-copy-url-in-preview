@@ -60,115 +60,84 @@ export default class CopyUrlInPreview extends Plugin {
 			this.registerDocument(window.document);
 		});
 		// register the image menu for canvas
-		this.registerEvent(
-			this.app.workspace.on("file-menu", (menu, file, source) => {
-				if (source === "canvas-menu"
-					&& file instanceof TFile
-					&& file.extension.match(/(avif|bmp|gif|jpe?g|png|svg|webp)/i)) {
-					menu.addItem((item) => item
-						.setIcon("image-file")
-						.setSection("system")
-						.setTitle(strings.menuItems.copyImageToClipboard)
-						.onClick(async () => {
-							await this.copyImage(await this.app.vault.readBinary(file));
-						}));
-				}
-			})
-		);
-		this.registerEvent(
-			this.app.workspace.on("canvas:node-menu", (menu, node: CanvasNodeWithUrl) => {
-				if (node.unknownData?.type === "link") {
-					const url = node.unknownData?.url;
-
-					menu.addItem((item) => item
-						.setSection("canvas")
-						.setIcon("image-file")
-						.setTitle(strings.menuItems.copyImageToClipboard)
-						.onClick(async () => {
-							await this.copyImage(url);
-						}));
-
-				}
-			})
-		);
-		this.registerEvent(
-			this.app.workspace.on("url-menu", (menu, url) => {
-				if (url.match(/(avif|bmp|gif|jpe?g|png|svg|webp)$/gi)) {
-					menu.addItem((item) => item
-						.setIcon("image-file")
-						.setTitle(strings.menuItems.copyImageToClipboard)
-						.onClick(async () => {
-							await this.copyImage(url);
-						}));
-				}
-			})
-		);
+		this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
+			if (source === "canvas-menu" && file instanceof TFile
+				&& file.extension.match(/(avif|bmp|gif|jpe?g|png|svg|webp)/i)) {
+				menu.addItem((item) => item
+					.setIcon("image-file")
+					.setSection("system")
+					.setTitle(strings.menuItems.copyImageToClipboard)
+					.onClick(async () => { await this.copyImage(await this.app.vault.readBinary(file)); }));
+			}
+		}));
+		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node: CanvasNodeWithUrl) => {
+			if (node.unknownData?.type === "link") {
+				const url = node.unknownData?.url;
+				menu.addItem((item) => item
+					.setSection("canvas")
+					.setIcon("image-file")
+					.setTitle(strings.menuItems.copyImageToClipboard)
+					.onClick(async () => { await this.copyImage(url); }));
+			}
+		}));
+		this.registerEvent(this.app.workspace.on("url-menu", (menu, url) => {
+			if (url.match(/(avif|bmp|gif|jpe?g|png|svg|webp)$/gi)) {
+				menu.addItem((item) => item
+					.setIcon("image-file")
+					.setTitle(strings.menuItems.copyImageToClipboard)
+					.onClick(async () => {
+						await this.copyImage(url);
+					}));
+			}
+		}));
 	}
 
 	registerDocument(document: Document) {
-		this.register(
-			onElement(
-				document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
-				this.showOpenPdfMenu.bind(this)
-			)
-		)
+		this.register(onElement(
+			document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
+			this.showOpenPdfMenu.bind(this)
+		));
 
-		this.register(
-			onElement(
-				document, "mousemove", ".pdf-canvas",
-				this.showOpenPdfMenu.bind(this)
-			)
-		)
+		this.register(onElement(
+			document, "mousemove", ".pdf-canvas",
+			this.showOpenPdfMenu.bind(this)
+		));
 
 		if (Platform.isDesktop) {
-			this.register(
-				onElement(
-					document, "contextmenu", "img",
-					this.onImageContextMenu.bind(this)
-				)
-			);
+			this.register(onElement(
+				document, "contextmenu", "img",
+				this.onImageContextMenu.bind(this)
+			));
 
-			this.register(
-				onElement(
-					document, "mouseup", "img",
-					this.onImageMouseUp.bind(this)
-				)
-			);
+			this.register(onElement(
+				document, "mouseup", "img",
+				this.onImageMouseUp.bind(this)
+			));
 
-			this.register(
-				onElement(
-					document, "mouseover", ".cm-link, .cm-hmd-internal-link",
-					this.storeLastHoveredLinkInEditor.bind(this)
-				)
-			);
+			this.register(onElement(
+				document, "mouseover", ".cm-link, .cm-hmd-internal-link",
+				this.storeLastHoveredLinkInEditor.bind(this)
+			));
 
-			this.register(
-				onElement(
-					document, "mouseover", "a.internal-link",
-					this.storeLastHoveredLinkInPreview.bind(this)
-				)
-			);
+			this.register(onElement(
+				document, "mouseover", "a.internal-link",
+				this.storeLastHoveredLinkInPreview.bind(this)
+			));
 		} else {
-			this.register(
-				onElement(
-					document, "touchstart", "img",
-					this.startWaitingForLongTap.bind(this)
-				)
-			);
+			this.register(onElement(
+				document, "touchstart", "img",
+				this.startWaitingForLongTap.bind(this)
+			));
 
-			this.register(
-				onElement(
-					document, "touchend", "img",
-					this.stopWaitingForLongTap.bind(this)
-				)
-			);
+			this.register(onElement(
+				document, "touchend", "img",
+				this.stopWaitingForLongTap.bind(this)
+			));
 
-			this.register(
-				onElement(
-					document, "touchmove", "img",
-					this.stopWaitingForLongTap.bind(this)
-				)
-			);
+			this.register(onElement(
+				document, "touchmove", "img",
+				this.stopWaitingForLongTap.bind(this)
+			));
 		}
 	}
 
@@ -245,17 +214,15 @@ export default class CopyUrlInPreview extends Plugin {
 	}
 
 	registerEscapeButton(menu: Menu, document: Document = activeDocument) {
-		menu.register(
-			onElement(
-				document, "keydown", "*",
-				(e: KeyboardEvent) => {
-					if (e.key === "Escape") {
-						e.preventDefault();
-						e.stopPropagation();
-						menu.hide();
-					}
-				})
-		);
+		menu.register(onElement(
+			document, "keydown", "*",
+			(e: KeyboardEvent) => {
+				if (e.key === "Escape") {
+					e.preventDefault();
+					e.stopPropagation();
+					menu.hide();
+				}
+			}));
 	}
 
 	hideOpenPdfMenu() {
@@ -327,63 +294,52 @@ export default class CopyUrlInPreview extends Plugin {
 		if (!imageElement) return;
 		// check if the image is in canvas
 		if (this.app.workspace.getActiveFile()?.extension === "canvas") return;
-		event.preventDefault();
-		const menu = new Menu();
 		const image = imageElement.currentSrc;
 		const url = new URL(image);
 		const protocol = url.protocol;
-		switch (protocol) {
-			case "app:":
-			case "data:":
-			case "http:":
-			case "https:":
-				menu.addItem((item: MenuItem) => item
-					.setIcon("image-file")
-					.setTitle(strings.menuItems.copyImageToClipboard)
-					.onClick(async () => {
-						await this.copyImage(image);
-					})
-				);
-				if (protocol === "app:" && Platform.isDesktop) {
-					const relativePath = getRelativePath(url, this.app);
-					if (relativePath) {
-						menu.addItem((item: MenuItem) => item
-							.setIcon("arrow-up-right")
-							.setTitle("Open in new tab")
-							.onClick(() => {
-								openImageFromMouseEvent(event, this.app);
-							})
-						);
-						menu.addItem((item: MenuItem) => item
-							.setIcon("arrow-up-right")
-							.setTitle("Open in default app")
-							.onClick(() => this.app.openWithDefaultApp(relativePath))
-						);
-						menu.addItem((item: MenuItem) => item
-							.setIcon("arrow-up-right")
-							.setTitle(Platform.isMacOS ? "Reveal in Finder" : "Show in system explorer")
-							.onClick(() => {
-								this.app.showInFolder(relativePath);
-							})
-						);
-						menu.addItem((item: MenuItem) => item
-							.setIcon("folder")
-							.setTitle("Reveal file in navigation")
-							.onClick(() => {
-								const file = this.app.vault.getFileByPath(relativePath);
-								if (!file) {
-									console.warn(`getFileByPath returned null for ${relativePath}`);
-									return;
-								}
-								this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
-							})
-						);
+		const protocols = ["app:", "data:", "http:", "https:"];
+
+		if (!protocols.includes(protocol)) {
+			new Notice(`no handler for ${protocol} protocol`);
+			return;
+		}
+
+		event.preventDefault();
+		const menu = new Menu();
+		menu.addItem((item: MenuItem) => item
+			.setIcon("image-file")
+			.setTitle(strings.menuItems.copyImageToClipboard)
+			.onClick(async () => { await this.copyImage(image); })
+		);
+		const relativePath = getRelativePath(url, this.app);
+		if (protocol === "app:" && Platform.isDesktop && relativePath) {
+			menu.addItem((item: MenuItem) => item
+				.setIcon("arrow-up-right")
+				.setTitle("Open in new tab")
+				.onClick(() => { openImageFromMouseEvent(event, this.app); })
+			);
+			menu.addItem((item: MenuItem) => item
+				.setIcon("arrow-up-right")
+				.setTitle("Open in default app")
+				.onClick(() => this.app.openWithDefaultApp(relativePath))
+			);
+			menu.addItem((item: MenuItem) => item
+				.setIcon("arrow-up-right")
+				.setTitle(Platform.isMacOS ? "Reveal in Finder" : "Show in system explorer")
+				.onClick(() => { this.app.showInFolder(relativePath); })
+			);
+			menu.addItem((item: MenuItem) => item
+				.setIcon("folder")
+				.setTitle("Reveal file in navigation")
+				.onClick(() => {
+					const file = this.app.vault.getFileByPath(relativePath);
+					if (!file) {
+						console.warn(`getFileByPath returned null for ${relativePath}`);
+						return;
 					}
-				}
-				break;
-			default:
-				new Notice(`no handler for ${protocol} protocol`);
-				return;
+					this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
+				})
+			);
 		}
 
 		this.registerEscapeButton(menu);
