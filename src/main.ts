@@ -162,7 +162,10 @@ export default class CopyUrlInPreview extends Plugin {
 		if (!this.settings.pdfMenu || this.openPdfMenu || this.preventReopenPdfMenu) {
 			return;
 		}
-		if (this.app.workspace.getActiveFile()?.extension === "canvas") return;
+		if (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas") {
+			return;
+		}
+
 		const rect = el.getBoundingClientRect();
 		if (rect.left + OPEN_PDF_MENU_BORDER_SIZE < event.x
 			&& event.x < rect.right - OPEN_PDF_MENU_BORDER_SIZE
@@ -292,8 +295,11 @@ export default class CopyUrlInPreview extends Plugin {
 	onImageContextMenu(event: MouseEvent) {
 		const imageElement = imageElementFromMouseEvent(event);
 		if (!imageElement) return;
-		// check if the image is in canvas
-		if (this.app.workspace.getActiveFile()?.extension === "canvas") return;
+		// check if the image is on a canvas
+		if (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas") {
+			return;
+		}
+
 		const image = imageElement.currentSrc;
 		const url = new URL(image);
 		const protocol = url.protocol;
