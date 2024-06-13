@@ -30,7 +30,7 @@ export default class CopyUrlInPreview extends Plugin {
 	openPdfMenu?: Menu;
 	preventReopenPdfMenu: boolean;
 	lastHoveredLinkTarget: string;
-	otherMenu?: HTMLElement;
+	canvasCardMenu?: HTMLElement;
 
 	settings: CopyUrlInPreviewSettings;
 	async loadSettings() {
@@ -203,10 +203,10 @@ export default class CopyUrlInPreview extends Plugin {
 		}
 		//hide the menu on canvas
 		if (isInCanvas) {
-			const otherMenu = activeDocument.querySelector<HTMLElement>(".menu");
-			if (otherMenu) {
-				otherMenu.style.display = "none";
-				this.otherMenu = otherMenu;
+			const canvasCardMenu = activeDocument.querySelector<HTMLElement>(".menu");
+			if (canvasCardMenu) {
+				canvasCardMenu.style.display = "none";
+				this.canvasCardMenu = canvasCardMenu;
 			}
 		}
 		const menu = new Menu();
@@ -248,8 +248,8 @@ export default class CopyUrlInPreview extends Plugin {
 		if (this.openPdfMenu) {
 			this.openPdfMenu.hide();
 		}
-		if (this.otherMenu) {
-			this.otherMenu.style.display = "";
+		if (this.canvasCardMenu) {
+			this.canvasCardMenu.style.display = "";
 		}
 	}
 
