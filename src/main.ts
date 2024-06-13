@@ -176,6 +176,9 @@ export default class CopyUrlInPreview extends Plugin {
 		}
 
 		const pdfEmbed = el.closest(".pdf-embed");
+		// check if the pdf is on a canvas
+		// the context menu crash on loaded pdfs
+		if (pdfEmbed?.className === "canvas-node-content pdf-embed is-loaded") { return; }
 		let pdfFile: TFile;
 		if (pdfEmbed) {
 			let pdfLink: string;
@@ -185,10 +188,11 @@ export default class CopyUrlInPreview extends Plugin {
 			else {
 				pdfLink = pdfEmbed.getAttr("src") ?? this.lastHoveredLinkTarget;
 			}
-
+			
 			pdfLink = pdfLink?.replace(/#page=\d+$/, '');
 
 			const currentNotePath = this.app.workspace.getActiveFile()!.path;
+			
 			pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink!, currentNotePath)!;
 		} else {
 			pdfFile = this.app.workspace.getActiveFile()!;
