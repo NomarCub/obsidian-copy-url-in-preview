@@ -87,9 +87,7 @@ export default class CopyUrlInPreview extends Plugin {
 				menu.addItem((item) => item
 					.setIcon("image-file")
 					.setTitle(strings.menuItems.copyImageToClipboard)
-					.onClick(async () => {
-						await this.copyImageToClipboard(url);
-					}));
+					.onClick(async () => { await this.copyImageToClipboard(url); }));
 			}
 		}));
 	}
@@ -201,7 +199,7 @@ export default class CopyUrlInPreview extends Plugin {
 		} else {
 			pdfFile = this.app.workspace.getActiveFile()!;
 		}
-		//hide the menu on canvas
+		// hide the menu on canvas
 		if (isInCanvas) {
 			const canvasCardMenu = activeDocument.querySelector<HTMLElement>(".menu");
 			if (canvasCardMenu) {
