@@ -1,7 +1,7 @@
 import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
 import {
-	loadImageBlob, onElement, openImageFromMouseEvent, imageElementFromMouseEvent,
-	getRelativePath, timeouts, strings, copyImageToClipboard
+	loadImageBlob, onElement, openImageInNewTabFromEvent, imageElementFromMouseEvent,
+	getRelativePath, timeouts, strings, copyImageToClipboard, openTfileInNewTab
 } from "./helpers";
 import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -27,13 +27,20 @@ export default class CopyUrlInPreview extends Plugin {
 		await this.loadSettings();
 		this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
 		this.registerDocument(document);
+		const imageFileRegex = /(avif|bmp|gif|jpe?g|png|svg|webp)$/gi;
 		this.app.workspace.on("window-open", (_workspaceWindow, window) => {
 			this.registerDocument(window.document);
 		});
 		// register the image menu for canvas
 		this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
 			if (source === "canvas-menu" && file instanceof TFile
-				&& file.extension.match(/(avif|bmp|gif|jpe?g|png|svg|webp)/i)) {
+				&& file.extension.match(imageFileRegex)) {
+				menu.addItem((item: MenuItem) => item
+					.setIcon("arrow-up-right")
+					.setSection("system")
+					.setTitle("Open in new tab")
+					.onClick(() => { openTfileInNewTab(this.app, file); })
+				);
 				menu.addItem((item) => item
 					.setIcon("image-file")
 					.setSection("system")
@@ -52,7 +59,7 @@ export default class CopyUrlInPreview extends Plugin {
 			}
 		}));
 		this.registerEvent(this.app.workspace.on("url-menu", (menu, url) => {
-			if (url.match(/(avif|bmp|gif|jpe?g|png|svg|webp)$/gi)) {
+			if (url.match(imageFileRegex)) {
 				menu.addItem((item) => item
 					.setIcon("image-file")
 					.setTitle(strings.menuItems.copyImageToClipboard)
@@ -310,7 +317,7 @@ export default class CopyUrlInPreview extends Plugin {
 			menu.addItem((item: MenuItem) => item
 				.setIcon("arrow-up-right")
 				.setTitle("Open in new tab")
-				.onClick(() => { openImageFromMouseEvent(event, this.app); })
+				.onClick(() => { openImageInNewTabFromEvent(this.app, event); })
 			);
 			menu.addItem((item: MenuItem) => item
 				.setIcon("arrow-up-right")
@@ -345,7 +352,7 @@ export default class CopyUrlInPreview extends Plugin {
 	onImageMouseUp(event: MouseEvent) {
 		const middleButtonNumber = 1;
 		if (event.button == middleButtonNumber && this.settings.middleClickNewTab) {
-			openImageFromMouseEvent(event, this.app);
+			openImageInNewTabFromEvent(this.app, event);
 		}
 	}
 }

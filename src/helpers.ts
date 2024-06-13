@@ -109,7 +109,11 @@ export function getRelativePath(url: URL, app: App): string | undefined {
 	}
 }
 
-export function openImageFromMouseEvent(event: MouseEvent, app: App) {
+export function openTfileInNewTab(app: App, tfile: TFile) {
+	app.workspace.getLeaf(true).openFile(tfile, { active: true });
+}
+
+export function openImageInNewTabFromEvent(app: App, event: MouseEvent) {
 	const image = imageElementFromMouseEvent(event);
 	if (!image) return;
 
@@ -121,7 +125,7 @@ export function openImageFromMouseEvent(event: MouseEvent, app: App) {
 		: app.vault.getAbstractFileByPath(link);
 
 	if (imageAsTFile && imageAsTFile instanceof TFile) {
-		app.workspace.getLeaf(true).openFile(imageAsTFile, { active: true });
+		openTfileInNewTab(app, imageAsTFile);
 	}
 }
 
