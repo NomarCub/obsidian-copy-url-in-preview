@@ -1,7 +1,8 @@
-import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
+import { Menu, Plugin, Notice, Platform, TFile, MarkdownView } from "obsidian";
 import {
 	loadImageBlob, onElement, openImageInNewTabFromEvent, imageElementFromMouseEvent,
-	getRelativePath, timeouts, strings, copyImageToClipboard, openTfileInNewTab
+	getRelativePath, timeouts, copyImageToClipboard, openTfileInNewTab, setMenuVisuals,
+	registerEscapeButton
 } from "./helpers";
 import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -35,34 +36,26 @@ export default class CopyUrlInPreview extends Plugin {
 		this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
 			if (source === "canvas-menu" && file instanceof TFile
 				&& file.extension.match(imageFileRegex)) {
-				menu.addItem((item: MenuItem) => item
-					.setIcon("arrow-up-right")
+				menu.addItem(item => setMenuVisuals(item, "open-in-new-tab")
 					.setSection("system")
-					.setTitle("Open in new tab")
 					.onClick(() => { openTfileInNewTab(this.app, file); })
 				);
-				menu.addItem((item) => item
-					.setIcon("image-file")
+				menu.addItem(item => setMenuVisuals(item, "copy-to-clipboard")
 					.setSection("system")
-					.setTitle(strings.menuItems.copyImageToClipboard)
 					.onClick(async () => { await copyImageToClipboard(await this.app.vault.readBinary(file)); }));
 			}
 		}));
 		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node: CanvasNodeWithUrl) => {
 			if (node.unknownData?.type === "link") {
 				const url = node.unknownData?.url;
-				menu.addItem((item) => item
+				menu.addItem(item => setMenuVisuals(item, "copy-to-clipboard")
 					.setSection("canvas")
-					.setIcon("image-file")
-					.setTitle(strings.menuItems.copyImageToClipboard)
 					.onClick(async () => { await copyImageToClipboard(url); }));
 			}
 		}));
 		this.registerEvent(this.app.workspace.on("url-menu", (menu, url) => {
 			if (url.match(imageFileRegex)) {
-				menu.addItem((item) => item
-					.setIcon("image-file")
-					.setTitle(strings.menuItems.copyImageToClipboard)
+				menu.addItem(item => setMenuVisuals(item, "copy-to-clipboard")
 					.onClick(async () => { await copyImageToClipboard(url); }));
 			}
 		}));
@@ -185,11 +178,9 @@ export default class CopyUrlInPreview extends Plugin {
 			}
 		}
 		const menu = new Menu();
-		this.registerEscapeButton(menu);
+		registerEscapeButton(menu);
 		menu.onHide(() => this.openPdfMenu = undefined);
-		menu.addItem((item: MenuItem) => item
-			.setIcon("pdf-file")
-			.setTitle("Open PDF externally")
+		menu.addItem(item => setMenuVisuals(item, "open-pdf")
 			.onClick(async () => {
 				this.preventReopenPdfMenu = true;
 				setTimeout(() => { this.preventReopenPdfMenu = false; }, timeouts.openPdfMenu);
@@ -205,18 +196,6 @@ export default class CopyUrlInPreview extends Plugin {
 		this.openPdfMenu = menu;
 
 		setTimeout(this.hideOpenPdfMenu.bind(this), timeouts.openPdfMenu);
-	}
-
-	registerEscapeButton(menu: Menu, document: Document = activeDocument) {
-		menu.register(onElement(
-			document, "keydown", "*",
-			(e: KeyboardEvent) => {
-				if (e.key === "Escape") {
-					e.preventDefault();
-					e.stopPropagation();
-					menu.hide();
-				}
-			}));
 	}
 
 	hideOpenPdfMenu() {
@@ -307,31 +286,21 @@ export default class CopyUrlInPreview extends Plugin {
 
 		event.preventDefault();
 		const menu = new Menu();
-		menu.addItem((item: MenuItem) => item
-			.setIcon("image-file")
-			.setTitle(strings.menuItems.copyImageToClipboard)
+		menu.addItem(item => setMenuVisuals(item, "copy-to-clipboard")
 			.onClick(async () => { await copyImageToClipboard(image); })
 		);
 		const relativePath = getRelativePath(url, this.app);
 		if (protocol === "app:" && Platform.isDesktop && relativePath) {
-			menu.addItem((item: MenuItem) => item
-				.setIcon("arrow-up-right")
-				.setTitle("Open in new tab")
+			menu.addItem(item => setMenuVisuals(item, "open-in-new-tab")
 				.onClick(() => { openImageInNewTabFromEvent(this.app, event); })
 			);
-			menu.addItem((item: MenuItem) => item
-				.setIcon("arrow-up-right")
-				.setTitle("Open in default app")
+			menu.addItem(item => setMenuVisuals(item, "open-in-default-app")
 				.onClick(() => this.app.openWithDefaultApp(relativePath))
 			);
-			menu.addItem((item: MenuItem) => item
-				.setIcon("arrow-up-right")
-				.setTitle(Platform.isMacOS ? "Reveal in Finder" : "Show in system explorer")
+			menu.addItem(item => setMenuVisuals(item, "show-in-explorer")
 				.onClick(() => { this.app.showInFolder(relativePath); })
 			);
-			menu.addItem((item: MenuItem) => item
-				.setIcon("folder")
-				.setTitle("Reveal file in navigation")
+			menu.addItem(item => setMenuVisuals(item, "reveal-in-navigation")
 				.onClick(() => {
 					const file = this.app.vault.getFileByPath(relativePath);
 					if (!file) {
@@ -343,7 +312,7 @@ export default class CopyUrlInPreview extends Plugin {
 			);
 		}
 
-		this.registerEscapeButton(menu);
+		registerEscapeButton(menu);
 
 		menu.showAtPosition({ x: event.pageX, y: event.pageY });
 		this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);

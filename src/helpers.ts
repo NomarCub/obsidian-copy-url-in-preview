@@ -1,4 +1,4 @@
-import { App, Notice, TFile } from "obsidian";
+import { App, Menu, MenuItem, Notice, Platform, TFile } from "obsidian";
 import { Listener } from "types";
 
 export const timeouts = {
@@ -8,15 +8,6 @@ export const timeouts = {
 	openPdfMenu: 5_000,
 	successNotice: 1_800
 };
-export const strings = {
-	menuItems: {
-		copyImageToClipboard: "Copy image to clipboard"
-	},
-	messages: {
-		imageCopied: "Image copied to the clipboard!",
-		imageCopyFailed: "Error, could not copy the image!",
-	}
-}
 
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 	const timeout = new Promise((_resolve, reject) => {
@@ -38,10 +29,10 @@ export async function copyImageToClipboard(url: string | ArrayBuffer) {
 	try {
 		const data = new ClipboardItem({ [blob.type]: blob, });
 		await navigator.clipboard.write([data]);
-		new Notice(strings.messages.imageCopied, timeouts.successNotice);
+		new Notice("Image copied to the clipboard!", timeouts.successNotice);
 	} catch (e) {
 		console.error(e);
-		new Notice(strings.messages.imageCopyFailed);
+		new Notice("Error, could not copy the image!");
 	}
 }
 
@@ -127,5 +118,38 @@ export function openImageInNewTabFromEvent(app: App, event: MouseEvent) {
 	if (imageAsTFile && imageAsTFile instanceof TFile) {
 		openTfileInNewTab(app, imageAsTFile);
 	}
+}
+
+export function registerEscapeButton(menu: Menu) {
+	const document = activeDocument;
+	menu.register(onElement(
+		document, "keydown", "*",
+		(e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				e.preventDefault();
+				e.stopPropagation();
+				menu.hide();
+			}
+		}));
+}
+
+type menuType =
+	"open-in-new-tab" |
+	"copy-to-clipboard" |
+	"open-in-default-app" |
+	"show-in-explorer" |
+	"reveal-in-navigation" |
+	"open-pdf";
+
+export function setMenuVisuals(item: MenuItem, type: menuType): MenuItem {
+	const types: Record<menuType, { icon: string, title: string }> = {
+		"copy-to-clipboard": { icon: "image-file", title: "Copy image to clipboard" },
+		"open-in-new-tab": { icon: "arrow-up-right", title: "Open in new tab" },
+		"open-in-default-app": { icon: "arrow-up-right", title: "Open in default app" },
+		"show-in-explorer": { icon: "arrow-up-right", title: Platform.isMacOS ? "Reveal in Finder" : "Show in system explorer" },
+		"reveal-in-navigation": { icon: "folder", title: "Reveal file in navigation" },
+		"open-pdf": { icon: "pdf-file", title: "Open PDF externally" },
+	}
+	return item.setIcon(types[type].icon).setTitle(types[type].title);
 }
 
