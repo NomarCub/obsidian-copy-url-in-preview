@@ -1,24 +1,21 @@
-import { App, CanvasNode, FileSystemAdapter, TFile } from "obsidian";
+import { App, Notice, TFile } from "obsidian";
+import { Listener } from "types";
 
-const loadImageBlobTimeout = 5_000;
-
-export interface ElectronWindow extends Window {
-	WEBVIEW_SERVER_URL: string
-}
-
-export interface FileSystemAdapterWithInternalApi extends FileSystemAdapter {
-	open(path: string): Promise<void>
-}
-
-export interface CanvasNodeWithUrl extends CanvasNode {
-	unknownData: {
-		url: string
-		type: string
+export const timeouts = {
+	loadImageBlob: 5_000,
+	longTap: 500,
+	deleteTempFile: 60_000,
+	openPdfMenu: 5_000,
+	successNotice: 1_800
+};
+export const strings = {
+	menuItems: {
+		copyImageToClipboard: "Copy image to clipboard"
+	},
+	messages: {
+		imageCopied: "Image copied to the clipboard!",
+		imageCopyFailed: "Error, could not copy the image!",
 	}
-}
-
-export interface Listener {
-	(this: Document, ev: Event): unknown;
 }
 
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
@@ -32,6 +29,20 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 		promise,
 		timeout
 	]);
+}
+
+export async function copyImageToClipboard(url: string | ArrayBuffer) {
+	const blob = url instanceof ArrayBuffer
+		? new Blob([url], { type: "image/png", })
+		: await loadImageBlob(url);
+	try {
+		const data = new ClipboardItem({ [blob.type]: blob, });
+		await navigator.clipboard.write([data]);
+		new Notice(strings.messages.imageCopied, timeouts.successNotice);
+	} catch (e) {
+		console.error(e);
+		new Notice(strings.messages.imageCopyFailed);
+	}
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
@@ -64,7 +75,7 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob> {
 		}
 		image.src = imgSrc;
 	});
-	return withTimeout(loadImageBlobTimeout, loadImageBlobCore())
+	return withTimeout(timeouts.loadImageBlob, loadImageBlobCore())
 }
 
 export function onElement(

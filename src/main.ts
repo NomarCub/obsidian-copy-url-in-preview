@@ -1,29 +1,12 @@
 import { Menu, Plugin, Notice, MenuItem, Platform, TFile, MarkdownView } from "obsidian";
 import {
-	loadImageBlob, onElement, openImageFromMouseEvent,
-	ElectronWindow, FileSystemAdapterWithInternalApi,
-	imageElementFromMouseEvent, getRelativePath, CanvasNodeWithUrl
-} from "./helpers"
+	loadImageBlob, onElement, openImageFromMouseEvent, imageElementFromMouseEvent,
+	getRelativePath, timeouts, strings, copyImageToClipboard
+} from "./helpers";
+import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as internal from 'obsidian-typings';
 import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
-
-const IMAGE_URL_PREFIX = "/_capacitor_file_";
-const SUCCESS_NOTICE_TIMEOUT = 1_800;
-const longTapTimeout = 500;
-const deleteTempFileTimeout = 60_000;
-const OPEN_PDF_MENU_BORDER_SIZE = 100;
-const OPEN_PDF_MENU_TIMEOUT = 5_000;
-
-const strings = {
-	menuItems: {
-		copyImageToClipboard: "Copy image to clipboard"
-	},
-	messages: {
-		imageCopied: "Image copied to the clipboard!",
-		imageCopyFailed: "Error, could not copy the image!",
-	}
-}
 
 export default class CopyUrlInPreview extends Plugin {
 	longTapTimeoutId?: number;
@@ -38,20 +21,6 @@ export default class CopyUrlInPreview extends Plugin {
 	}
 	async saveSettings() {
 		await this.saveData(this.settings);
-	}
-
-	async copyImageToClipboard(url: string | ArrayBuffer) {
-		const blob = url instanceof ArrayBuffer
-			? new Blob([url], { type: "image/png", })
-			: await loadImageBlob(url);
-		try {
-			const data = new ClipboardItem({ [blob.type]: blob, });
-			await navigator.clipboard.write([data]);
-			new Notice(strings.messages.imageCopied, SUCCESS_NOTICE_TIMEOUT);
-		} catch (e) {
-			console.error(e);
-			new Notice(strings.messages.imageCopyFailed);
-		}
 	}
 
 	async onload() {
@@ -69,7 +38,7 @@ export default class CopyUrlInPreview extends Plugin {
 					.setIcon("image-file")
 					.setSection("system")
 					.setTitle(strings.menuItems.copyImageToClipboard)
-					.onClick(async () => { await this.copyImageToClipboard(await this.app.vault.readBinary(file)); }));
+					.onClick(async () => { await copyImageToClipboard(await this.app.vault.readBinary(file)); }));
 			}
 		}));
 		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node: CanvasNodeWithUrl) => {
@@ -79,7 +48,7 @@ export default class CopyUrlInPreview extends Plugin {
 					.setSection("canvas")
 					.setIcon("image-file")
 					.setTitle(strings.menuItems.copyImageToClipboard)
-					.onClick(async () => { await this.copyImageToClipboard(url); }));
+					.onClick(async () => { await copyImageToClipboard(url); }));
 			}
 		}));
 		this.registerEvent(this.app.workspace.on("url-menu", (menu, url) => {
@@ -87,7 +56,7 @@ export default class CopyUrlInPreview extends Plugin {
 				menu.addItem((item) => item
 					.setIcon("image-file")
 					.setTitle(strings.menuItems.copyImageToClipboard)
-					.onClick(async () => { await this.copyImageToClipboard(url); }));
+					.onClick(async () => { await copyImageToClipboard(url); }));
 			}
 		}));
 	}
@@ -168,12 +137,13 @@ export default class CopyUrlInPreview extends Plugin {
 		}
 
 		const rect = el.getBoundingClientRect();
-		
-		if (!isInCanvas 
-			&& rect.left + OPEN_PDF_MENU_BORDER_SIZE < event.x
-			&& event.x < rect.right - OPEN_PDF_MENU_BORDER_SIZE
-			&& rect.top + OPEN_PDF_MENU_BORDER_SIZE < event.y
-			&& event.y < rect.bottom - OPEN_PDF_MENU_BORDER_SIZE) {
+		const openPdfMenuBorderSize = 100;
+
+		if (!isInCanvas
+			&& rect.left + openPdfMenuBorderSize < event.x
+			&& event.x < rect.right - openPdfMenuBorderSize
+			&& rect.top + openPdfMenuBorderSize < event.y
+			&& event.y < rect.bottom - openPdfMenuBorderSize) {
 			return;
 		}
 
@@ -190,11 +160,11 @@ export default class CopyUrlInPreview extends Plugin {
 			else {
 				pdfLink = pdfEmbed.getAttr("src") ?? this.lastHoveredLinkTarget;
 			}
-			
+
 			pdfLink = pdfLink?.replace(/#page=\d+$/, '');
 
 			const currentNotePath = this.app.workspace.getActiveFile()!.path;
-			
+
 			pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink!, currentNotePath)!;
 		} else {
 			pdfFile = this.app.workspace.getActiveFile()!;
@@ -215,7 +185,7 @@ export default class CopyUrlInPreview extends Plugin {
 			.setTitle("Open PDF externally")
 			.onClick(async () => {
 				this.preventReopenPdfMenu = true;
-				setTimeout(() => { this.preventReopenPdfMenu = false; }, OPEN_PDF_MENU_TIMEOUT);
+				setTimeout(() => { this.preventReopenPdfMenu = false; }, timeouts.openPdfMenu);
 				this.hideOpenPdfMenu();
 				if (Platform.isDesktop) {
 					this.app.openWithDefaultApp(pdfFile.path);
@@ -227,7 +197,7 @@ export default class CopyUrlInPreview extends Plugin {
 		menu.showAtMouseEvent(event);
 		this.openPdfMenu = menu;
 
-		setTimeout(this.hideOpenPdfMenu.bind(this), OPEN_PDF_MENU_TIMEOUT);
+		setTimeout(this.hideOpenPdfMenu.bind(this), timeouts.openPdfMenu);
 	}
 
 	registerEscapeButton(menu: Menu, document: Document = activeDocument) {
@@ -258,7 +228,7 @@ export default class CopyUrlInPreview extends Plugin {
 			this.longTapTimeoutId = undefined;
 		} else {
 			if (event.targetTouches.length == 1) {
-				this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), longTapTimeout);
+				this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), timeouts.longTap);
 			}
 		}
 	}
@@ -279,7 +249,7 @@ export default class CopyUrlInPreview extends Plugin {
 		const electronWindow = window as unknown as ElectronWindow;
 		const basePath = adapter.getFullPath("");
 		const webviewServerUrl = electronWindow.WEBVIEW_SERVER_URL;
-		const localImagePrefixUrl = webviewServerUrl + IMAGE_URL_PREFIX + basePath;
+		const localImagePrefixUrl = webviewServerUrl + "/_capacitor_file_" + basePath;
 		if (img.src.startsWith(localImagePrefixUrl)) {
 			const encodedImageFileRelativePath = img.src.replace(localImagePrefixUrl, "");
 			const imageFileRelativePath = decodeURIComponent(encodedImageFileRelativePath);
@@ -296,7 +266,7 @@ export default class CopyUrlInPreview extends Plugin {
 				const tempFileName = `/.temp-${randomGuid}.${extension}`;
 				const buffer = await blob.arrayBuffer();
 				await adapter.writeBinary(tempFileName, buffer);
-				setTimeout(() => adapter.remove(tempFileName), deleteTempFileTimeout);
+				setTimeout(() => adapter.remove(tempFileName), timeouts.deleteTempFile);
 				new Notice("Image was temporarily saved and will be removed in 1 minute");
 				await adapter.open(tempFileName);
 			} catch {
@@ -313,9 +283,8 @@ export default class CopyUrlInPreview extends Plugin {
 		const imageElement = imageElementFromMouseEvent(event);
 		if (!imageElement) return;
 		// check if the image is on a canvas
-		if (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas" 
-			&& event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded") 
-		{
+		if (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas"
+			&& event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded") {
 			return;
 		}
 
@@ -334,7 +303,7 @@ export default class CopyUrlInPreview extends Plugin {
 		menu.addItem((item: MenuItem) => item
 			.setIcon("image-file")
 			.setTitle(strings.menuItems.copyImageToClipboard)
-			.onClick(async () => { await this.copyImageToClipboard(image); })
+			.onClick(async () => { await copyImageToClipboard(image); })
 		);
 		const relativePath = getRelativePath(url, this.app);
 		if (protocol === "app:" && Platform.isDesktop && relativePath) {
