@@ -10,12 +10,8 @@ export const timeouts = {
 };
 
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
-	const timeout = new Promise((_resolve, reject) => {
-		const id = setTimeout(() => {
-			clearTimeout(id);
-			reject(`timed out after ${ms} ms`)
-		}, ms)
-	}) as unknown as Promise<T>;
+	const timeout = new Promise<never>((_, reject) =>
+		setTimeout(() => reject(`timed out after ${ms} ms`), ms));
 	return Promise.race([
 		promise,
 		timeout
