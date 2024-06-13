@@ -297,7 +297,9 @@ export default class CopyUrlInPreview extends Plugin {
 		const imageElement = imageElementFromMouseEvent(event);
 		if (!imageElement) return;
 		// check if the image is on a canvas
-		if (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas") {
+		if (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas" 
+			&& event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded") 
+		{
 			return;
 		}
 
