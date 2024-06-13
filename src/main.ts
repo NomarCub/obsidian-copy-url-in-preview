@@ -30,6 +30,7 @@ export default class CopyUrlInPreview extends Plugin {
 	openPdfMenu?: Menu;
 	preventReopenPdfMenu: boolean;
 	lastHoveredLinkTarget: string;
+	otherMenu?: HTMLElement;
 
 	settings: CopyUrlInPreviewSettings;
 	async loadSettings() {
@@ -163,12 +164,15 @@ export default class CopyUrlInPreview extends Plugin {
 		if (!this.settings.pdfMenu || this.openPdfMenu || this.preventReopenPdfMenu) {
 			return;
 		}
-		if (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas") {
+		const isInCanvas = this.app.workspace.getActiveFile()?.extension === "canvas"
+		if (!this.settings.enableDefaultOnCanvas && isInCanvas) {
 			return;
 		}
 
 		const rect = el.getBoundingClientRect();
-		if (rect.left + OPEN_PDF_MENU_BORDER_SIZE < event.x
+		
+		if (!isInCanvas 
+			&& rect.left + OPEN_PDF_MENU_BORDER_SIZE < event.x
 			&& event.x < rect.right - OPEN_PDF_MENU_BORDER_SIZE
 			&& rect.top + OPEN_PDF_MENU_BORDER_SIZE < event.y
 			&& event.y < rect.bottom - OPEN_PDF_MENU_BORDER_SIZE) {
@@ -197,7 +201,14 @@ export default class CopyUrlInPreview extends Plugin {
 		} else {
 			pdfFile = this.app.workspace.getActiveFile()!;
 		}
-
+		//hide the menu on canvas
+		if (isInCanvas) {
+			const otherMenu = activeDocument.querySelector<HTMLElement>(".menu");
+			if (otherMenu) {
+				otherMenu.style.display = "none";
+				this.otherMenu = otherMenu;
+			}
+		}
 		const menu = new Menu();
 		this.registerEscapeButton(menu);
 		menu.onHide(() => this.openPdfMenu = undefined);
@@ -236,6 +247,9 @@ export default class CopyUrlInPreview extends Plugin {
 	hideOpenPdfMenu() {
 		if (this.openPdfMenu) {
 			this.openPdfMenu.hide();
+		}
+		if (this.otherMenu) {
+			this.otherMenu.style.display = "";
 		}
 	}
 
