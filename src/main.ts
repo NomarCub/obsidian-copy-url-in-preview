@@ -14,7 +14,6 @@ export default class CopyUrlInPreview extends Plugin {
 	preventReopenPdfMenu: boolean;
 	lastHoveredLinkTarget: string;
 	canvasCardMenu?: HTMLElement;
-
 	settings: CopyUrlInPreviewSettings;
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
@@ -33,14 +32,14 @@ export default class CopyUrlInPreview extends Plugin {
 		});
 		// register the image menu for canvas
 		this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
-			if (source === "canvas-menu" && file instanceof TFile
-				&& file.extension.match(imageFileRegex)) {
+			if (source === "canvas-menu" && file instanceof TFile && (file.extension.match(imageFileRegex) || file.extension === "pdf")
+			)  {
 				menu.addItem(item => setMenuItem(item, "open-in-new-tab")
-					.setSection("system")
+					.setSection("open")
 					.onClick(() => { openTfileInNewTab(this.app, file); })
 				);
 				menu.addItem(item => setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file))
-					.setSection("system"))
+					.setSection("info"))
 			}
 		}));
 		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node: CanvasNodeWithUrl) => {
@@ -176,6 +175,7 @@ export default class CopyUrlInPreview extends Plugin {
 		const menu = new Menu();
 		registerEscapeButton(menu);
 		menu.onHide(() => this.openPdfMenu = undefined);
+		
 		menu.addItem(item => setMenuItem(item, "open-pdf")
 			.onClick(async () => {
 				this.preventReopenPdfMenu = true;
@@ -266,7 +266,7 @@ export default class CopyUrlInPreview extends Plugin {
 		if (!imageElement) return;
 		// check if the image is on a canvas
 		if (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas"
-			&& event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded") {
+			|| event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded") {
 			return;
 		}
 
