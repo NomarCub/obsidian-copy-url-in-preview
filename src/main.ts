@@ -33,7 +33,7 @@ export default class CopyUrlInPreview extends Plugin {
 		// register the image menu for canvas
 		this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
 			if (source === "canvas-menu" && file instanceof TFile && (file.extension.match(imageFileRegex) || file.extension === "pdf")
-			)  {
+			) {
 				menu.addItem(item => setMenuItem(item, "open-in-new-tab")
 					.setSection("open")
 					.onClick(() => { openTfileInNewTab(this.app, file); })
@@ -175,7 +175,7 @@ export default class CopyUrlInPreview extends Plugin {
 		const menu = new Menu();
 		registerEscapeButton(menu);
 		menu.onHide(() => this.openPdfMenu = undefined);
-		
+
 		menu.addItem(item => setMenuItem(item, "open-pdf")
 			.onClick(async () => {
 				this.preventReopenPdfMenu = true;
@@ -282,30 +282,39 @@ export default class CopyUrlInPreview extends Plugin {
 
 		event.preventDefault();
 		const menu = new Menu();
-		menu.addItem(item => setMenuItem(item, "copy-to-clipboard", image));
 		const relativePath = getRelativePath(url, this.app);
-		if (protocol === "app:" && Platform.isDesktop && relativePath) {
+		menu.addSections(["open", "copy", "system"]);
+		if (protocol === "app:" && relativePath) {
+			//open in new tab is natif to Obsidian, so no need to check if it's mobile supported :)
 			menu.addItem(item => setMenuItem(item, "open-in-new-tab")
+				.setSection("open")
 				.onClick(() => { openImageInNewTabFromEvent(this.app, event); })
 			);
-			menu.addItem(item => setMenuItem(item, "open-in-default-app")
-				.onClick(() => this.app.openWithDefaultApp(relativePath))
-			);
-			menu.addItem(item => setMenuItem(item, "show-in-explorer")
-				.onClick(() => { this.app.showInFolder(relativePath); })
-			);
-			menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
-				.onClick(() => {
-					const file = this.app.vault.getFileByPath(relativePath);
-					if (!file) {
-						console.warn(`getFileByPath returned null for ${relativePath}`);
-						return;
-					}
-					this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
-				})
-			);
-		}
+			if (Platform.isDesktop) {
 
+				menu.addItem(item => setMenuItem(item, "open-in-default-app")
+					.setSection("system")
+					.onClick(() => this.app.openWithDefaultApp(relativePath))
+				);
+				menu.addItem(item => setMenuItem(item, "show-in-explorer")
+					.setSection("system")
+					.onClick(() => { this.app.showInFolder(relativePath); })
+				);
+				menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
+					.setSection("system")
+					.onClick(() => {
+						const file = this.app.vault.getFileByPath(relativePath);
+						if (!file) {
+							console.warn(`getFileByPath returned null for ${relativePath}`);
+							return;
+						}
+						this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
+					})
+				);
+			}
+		}
+		menu.addItem(item => setMenuItem(item, "copy-to-clipboard", image)
+			.setSection("copy"));
 		registerEscapeButton(menu);
 
 		menu.showAtPosition({ x: event.pageX, y: event.pageY });
