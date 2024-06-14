@@ -52,5 +52,6 @@ If you like this plugin you can sponsor me here on GitHub: [![Sponsor NomarCub](
 - [Copying](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/2) [images](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/3) developed by [luckman212](https://github.com/luckman212).
 - [Android image sharing](https://github.com/NomarCub/obsidian-copy-url-in-preview/issues/5) developed by [mnaoumov](https://github.com/mnaoumov).
 - [Open PDF externally](https://github.com/NomarCub/obsidian-copy-url-in-preview/issues/9) feature developed by [mnaoumov](https://github.com/mnaoumov).
+- [Canvas functionality, translations and fixes](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/40) by [Mara-Li](https://github.com/Mara-Li)
 
 Thank you to the makers of the [Tag Wrangler plugin](https://github.com/pjeby/tag-wrangler), as it was a great starting point for working with context menus in Obsidian.
