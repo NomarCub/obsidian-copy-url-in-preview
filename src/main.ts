@@ -1,7 +1,7 @@
 import { Menu, Plugin, Notice, Platform, TFile, MarkdownView } from "obsidian";
 import {
 	loadImageBlob, onElement, openImageInNewTabFromEvent, imageElementFromMouseEvent,
-	getRelativePath, timeouts, openTfileInNewTab, setMenuVisuals as setMenuItem, registerEscapeButton
+	getRelativePath, timeouts, openTfileInNewTab, setMenuItem, registerEscapeButton
 } from "./helpers";
 import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
