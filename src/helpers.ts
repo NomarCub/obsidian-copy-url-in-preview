@@ -136,18 +136,18 @@ type menuType =
 	"show-in-explorer" |
 	"reveal-in-navigation" |
 	"open-pdf";
-
+const Translate = i18next.t.bind(i18next) as unknown as (key: string) => string;
 export function setMenuVisuals(item: MenuItem, type: "copy-to-clipboard", imageSource: Promise<ArrayBuffer>): MenuItem;
 export function setMenuVisuals(item: MenuItem, type: "copy-to-clipboard", imageSource: string): MenuItem;
 export function setMenuVisuals(item: MenuItem, type: menuType): MenuItem;
 export function setMenuVisuals(item: MenuItem, type: menuType, imageSource?: string | Promise<ArrayBuffer>): MenuItem {
 	const types: Record<menuType, { icon: string, title: string }> = {
-		"copy-to-clipboard": { icon: "image-file", title: "Copy image to clipboard" },
-		"open-in-new-tab": { icon: "arrow-up-right", title: "Open in new tab" },
-		"open-in-default-app": { icon: "arrow-up-right", title: "Open in default app" },
-		"show-in-explorer": { icon: "arrow-up-right", title: Platform.isMacOS ? "Reveal in Finder" : "Show in system explorer" },
-		"reveal-in-navigation": { icon: "folder", title: "Reveal file in navigation" },
-		"open-pdf": { icon: "pdf-file", title: "Open PDF externally" },
+		"copy-to-clipboard": { icon: "image-file", title: Translate("interface.label-copy") },
+		"open-in-new-tab": { icon: "file-plus", title: Translate("interface.menu.open-in-new-tab") },
+		"open-in-default-app": { icon: "arrow-up-right", title: Translate("plugins.open-with-default-app.action-open-file") },
+		"show-in-explorer": { icon: "arrow-up-right", title: Platform.isMacOS ? Translate("plugins.open-with-default-app.action-show-in-folder-mac") : Translate("plugins.open-with-default-app.action-show-in-folder") },
+		"reveal-in-navigation": { icon: "folder", title: Translate("plugins.file-explorer.action-reveal-file") },
+		"open-pdf": { icon: "pdf-file", title: Translate("plugins.open-with-default-app.action-open-file") },
 	}
 	if (type === "copy-to-clipboard" && imageSource) {
 		item.onClick(async () => {

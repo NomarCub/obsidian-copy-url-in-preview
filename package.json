@@ -18,6 +18,7 @@
 		"builtin-modules": "4.0.0",
 		"esbuild": "0.21.4",
 		"eslint": "^8.57.0",
+		"i18next": "^23.11.5",
 		"obsidian": "~1.5.7-1",
 		"obsidian-typings": "^1.1.6",
 		"tslib": "2.6.2",

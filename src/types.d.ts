@@ -1,4 +1,5 @@
 import { CanvasNode, FileSystemAdapter } from "obsidian"
+import type { i18n } from "i18next";
 
 export interface ElectronWindow extends Window {
     WEBVIEW_SERVER_URL: string
@@ -17,4 +18,8 @@ export interface CanvasNodeWithUrl extends CanvasNode {
 
 export interface Listener {
     (this: Document, ev: Event): unknown;
+}
+
+declare global {
+    const i18next: i18n;
 }
