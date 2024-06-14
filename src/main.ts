@@ -35,11 +35,9 @@ export default class CopyUrlInPreview extends Plugin {
 			if (source === "canvas-menu" && file instanceof TFile && (file.extension.match(imageFileRegex) || file.extension === "pdf")
 			) {
 				menu.addItem(item => setMenuItem(item, "open-in-new-tab")
-					.setSection("open")
 					.onClick(() => { openTfileInNewTab(this.app, file); })
 				);
-				menu.addItem(item => setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file))
-					.setSection("info"))
+				menu.addItem(item => setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file)))
 			}
 		}));
 		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node: CanvasNodeWithUrl) => {
@@ -283,25 +281,21 @@ export default class CopyUrlInPreview extends Plugin {
 		event.preventDefault();
 		const menu = new Menu();
 		const relativePath = getRelativePath(url, this.app);
-		menu.addSections(["open", "copy", "system"]);
+		menu.addSections(["open", "info", "system"]);
 		if (protocol === "app:" && relativePath) {
 			//open in new tab is natif to Obsidian, so no need to check if it's mobile supported :)
 			menu.addItem(item => setMenuItem(item, "open-in-new-tab")
-				.setSection("open")
 				.onClick(() => { openImageInNewTabFromEvent(this.app, event); })
 			);
 			if (Platform.isDesktop) {
 
 				menu.addItem(item => setMenuItem(item, "open-in-default-app")
-					.setSection("system")
 					.onClick(() => this.app.openWithDefaultApp(relativePath))
 				);
 				menu.addItem(item => setMenuItem(item, "show-in-explorer")
-					.setSection("system")
 					.onClick(() => { this.app.showInFolder(relativePath); })
 				);
 				menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
-					.setSection("system")
 					.onClick(() => {
 						const file = this.app.vault.getFileByPath(relativePath);
 						if (!file) {
@@ -313,8 +307,7 @@ export default class CopyUrlInPreview extends Plugin {
 				);
 			}
 		}
-		menu.addItem(item => setMenuItem(item, "copy-to-clipboard", image)
-			.setSection("copy"));
+		menu.addItem(item => setMenuItem(item, "copy-to-clipboard", image));
 		registerEscapeButton(menu);
 
 		menu.showAtPosition({ x: event.pageX, y: event.pageY });
