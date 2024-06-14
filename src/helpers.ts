@@ -129,6 +129,8 @@ export function registerEscapeButton(menu: Menu) {
 		}));
 }
 
+const Translate = i18next.t.bind(i18next) as unknown as (key: string) => string;
+
 type menuType =
 	"open-in-new-tab" |
 	"copy-to-clipboard" |
@@ -136,24 +138,32 @@ type menuType =
 	"show-in-explorer" |
 	"reveal-in-navigation" |
 	"open-pdf";
-const Translate = i18next.t.bind(i18next) as unknown as (key: string) => string;
+
 export function setMenuVisuals(item: MenuItem, type: "copy-to-clipboard", imageSource: Promise<ArrayBuffer>): MenuItem;
 export function setMenuVisuals(item: MenuItem, type: "copy-to-clipboard", imageSource: string): MenuItem;
 export function setMenuVisuals(item: MenuItem, type: menuType): MenuItem;
 export function setMenuVisuals(item: MenuItem, type: menuType, imageSource?: string | Promise<ArrayBuffer>): MenuItem {
 	const types: Record<menuType, { icon: string, title: string, section: "info" | "system" | "open" }> = {
-		"copy-to-clipboard": { icon: "image-file", title: Translate("interface.label-copy"), section: "info" },
-		"open-in-new-tab": { icon: "file-plus", title: Translate("interface.menu.open-in-new-tab"), section: "open" },
-		"open-in-default-app": { icon: "arrow-up-right", title: Translate("plugins.open-with-default-app.action-open-file"), section: "system" },
-		"show-in-explorer": { icon: "arrow-up-right", title: Platform.isMacOS ? Translate("plugins.open-with-default-app.action-show-in-folder-mac") : Translate("plugins.open-with-default-app.action-show-in-folder"), section: "system" },
-		"reveal-in-navigation": { icon: "folder", title: Translate("plugins.file-explorer.action-reveal-file"), section: "system" },
-		"open-pdf": { icon: "arrow-up-right", title: Translate("plugins.open-with-default-app.action-open-file"), section: "system" },
+		"copy-to-clipboard": { section: "info", icon: "image-file", title: Translate("interface.label-copy") },
+		"open-in-new-tab": { section: "open", icon: "file-plus", title: Translate("interface.menu.open-in-new-tab") },
+		"open-in-default-app": { section: "system", icon: "arrow-up-right", title: Translate("plugins.open-with-default-app.action-open-file") },
+		"show-in-explorer": {
+			section: "system", icon: "arrow-up-right",
+			title: Platform.isMacOS
+				? Translate("plugins.open-with-default-app.action-show-in-folder-mac")
+				: Translate("plugins.open-with-default-app.action-show-in-folder")
+		},
+		"reveal-in-navigation": { section: "system", icon: "folder", title: Translate("plugins.file-explorer.action-reveal-file") },
+		"open-pdf": { section: "system", icon: "arrow-up-right", title: Translate("plugins.open-with-default-app.action-open-file") },
 	}
 	if (type === "copy-to-clipboard" && imageSource) {
 		item.onClick(async () => {
 			await copyImageToClipboard(typeof imageSource === "string" ? imageSource : await imageSource);
 		});
 	}
-	return item.setIcon(types[type].icon).setTitle(types[type].title).setSection(types[type].section);
+	return item
+		.setIcon(types[type].icon)
+		.setTitle(types[type].title)
+		.setSection(types[type].section);
 }
 

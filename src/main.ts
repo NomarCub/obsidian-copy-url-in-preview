@@ -283,12 +283,10 @@ export default class CopyUrlInPreview extends Plugin {
 		const relativePath = getRelativePath(url, this.app);
 		menu.addSections(["open", "info", "system"]);
 		if (protocol === "app:" && relativePath) {
-			//open in new tab is natif to Obsidian, so no need to check if it's mobile supported :)
 			menu.addItem(item => setMenuItem(item, "open-in-new-tab")
 				.onClick(() => { openImageInNewTabFromEvent(this.app, event); })
 			);
 			if (Platform.isDesktop) {
-
 				menu.addItem(item => setMenuItem(item, "open-in-default-app")
 					.onClick(() => this.app.openWithDefaultApp(relativePath))
 				);
