@@ -1,7 +1,7 @@
 {
 	"id": "copy-url-in-preview",
 	"name": "Image Context Menus",
-	"version": "1.7.1",
+	"version": "1.8.0",
 	"minAppVersion": "1.5.7",
 	"description": "Copy, open in default app, show in system explorer, reveal in navigation context menu for images. Also Open PDF externally context menu.",
 	"author": "NomarCub",

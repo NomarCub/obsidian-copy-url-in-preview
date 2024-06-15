@@ -1,14 +1,17 @@
 # Image Context Menus
 
 This plugin provides the following context menus for images in [Obsidian](https://obsidian.md/):
-- Copy image to clipboard
-- Open image in default app
+- Copy to clipboard
+- Open in default app
 - Show in system explorer
 - Reveal file in navigation
 - Open in new tab
   - also available through middle mouse button click
 
 It also has an `Open PDF externally` context menu for PDFs.
+
+Context menus are also added to the canvas.  
+Most features work on mobile, but were only tested on Android. Mobile uses the native image sharing functionality instead of the clipboard, and it downloads online images temporarily so they can be shared.
 
 > This plugin used to be called "Copy Image and URL context menu". It had link URL copying functionality (see [1.5.2](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.5.2) and prior), but that was removed when it was included in Obsidian 1.5.
 
@@ -23,8 +26,6 @@ Copying images:
 Opening PDFs externally:
 
 ![Opening PDFs externally on desktop](https://user-images.githubusercontent.com/5298006/171170626-5a94f5dc-61fc-4661-a9f2-38a0fb0181f5.gif)
-
-All features work on mobile, but were only tested on Android. Mobile uses the native image sharing functionality instead of the clipboard, and it downloads online images temporarily so they can be shared.
 
 ## Installation
 
@@ -52,5 +53,6 @@ If you like this plugin you can sponsor me here on GitHub: [![Sponsor NomarCub](
 - [Copying](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/2) [images](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/3) developed by [luckman212](https://github.com/luckman212).
 - [Android image sharing](https://github.com/NomarCub/obsidian-copy-url-in-preview/issues/5) developed by [mnaoumov](https://github.com/mnaoumov).
 - [Open PDF externally](https://github.com/NomarCub/obsidian-copy-url-in-preview/issues/9) feature developed by [mnaoumov](https://github.com/mnaoumov).
+- [Canvas functionality, translations and fixes](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/40) by [Mara-Li](https://github.com/Mara-Li)
 
 Thank you to the makers of the [Tag Wrangler plugin](https://github.com/pjeby/tag-wrangler), as it was a great starting point for working with context menus in Obsidian.
