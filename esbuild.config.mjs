@@ -17,8 +17,10 @@ let outfile = "main.js";
 if (fs.existsSync('./.devtarget')) {
 	const outFolderOverride = fs.readFileSync('./.devtarget', 'utf8').trim().split("\n")
 		.map(line => line.trim()).filter(line => !line.startsWith("#") && !line.startsWith("//"))[0];
-	outfile = path.join(outFolderOverride, outfile);
-	console.log('Temporary output location:', outfile);
+	if (outFolderOverride) {
+		outfile = path.join(outFolderOverride, outfile);
+		console.log('Temporary output location:', outfile);
+	}
 }
 
 
