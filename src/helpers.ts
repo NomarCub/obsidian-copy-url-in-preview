@@ -142,17 +142,15 @@ export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSour
 export function setMenuItem(item: MenuItem, type: menuType): MenuItem;
 export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string | Promise<ArrayBuffer>): MenuItem {
 	const types: Record<menuType, { icon: string, title: string, section: "info" | "system" | "open" }> = {
-		"copy-to-clipboard": { section: "info", icon: "image-file", title: i18next.t("interface.label-copy") },
-		"open-in-new-tab": { section: "open", icon: "file-plus", title: i18next.t("interface.menu.open-in-new-tab") },
-		"open-in-default-app": { section: "system", icon: "arrow-up-right", title: i18next.t("plugins.open-with-default-app.action-open-file") },
+		"copy-to-clipboard": { section: "info", icon: "image-file", title: "interface.label-copy" },
+		"open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
+		"open-in-default-app": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" },
 		"show-in-explorer": {
 			section: "system", icon: "arrow-up-right",
-			title: Platform.isMacOS
-				? i18next.t("plugins.open-with-default-app.action-show-in-folder-mac")
-				: i18next.t("plugins.open-with-default-app.action-show-in-folder")
+			title: "plugins.open-with-default-app.action-show-in-folder" + (Platform.isMacOS ? "-mac" : "")
 		},
-		"reveal-in-navigation": { section: "system", icon: "folder", title: i18next.t("plugins.file-explorer.action-reveal-file") },
-		"open-pdf": { section: "system", icon: "arrow-up-right", title: i18next.t("plugins.open-with-default-app.action-open-file") },
+		"reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
+		"open-pdf": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" },
 	}
 	if (type === "copy-to-clipboard" && imageSource) {
 		item.onClick(async () => {
@@ -161,7 +159,7 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
 	}
 	return item
 		.setIcon(types[type].icon)
-		.setTitle(types[type].title)
+		.setTitle(i18next.t(types[type].title))
 		.setSection(types[type].section);
 }
 
