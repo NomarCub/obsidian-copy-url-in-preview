@@ -28,7 +28,7 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
             .addToggle((toggle) => {
                 toggle.setValue(this.plugin.settings.pdfMenu).onChange((value) => {
                     this.plugin.settings.pdfMenu = value;
-                    this.plugin.saveSettings();
+                    void this.plugin.saveSettings();
                 })
             })
         new Setting(containerEl)
@@ -36,7 +36,7 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
             .addToggle((toggle) => {
                 toggle.setValue(this.plugin.settings.middleClickNewTab).onChange((value) => {
                     this.plugin.settings.middleClickNewTab = value;
-                    this.plugin.saveSettings();
+                    void this.plugin.saveSettings();
                 });
             })
         new Setting(containerEl)
@@ -46,7 +46,7 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
             .addToggle((toggle) => {
                 toggle.setValue(this.plugin.settings.enableDefaultOnCanvas).onChange((value) => {
                     this.plugin.settings.enableDefaultOnCanvas = value;
-                    this.plugin.saveSettings();
+                    void this.plugin.saveSettings();
                 });
             })
     }

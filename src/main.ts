@@ -246,7 +246,7 @@ export default class CopyUrlInPreview extends Plugin {
 				const tempFileName = `/.temp-${randomGuid}.${extension}`;
 				const buffer = await blob.arrayBuffer();
 				await adapter.writeBinary(tempFileName, buffer);
-				setTimeout(() => adapter.remove(tempFileName), timeouts.deleteTempFile);
+				setTimeout(() => void adapter.remove(tempFileName), timeouts.deleteTempFile);
 				new Notice("Image was temporarily saved and will be removed in 1 minute");
 				await adapter.open(tempFileName);
 			} catch {

@@ -97,7 +97,7 @@ export function getRelativePath(url: URL, app: App): string | undefined {
 }
 
 export function openTfileInNewTab(app: App, tfile: TFile) {
-	app.workspace.getLeaf(true).openFile(tfile, { active: true });
+	void app.workspace.getLeaf(true).openFile(tfile, { active: true });
 }
 
 export function openImageInNewTabFromEvent(app: App, event: MouseEvent) {
