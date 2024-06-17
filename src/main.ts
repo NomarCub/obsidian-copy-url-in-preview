@@ -16,7 +16,7 @@ export default class CopyUrlInPreview extends Plugin {
 	canvasCardMenu?: HTMLElement;
 	settings: CopyUrlInPreviewSettings;
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as CopyUrlInPreviewSettings);
 	}
 	async saveSettings() {
 		await this.saveData(this.settings);
