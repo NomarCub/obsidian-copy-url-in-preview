@@ -40,6 +40,8 @@ export default class CopyUrlInPreview extends Plugin {
 				menu.addItem(item => setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file)))
 			}
 		}));
+		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+		// @ts-expect-error
 		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node: CanvasNodeWithUrl) => {
 			if (node.unknownData?.type === "link") {
 				const url = node.unknownData?.url;
@@ -237,6 +239,8 @@ export default class CopyUrlInPreview extends Plugin {
 		} else {
 			try {
 				const blob = await loadImageBlob(img.src);
+				if(!blob) throw new Error("blob was null");
+
 				if (!blob.type.startsWith("image/")) {
 					new Notice(`Unsupported mime type ${blob.type}`);
 					return;
@@ -249,8 +253,9 @@ export default class CopyUrlInPreview extends Plugin {
 				setTimeout(() => void adapter.remove(tempFileName), timeouts.deleteTempFile);
 				new Notice("Image was temporarily saved and will be removed in 1 minute");
 				await adapter.open(tempFileName);
-			} catch {
+			} catch (e) {
 				new Notice("Cannot open image");
+				console.error(e);
 			}
 		}
 	}
@@ -306,7 +311,6 @@ export default class CopyUrlInPreview extends Plugin {
 			}
 		}
 		menu.addItem(item => setMenuItem(item, "copy-to-clipboard", image));
-		registerEscapeButton(menu);
 
 		menu.showAtPosition({ x: event.pageX, y: event.pageY });
 		this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);

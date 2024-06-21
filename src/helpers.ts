@@ -23,7 +23,7 @@ export async function copyImageToClipboard(url: string | ArrayBuffer) {
 		? new Blob([url], { type: "image/png", })
 		: await loadImageBlob(url);
 	try {
-		const data = new ClipboardItem({ [blob.type]: blob, });
+		const data = new ClipboardItem({ [blob!.type]: blob!, });
 		await navigator.clipboard.write([data]);
 		new Notice("Image copied to the clipboard!", timeouts.successNotice);
 	} catch (e) {
@@ -34,8 +34,8 @@ export async function copyImageToClipboard(url: string | ArrayBuffer) {
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
-export async function loadImageBlob(imgSrc: string): Promise<Blob> {
-	const loadImageBlobCore = () => new Promise<Blob>((resolve, reject) => {
+export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
+	const loadImageBlobCore = () => new Promise<Blob | null>((resolve, reject) => {
 		const image = new Image();
 		image.crossOrigin = "anonymous";
 		image.onload = () => {
@@ -44,9 +44,7 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob> {
 			canvas.height = image.height;
 			const ctx = canvas.getContext("2d")!;
 			ctx.drawImage(image, 0, 0);
-			canvas.toBlob((blob: Blob) => {
-				resolve(blob);
-			});
+			canvas.toBlob(blob => resolve(blob));
 		};
 		image.onerror = async () => {
 			try {
@@ -120,8 +118,8 @@ export function registerEscapeButton(menu: Menu) {
 	const document = activeDocument;
 	menu.register(onElement(
 		document, "keydown", "*",
-		(e: KeyboardEvent) => {
-			if (e.key === "Escape") {
+		e => {
+			if (e instanceof KeyboardEvent && e.key === "Escape") {
 				e.preventDefault();
 				e.stopPropagation();
 				menu.hide();
