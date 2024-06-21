@@ -12,7 +12,6 @@
     "isolatedModules": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "useUnknownInCatchVariables": false,
     "strictFunctionTypes": false,
     "strictBindCallApply": false,
     "lib": [
