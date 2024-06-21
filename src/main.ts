@@ -11,10 +11,10 @@ import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS 
 export default class CopyUrlInPreview extends Plugin {
 	longTapTimeoutId?: number;
 	openPdfMenu?: Menu;
-	preventReopenPdfMenu: boolean;
-	lastHoveredLinkTarget: string;
+	preventReopenPdfMenu: boolean = false;
+	lastHoveredLinkTarget?: string;
 	canvasCardMenu?: HTMLElement;
-	settings: CopyUrlInPreviewSettings;
+	settings!: CopyUrlInPreviewSettings;
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as CopyUrlInPreviewSettings);
 	}
@@ -146,7 +146,7 @@ export default class CopyUrlInPreview extends Plugin {
 		if (pdfEmbed?.className === "canvas-node-content pdf-embed is-loaded") { return; }
 		let pdfFile: TFile;
 		if (pdfEmbed) {
-			let pdfLink: string;
+			let pdfLink: string | undefined;
 			if (pdfEmbed.hasClass("popover")) {
 				pdfLink = this.lastHoveredLinkTarget;
 			}
@@ -154,11 +154,11 @@ export default class CopyUrlInPreview extends Plugin {
 				pdfLink = pdfEmbed.getAttr("src") ?? this.lastHoveredLinkTarget;
 			}
 
-			pdfLink = pdfLink?.replace(/#page=\d+$/, '');
-
-			const currentNotePath = this.app.workspace.getActiveFile()!.path;
-
-			pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink!, currentNotePath)!;
+			if (pdfLink) {
+				pdfLink = pdfLink.replace(/#page=\d+$/, '');
+				const currentNotePath = this.app.workspace.getActiveFile()!.path;
+				pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink, currentNotePath)!;
+			}
 		} else {
 			pdfFile = this.app.workspace.getActiveFile()!;
 		}
