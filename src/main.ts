@@ -118,7 +118,7 @@ export default class CopyUrlInPreview extends Plugin {
 	}
 
 	storeLastHoveredLinkInPreview(_event: MouseEvent, link: HTMLAnchorElement) {
-		this.lastHoveredLinkTarget = link.getAttribute("data-href")!;
+		this.lastHoveredLinkTarget = link.getAttribute("data-href") ?? undefined;
 	}
 
 	showOpenPdfMenu(event: MouseEvent | PointerEvent, el: HTMLElement) {
