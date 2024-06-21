@@ -40,11 +40,10 @@ export default class CopyUrlInPreview extends Plugin {
 				menu.addItem(item => setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file)))
 			}
 		}));
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-expect-error
-		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node: CanvasNodeWithUrl) => {
-			if (node.unknownData?.type === "link") {
-				const url = node.unknownData?.url;
+		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node) => {
+			const data = (node as CanvasNodeWithUrl).unknownData;
+			if (data?.type === "link") {
+				const url = data.url;
 				menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url)
 					.setSection("canvas"));
 			}
@@ -239,7 +238,7 @@ export default class CopyUrlInPreview extends Plugin {
 		} else {
 			try {
 				const blob = await loadImageBlob(img.src);
-				if(!blob) throw new Error("blob was null");
+				if (!blob) throw new Error("blob was null");
 
 				if (!blob.type.startsWith("image/")) {
 					new Notice(`Unsupported mime type ${blob.type}`);
