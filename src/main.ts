@@ -211,8 +211,9 @@ export default class CopyUrlInPreview extends Plugin {
 			this.longTapTimeoutId = undefined;
 		} else {
 			if (event.targetTouches.length == 1) {
-				// eslint-disable-next-line @typescript-eslint/no-misused-promises
-				this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), timeouts.longTap);
+				this.longTapTimeoutId = window.setTimeout(() => {
+					this.processLongTap.bind(this, event, img)
+				}, timeouts.longTap);
 			}
 		}
 	}
