@@ -42,7 +42,7 @@ export default class CopyUrlInPreview extends Plugin {
 		}));
 		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node) => {
 			const data = (node as CanvasNodeWithUrl).unknownData;
-			if (data?.type === "link") {
+			if (data.type === "link") {
 				const url = data.url;
 				menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url)
 					.setSection("canvas"));

@@ -133,8 +133,7 @@ type menuType =
 	"reveal-in-navigation" |
 	"open-pdf";
 
-export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSource: Promise<ArrayBuffer>): MenuItem;
-export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSource: string): MenuItem;
+export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSource: string | Promise<ArrayBuffer>): MenuItem;
 export function setMenuItem(item: MenuItem, type: menuType): MenuItem;
 export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string | Promise<ArrayBuffer>): MenuItem {
 	const types: Record<menuType, { icon: string, title: string, section: "info" | "system" | "open" }> = {

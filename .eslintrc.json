@@ -10,10 +10,16 @@
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended-type-checked"
+    "plugin:@typescript-eslint/strict-type-checked"
   ],
   "parserOptions": {
     "sourceType": "module",
     "project": true
+  },
+  "rules": {
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-confusing-void-expression": "off",
+    "@typescript-eslint/prefer-promise-reject-errors": "off",
+    "@typescript-eslint/restrict-template-expressions": "off"
   }
 }
