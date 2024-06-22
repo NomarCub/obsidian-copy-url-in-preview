@@ -65,7 +65,7 @@
         "max": 2
       }
     ],
-    "@stylistic/no-mixed-operators": "warn",
-    "@stylistic/comma-dangle": "off"
+    "@stylistic/comma-dangle": ["warn", "never"],
+    "@stylistic/no-mixed-operators": "warn"
   }
 }

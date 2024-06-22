@@ -19,10 +19,10 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 
 export async function copyImageToClipboard(url: string | ArrayBuffer) {
     const blob = url instanceof ArrayBuffer
-        ? new Blob([url], { type: "image/png", })
+        ? new Blob([url], { type: "image/png" })
         : await loadImageBlob(url);
     try {
-        const data = new ClipboardItem({ [blob!.type]: blob!, });
+        const data = new ClipboardItem({ [blob!.type]: blob! });
         await navigator.clipboard.write([data]);
         new Notice("Image copied to the clipboard!", timeouts.successNotice);
     } catch (e) {
@@ -145,7 +145,7 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
             title: "plugins.open-with-default-app.action-show-in-folder" + (Platform.isMacOS ? "-mac" : "")
         },
         "reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
-        "open-pdf": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" },
+        "open-pdf": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" }
     };
     if (type === "copy-to-clipboard" && imageSource) {
         item.onClick(async () => {
