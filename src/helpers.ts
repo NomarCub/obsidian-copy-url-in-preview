@@ -47,7 +47,7 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 		};
 		image.onerror = async () => {
 			try {
-				await fetch(image.src, { "mode": "no-cors" });
+				await fetch(image.src, { mode: "no-cors" });
 
 				// console.log("possible CORS violation, falling back to allOrigins proxy");
 				// https://github.com/gnuns/allOrigins
