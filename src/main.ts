@@ -84,11 +84,15 @@ export default class CopyUrlInPreview extends Plugin {
 
 			this.register(onElement(
 				document, "mouseover", "a.internal-link",
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
 				this.storeLastHoveredLinkInPreview.bind(this)
 			));
 		} else {
 			this.register(onElement(
 				document, "touchstart", "img",
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
 				this.startWaitingForLongTap.bind(this)
 			));
 
@@ -209,6 +213,7 @@ export default class CopyUrlInPreview extends Plugin {
 			this.longTapTimeoutId = undefined;
 		} else {
 			if (event.targetTouches.length == 1) {
+				// eslint-disable-next-line @typescript-eslint/no-misused-promises
 				this.longTapTimeoutId = window.setTimeout(this.processLongTap.bind(this, event, img), timeouts.longTap);
 			}
 		}

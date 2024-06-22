@@ -15,8 +15,5 @@
   "parserOptions": {
     "sourceType": "module",
     "project": true
-  },
-  "rules": {
-    "@typescript-eslint/no-unsafe-argument": "off"
   }
 }

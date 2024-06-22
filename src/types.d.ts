@@ -16,10 +16,6 @@ export interface CanvasNodeWithUrl extends CanvasNode {
     }
 }
 
-export interface Listener {
-    (this: Document, ev: Event): unknown;
-}
-
 declare global {
     const i18next: i18n;
 }

@@ -1,5 +1,4 @@
 import { App, Menu, MenuItem, Notice, Platform, TFile } from "obsidian";
-import { Listener } from "types";
 
 export const timeouts = {
 	loadImageBlob: 5_000,
@@ -63,13 +62,13 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 	return withTimeout(timeouts.loadImageBlob, loadImageBlobCore())
 }
 
-export function onElement(
-	el: Document, event: keyof HTMLElementEventMap, selector: string,
-	listener: Listener,
-	options?: { capture?: boolean; }
+export function onElement<K extends keyof DocumentEventMap>(
+	el: Document, type: K, selector: string,
+	listener: (this: Document, ev: DocumentEventMap[K], delegateTarget: HTMLElement) => unknown,
+	options?: boolean | AddEventListenerOptions
 ) {
-	el.on(event, selector, listener, options);
-	return () => el.off(event, selector, listener, options);
+	el.on(type, selector, listener, options);
+	return () => el.off(type, selector, listener, options);
 }
 
 export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement | undefined {
