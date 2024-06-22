@@ -65,10 +65,9 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 export function onElement<K extends keyof DocumentEventMap>(
 	el: Document, type: K, selector: string,
 	listener: (this: Document, ev: DocumentEventMap[K], delegateTarget: HTMLElement) => unknown,
-	options?: boolean | AddEventListenerOptions
 ) {
-	el.on(type, selector, listener, options);
-	return () => el.off(type, selector, listener, options);
+	el.on(type, selector, listener);
+	return () => el.off(type, selector, listener);
 }
 
 export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement | undefined {
@@ -118,7 +117,7 @@ export function registerEscapeButton(menu: Menu) {
 	menu.register(onElement(
 		document, "keydown", "*",
 		e => {
-			if (e instanceof KeyboardEvent && e.key === "Escape") {
+			if (e.key === "Escape") {
 				e.preventDefault();
 				e.stopPropagation();
 				menu.hide();

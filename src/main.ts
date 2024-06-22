@@ -84,15 +84,11 @@ export default class CopyUrlInPreview extends Plugin {
 
 			this.register(onElement(
 				document, "mouseover", "a.internal-link",
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
 				this.storeLastHoveredLinkInPreview.bind(this)
 			));
 		} else {
 			this.register(onElement(
 				document, "touchstart", "img",
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
 				this.startWaitingForLongTap.bind(this)
 			));
 
@@ -121,7 +117,7 @@ export default class CopyUrlInPreview extends Plugin {
 		this.lastHoveredLinkTarget = token.text;
 	}
 
-	storeLastHoveredLinkInPreview(_event: MouseEvent, link: HTMLAnchorElement) {
+	storeLastHoveredLinkInPreview(_event: MouseEvent, link: HTMLElement) {
 		this.lastHoveredLinkTarget = link.getAttribute("data-href") ?? undefined;
 	}
 
@@ -207,7 +203,9 @@ export default class CopyUrlInPreview extends Plugin {
 	}
 
 	// mobile
-	startWaitingForLongTap(event: TouchEvent, img: HTMLImageElement) {
+	startWaitingForLongTap(event: TouchEvent, img: HTMLElement) {
+		if(!(img instanceof HTMLImageElement)) return;
+
 		if (this.longTapTimeoutId) {
 			clearTimeout(this.longTapTimeoutId);
 			this.longTapTimeoutId = undefined;
