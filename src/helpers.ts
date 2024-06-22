@@ -56,10 +56,10 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 			} catch {
 				reject(new Error());
 			}
-		}
+		};
 		image.src = imgSrc;
 	});
-	return withTimeout(timeouts.loadImageBlob, loadImageBlobCore())
+	return withTimeout(timeouts.loadImageBlob, loadImageBlobCore());
 }
 
 export function onElement<K extends keyof DocumentEventMap>(
@@ -136,7 +136,7 @@ type menuType =
 export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSource: string | Promise<ArrayBuffer>): MenuItem;
 export function setMenuItem(item: MenuItem, type: menuType): MenuItem;
 export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string | Promise<ArrayBuffer>): MenuItem {
-	const types: Record<menuType, { icon: string, title: string, section: "info" | "system" | "open" }> = {
+	const types: Record<menuType, { icon: string; title: string; section: "info" | "system" | "open" }> = {
 		"copy-to-clipboard": { section: "info", icon: "image-file", title: "interface.label-copy" },
 		"open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
 		"open-in-default-app": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" },
@@ -146,7 +146,7 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
 		},
 		"reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
 		"open-pdf": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" },
-	}
+	};
 	if (type === "copy-to-clipboard" && imageSource) {
 		item.onClick(async () => {
 			await copyImageToClipboard(typeof imageSource === "string" ? imageSource : await imageSource);
@@ -157,4 +157,3 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
 		.setTitle(i18next.t(types[type].title))
 		.setSection(types[type].section);
 }
-

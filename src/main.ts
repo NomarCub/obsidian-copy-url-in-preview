@@ -5,7 +5,7 @@ import {
 } from "./helpers";
 import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import * as internal from 'obsidian-typings';
+import * as internal from "obsidian-typings";
 import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
 
 export default class CopyUrlInPreview extends Plugin {
@@ -18,6 +18,7 @@ export default class CopyUrlInPreview extends Plugin {
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as CopyUrlInPreviewSettings);
 	}
+
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
@@ -37,7 +38,7 @@ export default class CopyUrlInPreview extends Plugin {
 				menu.addItem(item => setMenuItem(item, "open-in-new-tab")
 					.onClick(() => { openTfileInNewTab(this.app, file); })
 				);
-				menu.addItem(item => setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file)))
+				menu.addItem(item => setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file)));
 			}
 		}));
 		this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node) => {
@@ -125,7 +126,7 @@ export default class CopyUrlInPreview extends Plugin {
 		if (!this.settings.pdfMenu || this.openPdfMenu || this.preventReopenPdfMenu) {
 			return;
 		}
-		const isInCanvas = this.app.workspace.getActiveFile()?.extension === "canvas"
+		const isInCanvas = this.app.workspace.getActiveFile()?.extension === "canvas";
 		if (!this.settings.enableDefaultOnCanvas && isInCanvas) {
 			return;
 		}
@@ -156,7 +157,7 @@ export default class CopyUrlInPreview extends Plugin {
 			}
 
 			if (pdfLink) {
-				pdfLink = pdfLink.replace(/#page=\d+$/, '');
+				pdfLink = pdfLink.replace(/#page=\d+$/, "");
 				const currentNotePath = this.app.workspace.getActiveFile()!.path;
 				pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink, currentNotePath)!;
 			}
@@ -212,7 +213,7 @@ export default class CopyUrlInPreview extends Plugin {
 		} else {
 			if (event.targetTouches.length == 1) {
 				this.longTapTimeoutId = window.setTimeout(() => {
-					this.processLongTap.bind(this, event, img)
+					this.processLongTap.bind(this, event, img);
 				}, timeouts.longTap);
 			}
 		}

@@ -1,21 +1,23 @@
 {
   "root": true,
   "parser": "@typescript-eslint/parser",
-  "env": {
-    "node": true
-  },
-  "plugins": [
-    "@typescript-eslint"
-  ],
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/strict-type-checked"
-  ],
   "parserOptions": {
     "sourceType": "module",
     "project": true
   },
+  "env": {
+    "node": true
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "@stylistic"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/strict-type-checked",
+    "plugin:@stylistic/recommended-extends"
+  ],
   "rules": {
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/restrict-template-expressions": [
@@ -23,6 +25,44 @@
       {
         "allowNumber": true
       }
-    ]
+    ],
+    "@stylistic/no-tabs": "off",
+    "@stylistic/indent": [
+      "warn",
+      "tab"
+    ],
+    "@stylistic/member-delimiter-style": [
+      "warn",
+      {
+        "multiline": {
+          "delimiter": "semi",
+          "requireLast": true
+        }
+      }
+    ],
+    "@stylistic/semi": [
+      "warn",
+      "always"
+    ],
+    "@stylistic/quotes": [
+      "warn",
+      "double",
+      {
+        "avoidEscape": true
+      }
+    ],
+    "@stylistic/brace-style": [
+      "off",
+      "1tbs"
+    ],
+    "@stylistic/arrow-parens": [
+      "warn",
+      "as-needed"
+    ],
+    "@stylistic/comma-dangle": "off",
+    "@stylistic/quote-props": "off",
+    "@stylistic/indent-binary-ops": "off",
+    "@stylistic/max-statements-per-line": "off",
+    "@stylistic/no-mixed-operators": "off"
   }
 }
