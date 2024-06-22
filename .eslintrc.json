@@ -62,7 +62,6 @@
     "@stylistic/comma-dangle": "off",
     "@stylistic/quote-props": "off",
     "@stylistic/indent-binary-ops": "off",
-    "@stylistic/max-statements-per-line": "off",
-    "@stylistic/no-mixed-operators": "off"
+    "@stylistic/max-statements-per-line": "off"
   }
 }
