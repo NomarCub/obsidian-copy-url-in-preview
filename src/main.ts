@@ -145,14 +145,16 @@ export default class CopyUrlInPreview extends Plugin {
         const pdfEmbed = el.closest(".pdf-embed");
         // check if the pdf is on a canvas
         // the context menu crash on loaded pdfs
-        if (pdfEmbed?.className === "canvas-node-content pdf-embed is-loaded") { return; }
+        if (pdfEmbed?.className === "canvas-node-content pdf-embed is-loaded") {
+            return;
+        }
+
         let pdfFile: TFile;
         if (pdfEmbed) {
             let pdfLink: string | undefined;
             if (pdfEmbed.hasClass("popover")) {
                 pdfLink = this.lastHoveredLinkTarget;
-            }
-            else {
+            } else {
                 pdfLink = pdfEmbed.getAttr("src") ?? this.lastHoveredLinkTarget;
             }
 

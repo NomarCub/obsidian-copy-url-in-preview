@@ -51,8 +51,11 @@
       }
     ],
     "@stylistic/brace-style": [
-      "off",
-      "1tbs"
+      "warn",
+      "1tbs",
+      {
+        "allowSingleLine": true
+      }
     ],
     "@stylistic/arrow-parens": [
       "warn",

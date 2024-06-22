@@ -74,8 +74,7 @@ export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement 
     const imageElement = event.target;
     if (!(imageElement instanceof HTMLImageElement)) {
         console.error("imageElement is supposed to be a HTMLImageElement. imageElement:", imageElement);
-    }
-    else {
+    } else {
         return imageElement;
     }
 }
