@@ -204,7 +204,7 @@ export default class CopyUrlInPreview extends Plugin {
 
 	// mobile
 	startWaitingForLongTap(event: TouchEvent, img: HTMLElement) {
-		if(!(img instanceof HTMLImageElement)) return;
+		if (!(img instanceof HTMLImageElement)) return;
 
 		if (this.longTapTimeoutId) {
 			clearTimeout(this.longTapTimeoutId);
