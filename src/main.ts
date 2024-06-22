@@ -295,7 +295,7 @@ export default class CopyUrlInPreview extends Plugin {
 			);
 			if (Platform.isDesktop) {
 				menu.addItem(item => setMenuItem(item, "open-in-default-app")
-					.onClick(() => this.app.openWithDefaultApp(relativePath))
+					.onClick(() => { this.app.openWithDefaultApp(relativePath); })
 				);
 				menu.addItem(item => setMenuItem(item, "show-in-explorer")
 					.onClick(() => { this.app.showInFolder(relativePath); })

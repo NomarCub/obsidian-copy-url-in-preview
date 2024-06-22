@@ -10,7 +10,7 @@ export const timeouts = {
 
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 	const timeout = new Promise<never>((_, reject) =>
-		setTimeout(() => reject(`timed out after ${ms} ms`), ms));
+		setTimeout(() => { reject(new Error(`timed out after ${ms} ms`)); }, ms));
 	return Promise.race([
 		promise,
 		timeout
@@ -43,7 +43,7 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 			canvas.height = image.height;
 			const ctx = canvas.getContext("2d")!;
 			ctx.drawImage(image, 0, 0);
-			canvas.toBlob(blob => resolve(blob));
+			canvas.toBlob(blob => { resolve(blob); });
 		};
 		image.onerror = async () => {
 			try {
@@ -54,7 +54,7 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 				const blob = await loadImageBlob(`https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`);
 				resolve(blob);
 			} catch {
-				reject();
+				reject(new Error());
 			}
 		}
 		image.src = imgSrc;
@@ -67,7 +67,7 @@ export function onElement<K extends keyof DocumentEventMap>(
 	listener: (this: Document, ev: DocumentEventMap[K], delegateTarget: HTMLElement) => unknown,
 ) {
 	el.on(type, selector, listener);
-	return () => el.off(type, selector, listener);
+	return () => { el.off(type, selector, listener); };
 }
 
 export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement | undefined {
