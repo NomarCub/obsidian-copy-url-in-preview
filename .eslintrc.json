@@ -29,7 +29,7 @@
     "@stylistic/no-tabs": "off",
     "@stylistic/indent": [
       "warn",
-      "tab"
+      4
     ],
     "@stylistic/member-delimiter-style": [
       "warn",
@@ -66,7 +66,6 @@
       }
     ],
     "@stylistic/no-mixed-operators": "warn",
-    "@stylistic/comma-dangle": "off",
-    "@stylistic/indent-binary-ops": "off"
+    "@stylistic/comma-dangle": "off"
   }
 }
