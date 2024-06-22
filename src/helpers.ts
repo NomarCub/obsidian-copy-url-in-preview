@@ -130,6 +130,7 @@ type menuType =
   "open-in-default-app" |
   "show-in-explorer" |
   "reveal-in-navigation" |
+  "reveal-in-navigation-tree" |
   "open-pdf";
 
 export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSource: string | Promise<ArrayBuffer>): MenuItem;
@@ -144,6 +145,7 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
             title: "plugins.open-with-default-app.action-show-in-folder" + (Platform.isMacOS ? "-mac" : "")
         },
         "reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
+        "reveal-in-navigation-tree": { section: "system", icon: "folder", title: "Reveal in File Tree Alternative" },
         "open-pdf": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" }
     };
     if (type === "copy-to-clipboard" && imageSource) {
