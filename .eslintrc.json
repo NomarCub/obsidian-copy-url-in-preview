@@ -26,7 +26,6 @@
         "allowNumber": true
       }
     ],
-    "@stylistic/no-tabs": "off",
     "@stylistic/indent": [
       "warn",
       4
