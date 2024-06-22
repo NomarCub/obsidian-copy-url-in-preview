@@ -64,7 +64,10 @@
         "max": 2
       }
     ],
-    "@stylistic/comma-dangle": ["warn", "never"],
+    "@stylistic/comma-dangle": [
+      "warn",
+      "never"
+    ],
     "@stylistic/no-mixed-operators": "warn"
   }
 }

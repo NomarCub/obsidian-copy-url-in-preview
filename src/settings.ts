@@ -14,7 +14,7 @@ export const DEFAULT_SETTINGS: CopyUrlInPreviewSettings = {
 };
 
 export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
-    plugin: CopyUrlInPreviewPlugin;
+    override plugin: CopyUrlInPreviewPlugin;
     constructor(app: App, plugin: CopyUrlInPreviewPlugin) {
         super(app, plugin);
         this.plugin = plugin;

@@ -23,7 +23,7 @@ export default class CopyUrlInPreview extends Plugin {
         await this.saveData(this.settings);
     }
 
-    async onload() {
+    override async onload() {
         await this.loadSettings();
         this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
         this.registerDocument(document);
