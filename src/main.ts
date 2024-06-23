@@ -1,6 +1,6 @@
 import { Menu, Plugin, Notice, Platform, TFile, MarkdownView } from "obsidian";
 import {
-    loadImageBlob, onElement, openImageInNewTabFromEvent, imageElementFromMouseEvent,
+    loadImageBlob, onElementToOff, openImageInNewTabFromEvent, imageElementFromMouseEvent,
     getRelativePath, timeouts, openTfileInNewTab, setMenuItem, registerEscapeButton
 } from "./helpers";
 import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
@@ -59,30 +59,30 @@ export default class CopyUrlInPreview extends Plugin {
 
     registerDocument(document: Document) {
         let offs = [
-            onElement(document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
+            onElementToOff(document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
                 this.showOpenPdfMenu.bind(this)),
-            onElement(document, "mousemove", ".pdf-canvas",
+            onElementToOff(document, "mousemove", ".pdf-canvas",
                 this.showOpenPdfMenu.bind(this)
             )];
 
         if (Platform.isDesktop) {
             offs = offs.concat([
-                onElement(document, "contextmenu", "img",
+                onElementToOff(document, "contextmenu", "img",
                     this.onImageContextMenu.bind(this)),
-                onElement(document, "mouseup", "img",
+                onElementToOff(document, "mouseup", "img",
                     this.onImageMouseUp.bind(this)),
-                onElement(document, "mouseover", ".cm-link, .cm-hmd-internal-link",
+                onElementToOff(document, "mouseover", ".cm-link, .cm-hmd-internal-link",
                     this.storeLastHoveredLinkInEditor.bind(this)),
-                onElement(document, "mouseover", "a.internal-link",
+                onElementToOff(document, "mouseover", "a.internal-link",
                     this.storeLastHoveredLinkInPreview.bind(this))
             ]);
         } else {
             offs = offs.concat([
-                onElement(document, "touchstart", "img",
+                onElementToOff(document, "touchstart", "img",
                     this.startWaitingForLongTap.bind(this)),
-                onElement(document, "touchend", "img",
+                onElementToOff(document, "touchend", "img",
                     this.stopWaitingForLongTap.bind(this)),
-                onElement(document, "touchmove", "img",
+                onElementToOff(document, "touchmove", "img",
                     this.stopWaitingForLongTap.bind(this))
             ]);
         }

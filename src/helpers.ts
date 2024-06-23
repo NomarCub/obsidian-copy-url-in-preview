@@ -62,7 +62,7 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
     return withTimeout(timeouts.loadImageBlob, loadImageBlobCore());
 }
 
-export function onElement<K extends keyof DocumentEventMap>(
+export function onElementToOff<K extends keyof DocumentEventMap>(
     el: Document, type: K, selector: string,
     listener: (this: Document, ev: DocumentEventMap[K], delegateTarget: HTMLElement) => unknown,
 ) {
@@ -113,7 +113,7 @@ export function openImageInNewTabFromEvent(app: App, event: MouseEvent) {
 
 export function registerEscapeButton(menu: Menu) {
     const document = activeDocument;
-    menu.register(onElement(
+    menu.register(onElementToOff(
         document, "keydown", "*",
         e => {
             if (e.key === "Escape") {
