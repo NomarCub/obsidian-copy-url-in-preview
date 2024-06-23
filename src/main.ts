@@ -31,6 +31,7 @@ export default class CopyUrlInPreview extends Plugin {
         this.app.workspace.on("window-open", (_workspaceWindow, window) => {
             this.registerDocument(window.document);
         });
+
         // register the image menu for canvas
         this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
             if (source === "canvas-menu" && file instanceof TFile
@@ -57,52 +58,38 @@ export default class CopyUrlInPreview extends Plugin {
     }
 
     registerDocument(document: Document) {
-        this.register(onElement(
-            document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
-            this.showOpenPdfMenu.bind(this)
-        ));
-
-        this.register(onElement(
-            document, "mousemove", ".pdf-canvas",
-            this.showOpenPdfMenu.bind(this)
-        ));
+        let offs = [
+            onElement(document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
+                this.showOpenPdfMenu.bind(this)),
+            onElement(document, "mousemove", ".pdf-canvas",
+                this.showOpenPdfMenu.bind(this)
+            )];
 
         if (Platform.isDesktop) {
-            this.register(onElement(
-                document, "contextmenu", "img",
-                this.onImageContextMenu.bind(this)
-            ));
-
-            this.register(onElement(
-                document, "mouseup", "img",
-                this.onImageMouseUp.bind(this)
-            ));
-
-            this.register(onElement(
-                document, "mouseover", ".cm-link, .cm-hmd-internal-link",
-                this.storeLastHoveredLinkInEditor.bind(this)
-            ));
-
-            this.register(onElement(
-                document, "mouseover", "a.internal-link",
-                this.storeLastHoveredLinkInPreview.bind(this)
-            ));
+            offs = offs.concat([
+                onElement(document, "contextmenu", "img",
+                    this.onImageContextMenu.bind(this)),
+                onElement(document, "mouseup", "img",
+                    this.onImageMouseUp.bind(this)),
+                onElement(document, "mouseover", ".cm-link, .cm-hmd-internal-link",
+                    this.storeLastHoveredLinkInEditor.bind(this)),
+                onElement(document, "mouseover", "a.internal-link",
+                    this.storeLastHoveredLinkInPreview.bind(this))
+            ]);
         } else {
-            this.register(onElement(
-                document, "touchstart", "img",
-                this.startWaitingForLongTap.bind(this)
-            ));
-
-            this.register(onElement(
-                document, "touchend", "img",
-                this.stopWaitingForLongTap.bind(this)
-            ));
-
-            this.register(onElement(
-                document, "touchmove", "img",
-                this.stopWaitingForLongTap.bind(this)
-            ));
+            offs = offs.concat([
+                onElement(document, "touchstart", "img",
+                    this.startWaitingForLongTap.bind(this)),
+                onElement(document, "touchend", "img",
+                    this.stopWaitingForLongTap.bind(this)),
+                onElement(document, "touchmove", "img",
+                    this.stopWaitingForLongTap.bind(this))
+            ]);
         }
+
+        this.register(() => {
+            offs.forEach(f => { f(); });
+        });
     }
 
     storeLastHoveredLinkInEditor(event: MouseEvent) {
