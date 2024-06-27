@@ -11,7 +11,7 @@ import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS 
 export default class CopyUrlInPreview extends Plugin {
     longTapTimeoutId?: number;
     openPdfMenu?: Menu;
-    preventReopenPdfMenu: boolean = false;
+    preventReopenPdfMenu = false;
     lastHoveredLinkTarget?: string;
     canvasCardMenu?: HTMLElement;
     settings!: CopyUrlInPreviewSettings;
@@ -35,7 +35,7 @@ export default class CopyUrlInPreview extends Plugin {
         // register the image menu for canvas
         this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
             if (source === "canvas-menu" && file instanceof TFile
-              && (file.extension.match(imageFileRegex) || file.extension === "pdf")) {
+              && (file.extension.match(imageFileRegex) ?? file.extension === "pdf")) {
                 menu.addItem(item => setMenuItem(item, "open-in-new-tab")
                     .onClick(() => { openTfileInNewTab(this.app, file); })
                 );
