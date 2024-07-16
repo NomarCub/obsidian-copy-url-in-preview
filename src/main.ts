@@ -301,6 +301,20 @@ export default class CopyUrlInPreview extends Plugin {
                         this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
                     })
                 );
+                // see: https://github.com/ozntel/file-tree-alternative
+                if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
+                    menu.addItem(item => setMenuItem(item, "reveal-in-navigation-tree")
+                        .onClick(() => {
+                            const file = this.app.vault.getFileByPath(relativePath);
+                            if (!file) {
+                                console.warn(`getFileByPath returned null for ${relativePath}`);
+                                return;
+                            }
+                            window.dispatchEvent(new CustomEvent(
+                                "fta-reveal-file", { detail: { file: file } }));
+                        })
+                    );
+                }
             }
         }
         menu.addItem(item => setMenuItem(item, "copy-to-clipboard", image));
