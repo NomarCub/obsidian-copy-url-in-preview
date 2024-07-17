@@ -5,6 +5,7 @@ This plugin provides the following context menus for images in [Obsidian](https:
 - Open in default app
 - Show in system explorer
 - Reveal file in navigation
+  - Reveal in [File Tree Alternative](https://github.com/ozntel/file-tree-alternative)
 - Open in new tab
   - also available through middle mouse button click
 
