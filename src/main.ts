@@ -291,16 +291,18 @@ export default class CopyUrlInPreview extends Plugin {
                 menu.addItem(item => setMenuItem(item, "show-in-explorer")
                     .onClick(() => { this.app.showInFolder(relativePath); })
                 );
-                menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
-                    .onClick(() => {
-                        const file = this.app.vault.getFileByPath(relativePath);
-                        if (!file) {
-                            console.warn(`getFileByPath returned null for ${relativePath}`);
-                            return;
-                        }
-                        this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
-                    })
-                );
+                if (this.settings.revealInNavigation) {
+                    menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
+                        .onClick(() => {
+                            const file = this.app.vault.getFileByPath(relativePath);
+                            if (!file) {
+                                console.warn(`getFileByPath returned null for ${relativePath}`);
+                                return;
+                            }
+                            this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
+                        })
+                    );
+                }
                 // see: https://github.com/ozntel/file-tree-alternative
                 if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
                     menu.addItem(item => setMenuItem(item, "reveal-in-navigation-tree")
