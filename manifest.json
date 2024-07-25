@@ -1,8 +1,8 @@
 {
 	"id": "copy-url-in-preview",
 	"name": "Image Context Menus",
-	"version": "1.8.0",
-	"minAppVersion": "1.5.7",
+	"version": "1.9.0",
+	"minAppVersion": "1.6.6",
 	"description": "Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab context menus for images. Also has an pen PDF externally context menu.",
 	"author": "NomarCub",
 	"authorUrl": "https://github.com/NomarCub",

@@ -4,12 +4,14 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 export interface CopyUrlInPreviewSettings {
     pdfMenu: boolean;
     middleClickNewTab: boolean;
+    revealInNavigation: boolean;
     enableDefaultOnCanvas: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopyUrlInPreviewSettings = {
     pdfMenu: false,
     middleClickNewTab: true,
+    revealInNavigation: true,
     enableDefaultOnCanvas: false
 };
 
@@ -37,6 +39,15 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
             .addToggle(toggle => {
                 toggle.setValue(this.plugin.settings.middleClickNewTab).onChange(value => {
                     this.plugin.settings.middleClickNewTab = value;
+                    void this.plugin.saveSettings();
+                });
+            });
+        new Setting(containerEl)
+            .setName("Reveal file in navigation menu item")
+            .setDesc("You might want to disable this if you use a plugin for replacing default Obsidian file navigation. This plugin supports File Tree Alternative by displaying a reveal menu item for it if installed.")
+            .addToggle(toggle => {
+                toggle.setValue(this.plugin.settings.revealInNavigation).onChange(value => {
+                    this.plugin.settings.revealInNavigation = value;
                     void this.plugin.saveSettings();
                 });
             });
