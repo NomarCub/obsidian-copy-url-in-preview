@@ -22,7 +22,7 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
         this.plugin = plugin;
     }
 
-    display() {
+    display(): void {
         const { containerEl } = this;
         containerEl.empty();
         containerEl.createEl("h3", { text: "Image Context Menus settings" });

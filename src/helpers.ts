@@ -17,7 +17,7 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
     ]);
 }
 
-export async function copyImageToClipboard(url: string | ArrayBuffer) {
+export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<void> {
     const blob = url instanceof ArrayBuffer
         ? new Blob([url], { type: "image/png" })
         : await loadImageBlob(url);
@@ -91,11 +91,11 @@ export function getRelativePath(url: URL, app: App): string | undefined {
     }
 }
 
-export function openTfileInNewTab(app: App, tfile: TFile) {
+export function openTfileInNewTab(app: App, tfile: TFile): void {
     void app.workspace.getLeaf(true).openFile(tfile, { active: true });
 }
 
-export function openImageInNewTabFromEvent(app: App, event: MouseEvent) {
+export function openImageInNewTabFromEvent(app: App, event: MouseEvent): void {
     const image = imageElementFromMouseEvent(event);
     if (!image) return;
 
@@ -111,7 +111,7 @@ export function openImageInNewTabFromEvent(app: App, event: MouseEvent) {
     }
 }
 
-export function registerEscapeButton(menu: Menu) {
+export function registerEscapeButton(menu: Menu): void {
     const document = activeDocument;
     menu.register(onElementToOff(
         document, "keydown", "*",
@@ -139,7 +139,10 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
     const types: Record<menuType, { icon: string; title: string; section: "info" | "system" | "open" }> = {
         "copy-to-clipboard": { section: "info", icon: "image-file", title: "interface.label-copy" },
         "open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
-        "open-in-default-app": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" },
+        "open-in-default-app": {
+            section: "system", icon: "arrow-up-right",
+            title: "plugins.open-with-default-app.action-open-file"
+        },
         "show-in-explorer": {
             section: "system", icon: "arrow-up-right",
             title: "plugins.open-with-default-app.action-show-in-folder" + (Platform.isMacOS ? "-mac" : "")
