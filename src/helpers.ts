@@ -81,6 +81,7 @@ export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement 
 
 export function getRelativePath(url: URL, app: App): string | undefined {
     // getResourcePath("") also works for root path
+    // could also use normalizePath(app.vault.adapter.basePath)
     const baseFileUrl = app.vault.adapter.getFilePath("");
     const basePath = baseFileUrl.replace("file://", "");
 
