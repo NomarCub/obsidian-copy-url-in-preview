@@ -34,7 +34,7 @@ export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<v
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
 export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
-    const loadImageBlobCore = () => new Promise<Blob | null>((resolve, reject) => {
+    const loadImageBlobCore = (): Promise<Blob | null> => new Promise<Blob | null>((resolve, reject) => {
         const image = new Image();
         image.crossOrigin = "anonymous";
         image.onload = () => {
