@@ -15,15 +15,15 @@ export default class CopyUrlInPreview extends Plugin {
     lastHoveredLinkTarget?: string;
     canvasCardMenu?: HTMLElement;
     settings!: CopyUrlInPreviewSettings;
-    async loadSettings() {
+    async loadSettings(): Promise<void> {
         this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as CopyUrlInPreviewSettings);
     }
 
-    async saveSettings() {
+    async saveSettings(): Promise<void> {
         await this.saveData(this.settings);
     }
 
-    override async onload() {
+    override async onload(): Promise<void> {
         await this.loadSettings();
         this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
         this.registerDocument(document);
@@ -57,7 +57,7 @@ export default class CopyUrlInPreview extends Plugin {
         }));
     }
 
-    registerDocument(document: Document) {
+    registerDocument(document: Document): void {
         let offs = [
             onElementToOff(document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
                 this.showOpenPdfMenu.bind(this)),
@@ -92,7 +92,7 @@ export default class CopyUrlInPreview extends Plugin {
         });
     }
 
-    storeLastHoveredLinkInEditor(event: MouseEvent) {
+    storeLastHoveredLinkInEditor(event: MouseEvent): void {
         const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
         if (!editor) {
             return;
@@ -105,11 +105,11 @@ export default class CopyUrlInPreview extends Plugin {
         this.lastHoveredLinkTarget = token.text;
     }
 
-    storeLastHoveredLinkInPreview(_event: MouseEvent, link: HTMLElement) {
+    storeLastHoveredLinkInPreview(_event: MouseEvent, link: HTMLElement): void {
         this.lastHoveredLinkTarget = link.getAttribute("data-href") ?? undefined;
     }
 
-    showOpenPdfMenu(event: MouseEvent | PointerEvent, el: HTMLElement) {
+    showOpenPdfMenu(event: MouseEvent | PointerEvent, el: HTMLElement): void {
         if (!this.settings.pdfMenu || this.openPdfMenu || this.preventReopenPdfMenu) {
             return;
         }
@@ -183,7 +183,7 @@ export default class CopyUrlInPreview extends Plugin {
         setTimeout(this.hideOpenPdfMenu.bind(this), timeouts.openPdfMenu);
     }
 
-    hideOpenPdfMenu() {
+    hideOpenPdfMenu(): void {
         if (this.openPdfMenu) {
             this.openPdfMenu.hide();
         }
@@ -193,7 +193,7 @@ export default class CopyUrlInPreview extends Plugin {
     }
 
     // mobile
-    startWaitingForLongTap(event: TouchEvent, img: HTMLElement) {
+    startWaitingForLongTap(event: TouchEvent, img: HTMLElement): void {
         if (!(img instanceof HTMLImageElement)) return;
 
         if (this.longTapTimeoutId) {
@@ -201,15 +201,14 @@ export default class CopyUrlInPreview extends Plugin {
             this.longTapTimeoutId = undefined;
         } else {
             if (event.targetTouches.length == 1) {
-                this.longTapTimeoutId = window.setTimeout(() => {
-                    this.processLongTap.bind(this, event, img);
-                }, timeouts.longTap);
+                this.longTapTimeoutId = window.setTimeout(
+                    () => void this.processLongTap.bind(this, event, img)(), timeouts.longTap);
             }
         }
     }
 
     // mobile
-    stopWaitingForLongTap() {
+    stopWaitingForLongTap(): void {
         if (this.longTapTimeoutId) {
             clearTimeout(this.longTapTimeoutId);
             this.longTapTimeoutId = undefined;
@@ -217,7 +216,7 @@ export default class CopyUrlInPreview extends Plugin {
     }
 
     // mobile
-    async processLongTap(event: TouchEvent, img: HTMLImageElement) {
+    async processLongTap(event: TouchEvent, img: HTMLImageElement): Promise<void> {
         event.stopPropagation();
         this.longTapTimeoutId = undefined;
         const adapter = this.app.vault.adapter as FileSystemAdapterWithInternalApi;
@@ -257,7 +256,7 @@ export default class CopyUrlInPreview extends Plugin {
     // Positions are not accurate from PointerEvent.
     // There's also TouchEvent
     // The event has target, path, toEvent (null on Android) for finding the link
-    onImageContextMenu(event: MouseEvent) {
+    onImageContextMenu(event: MouseEvent): void {
         const imageElement = imageElementFromMouseEvent(event);
         if (!imageElement) return;
         // check if the image is on a canvas
@@ -325,7 +324,7 @@ export default class CopyUrlInPreview extends Plugin {
         this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
     }
 
-    onImageMouseUp(event: MouseEvent) {
+    onImageMouseUp(event: MouseEvent): void {
         const middleButtonNumber = 1;
         if (event.button == middleButtonNumber && this.settings.middleClickNewTab) {
             openImageInNewTabFromEvent(this.app, event);

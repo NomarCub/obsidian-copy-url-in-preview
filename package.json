@@ -1,11 +1,12 @@
 {
 	"name": "copy-url-in-preview",
-	"version": "1.9.0",
+	"version": "1.9.1",
 	"description": "Copy Image, Copy URL and Open PDF externally context menu in reading view (formerly preview mode) for Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"lint": "eslint src",
+		"type-check": "tsc -noEmit",
 		"build": "tsc -noEmit && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
@@ -21,8 +22,8 @@
 		"eslint": "^8.57.0",
 		"i18next": "^23.11.5",
 		"obsidian": "~1.6.6",
-		"obsidian-typings": "^1.1.6",
+		"obsidian-typings": "^2.2.0",
 		"tslib": "2.6.3",
-		"typescript": "5.5.2"
+		"typescript": "5.5.4"
 	}
 }
