@@ -12,7 +12,7 @@ export const DEFAULT_SETTINGS: CopyUrlInPreviewSettings = {
     pdfMenu: false,
     middleClickNewTab: true,
     revealInNavigation: true,
-    enableDefaultOnCanvas: false
+    enableDefaultOnCanvas: false,
 };
 
 export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
@@ -54,7 +54,7 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Enable regular context menu on canvas")
             .setDesc("The regular context menu sometimes duplicates the context menu on the canvas, so it's disabled there by default.\n"
-            + "There is a separate context menu for images directly on the canvas, but if that's not enough (for example for images in notes on canvas), you can enable the regular context menu here too.")
+              + "There is a separate context menu for images directly on the canvas, but if that's not enough (for example for images in notes on canvas), you can enable the regular context menu here too.")
             .addToggle(toggle => {
                 toggle.setValue(this.plugin.settings.enableDefaultOnCanvas).onChange(value => {
                     this.plugin.settings.enableDefaultOnCanvas = value;

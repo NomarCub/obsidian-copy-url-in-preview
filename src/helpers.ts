@@ -1,11 +1,11 @@
-import { App, Menu, MenuItem, Notice, Platform, TFile } from "obsidian";
+import { App, FileSystemAdapter, Menu, MenuItem, Notice, Platform, TFile } from "obsidian";
 
 export const timeouts = {
     loadImageBlob: 5_000,
     longTap: 500,
     deleteTempFile: 60_000,
     openPdfMenu: 5_000,
-    successNotice: 1_800
+    successNotice: 1_800,
 };
 
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
@@ -13,7 +13,7 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
         setTimeout(() => { reject(new Error(`timed out after ${ms} ms`)); }, ms));
     return Promise.race([
         promise,
-        timeout
+        timeout,
     ]);
 }
 
@@ -74,6 +74,7 @@ export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement 
     const imageElement = event.target;
     if (!(imageElement instanceof HTMLImageElement)) {
         console.error("imageElement is supposed to be a HTMLImageElement. imageElement:", imageElement);
+        return undefined;
     } else {
         return imageElement;
     }
@@ -82,7 +83,7 @@ export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement 
 export function getRelativePath(url: URL, app: App): string | undefined {
     // getResourcePath("") also works for root path
     // could also use normalizePath(app.vault.adapter.basePath)
-    const baseFileUrl = app.vault.adapter.getFilePath("");
+    const baseFileUrl = (app.vault.adapter as FileSystemAdapter).getFilePath("");
     const basePath = baseFileUrl.replace("file://", "");
 
     const urlPathName: string = url.pathname;
@@ -90,6 +91,7 @@ export function getRelativePath(url: URL, app: App): string | undefined {
         const relativePath = urlPathName.substring(basePath.length + 1);
         return decodeURI(relativePath);
     }
+    return undefined;
 }
 
 export function openTfileInNewTab(app: App, tfile: TFile): void {
@@ -142,15 +144,15 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
         "open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
         "open-in-default-app": {
             section: "system", icon: "arrow-up-right",
-            title: "plugins.open-with-default-app.action-open-file"
+            title: "plugins.open-with-default-app.action-open-file",
         },
         "show-in-explorer": {
             section: "system", icon: "arrow-up-right",
-            title: "plugins.open-with-default-app.action-show-in-folder" + (Platform.isMacOS ? "-mac" : "")
+            title: "plugins.open-with-default-app.action-show-in-folder" + (Platform.isMacOS ? "-mac" : ""),
         },
         "reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
         "reveal-in-navigation-tree": { section: "system", icon: "folder", title: "Reveal in File Tree Alternative" },
-        "open-pdf": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" }
+        "open-pdf": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" },
     };
     if (type === "copy-to-clipboard" && imageSource) {
         item.onClick(async () => {

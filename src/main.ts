@@ -1,7 +1,7 @@
 import { Menu, Plugin, Notice, Platform, TFile, MarkdownView } from "obsidian";
 import {
     loadImageBlob, onElementToOff, openImageInNewTabFromEvent, imageElementFromMouseEvent,
-    getRelativePath, timeouts, openTfileInNewTab, setMenuItem, registerEscapeButton
+    getRelativePath, timeouts, openTfileInNewTab, setMenuItem, registerEscapeButton,
 } from "./helpers";
 import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -37,7 +37,7 @@ export default class CopyUrlInPreview extends Plugin {
             if (source === "canvas-menu" && file instanceof TFile
               && (file.extension.match(imageFileRegex) ?? file.extension === "pdf")) {
                 menu.addItem(item => setMenuItem(item, "open-in-new-tab")
-                    .onClick(() => { openTfileInNewTab(this.app, file); })
+                    .onClick(() => { openTfileInNewTab(this.app, file); }),
                 );
                 menu.addItem(item => setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file)));
             }
@@ -62,8 +62,8 @@ export default class CopyUrlInPreview extends Plugin {
             onElementToOff(document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
                 this.showOpenPdfMenu.bind(this)),
             onElementToOff(document, "mousemove", ".pdf-canvas",
-                this.showOpenPdfMenu.bind(this)
-            )];
+                this.showOpenPdfMenu.bind(this)),
+        ];
 
         if (Platform.isDesktop) {
             offs = offs.concat([
@@ -74,7 +74,7 @@ export default class CopyUrlInPreview extends Plugin {
                 onElementToOff(document, "mouseover", ".cm-link, .cm-hmd-internal-link",
                     this.storeLastHoveredLinkInEditor.bind(this)),
                 onElementToOff(document, "mouseover", "a.internal-link",
-                    this.storeLastHoveredLinkInPreview.bind(this))
+                    this.storeLastHoveredLinkInPreview.bind(this)),
             ]);
         } else {
             offs = offs.concat([
@@ -83,7 +83,7 @@ export default class CopyUrlInPreview extends Plugin {
                 onElementToOff(document, "touchend", "img",
                     this.stopWaitingForLongTap.bind(this)),
                 onElementToOff(document, "touchmove", "img",
-                    this.stopWaitingForLongTap.bind(this))
+                    this.stopWaitingForLongTap.bind(this)),
             ]);
         }
 
@@ -175,7 +175,7 @@ export default class CopyUrlInPreview extends Plugin {
                 } else {
                     await (this.app.vault.adapter as FileSystemAdapterWithInternalApi).open(pdfFile.path);
                 }
-            })
+            }),
         );
         menu.showAtMouseEvent(event);
         this.openPdfMenu = menu;
@@ -281,14 +281,14 @@ export default class CopyUrlInPreview extends Plugin {
         menu.addSections(["open", "info", "system"]);
         if (protocol === "app:" && relativePath) {
             menu.addItem(item => setMenuItem(item, "open-in-new-tab")
-                .onClick(() => { openImageInNewTabFromEvent(this.app, event); })
+                .onClick(() => { openImageInNewTabFromEvent(this.app, event); }),
             );
             if (Platform.isDesktop) {
                 menu.addItem(item => setMenuItem(item, "open-in-default-app")
-                    .onClick(() => { this.app.openWithDefaultApp(relativePath); })
+                    .onClick(() => { this.app.openWithDefaultApp(relativePath); }),
                 );
                 menu.addItem(item => setMenuItem(item, "show-in-explorer")
-                    .onClick(() => { this.app.showInFolder(relativePath); })
+                    .onClick(() => { this.app.showInFolder(relativePath); }),
                 );
                 if (this.settings.revealInNavigation) {
                     menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
@@ -299,7 +299,7 @@ export default class CopyUrlInPreview extends Plugin {
                                 return;
                             }
                             this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
-                        })
+                        }),
                     );
                 }
                 // see: https://github.com/ozntel/file-tree-alternative
@@ -313,7 +313,7 @@ export default class CopyUrlInPreview extends Plugin {
                             }
                             window.dispatchEvent(new CustomEvent(
                                 "fta-reveal-file", { detail: { file: file } }));
-                        })
+                        }),
                     );
                 }
             }
