@@ -1,7 +1,7 @@
 import { Menu, Plugin, Notice, Platform, TFile, MarkdownView } from "obsidian";
 import {
     loadImageBlob, onElementToOff, openImageInNewTabFromEvent, imageElementFromMouseEvent,
-    getRelativePath, timeouts, openTfileInNewTab, setMenuItem, registerEscapeButton,
+    getRelativePath, timeouts, openTfileInNewTab, setMenuItem,
 } from "./helpers";
 import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -10,8 +10,6 @@ import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS 
 
 export default class CopyUrlInPreview extends Plugin {
     longTapTimeoutId?: number;
-    openPdfMenu?: Menu;
-    preventReopenPdfMenu = false;
     lastHoveredLinkTarget?: string;
     canvasCardMenu?: HTMLElement;
     settings!: CopyUrlInPreviewSettings;
@@ -58,15 +56,10 @@ export default class CopyUrlInPreview extends Plugin {
     }
 
     registerDocument(document: Document): void {
-        let offs = [
-            onElementToOff(document, "mouseover", ".pdf-embed iframe, .pdf-embed div.pdf-container, .workspace-leaf-content[data-type=pdf]",
-                this.showOpenPdfMenu.bind(this)),
-            onElementToOff(document, "mousemove", ".pdf-canvas",
-                this.showOpenPdfMenu.bind(this)),
-        ];
+        let offs: (() => void)[];
 
         if (Platform.isDesktop) {
-            offs = offs.concat([
+            offs = [
                 onElementToOff(document, "contextmenu", "img",
                     this.onImageContextMenu.bind(this)),
                 onElementToOff(document, "mouseup", "img",
@@ -75,16 +68,16 @@ export default class CopyUrlInPreview extends Plugin {
                     this.storeLastHoveredLinkInEditor.bind(this)),
                 onElementToOff(document, "mouseover", "a.internal-link",
                     this.storeLastHoveredLinkInPreview.bind(this)),
-            ]);
+            ];
         } else {
-            offs = offs.concat([
+            offs = [
                 onElementToOff(document, "touchstart", "img",
                     this.startWaitingForLongTap.bind(this)),
                 onElementToOff(document, "touchend", "img",
                     this.stopWaitingForLongTap.bind(this)),
                 onElementToOff(document, "touchmove", "img",
                     this.stopWaitingForLongTap.bind(this)),
-            ]);
+            ];
         }
 
         this.register(() => {
@@ -107,89 +100,6 @@ export default class CopyUrlInPreview extends Plugin {
 
     storeLastHoveredLinkInPreview(_event: MouseEvent, link: HTMLElement): void {
         this.lastHoveredLinkTarget = link.getAttribute("data-href") ?? undefined;
-    }
-
-    showOpenPdfMenu(event: MouseEvent | PointerEvent, el: HTMLElement): void {
-        if (!this.settings.pdfMenu || this.openPdfMenu || this.preventReopenPdfMenu) {
-            return;
-        }
-        const isInCanvas = this.app.workspace.getActiveFile()?.extension === "canvas";
-        if (!this.settings.enableDefaultOnCanvas && isInCanvas) {
-            return;
-        }
-
-        const rect = el.getBoundingClientRect();
-        const openPdfMenuBorderSize = 100;
-
-        if (!isInCanvas
-          && rect.left + openPdfMenuBorderSize < event.x
-          && event.x < rect.right - openPdfMenuBorderSize
-          && rect.top + openPdfMenuBorderSize < event.y
-          && event.y < rect.bottom - openPdfMenuBorderSize) {
-            return;
-        }
-
-        const pdfEmbed = el.closest(".pdf-embed");
-        // check if the pdf is on a canvas
-        // the context menu crash on loaded pdfs
-        if (pdfEmbed?.className === "canvas-node-content pdf-embed is-loaded") {
-            return;
-        }
-
-        let pdfFile: TFile;
-        if (pdfEmbed) {
-            let pdfLink: string | undefined;
-            if (pdfEmbed.hasClass("popover")) {
-                pdfLink = this.lastHoveredLinkTarget;
-            } else {
-                pdfLink = pdfEmbed.getAttr("src") ?? this.lastHoveredLinkTarget;
-            }
-
-            if (pdfLink) {
-                pdfLink = pdfLink.replace(/#page=\d+$/, "");
-                const currentNotePath = this.app.workspace.getActiveFile()!.path;
-                pdfFile = this.app.metadataCache.getFirstLinkpathDest(pdfLink, currentNotePath)!;
-            }
-        } else {
-            pdfFile = this.app.workspace.getActiveFile()!;
-        }
-        // hide the menu on canvas
-        if (isInCanvas) {
-            const canvasCardMenu = activeDocument.querySelector<HTMLElement>(".menu");
-            if (canvasCardMenu) {
-                canvasCardMenu.style.display = "none";
-                this.canvasCardMenu = canvasCardMenu;
-            }
-        }
-        const menu = new Menu();
-        registerEscapeButton(menu);
-        menu.onHide(() => this.openPdfMenu = undefined);
-
-        menu.addItem(item => setMenuItem(item, "open-pdf")
-            .onClick(async () => {
-                this.preventReopenPdfMenu = true;
-                setTimeout(() => { this.preventReopenPdfMenu = false; }, timeouts.openPdfMenu);
-                this.hideOpenPdfMenu();
-                if (Platform.isDesktop) {
-                    this.app.openWithDefaultApp(pdfFile.path);
-                } else {
-                    await (this.app.vault.adapter as FileSystemAdapterWithInternalApi).open(pdfFile.path);
-                }
-            }),
-        );
-        menu.showAtMouseEvent(event);
-        this.openPdfMenu = menu;
-
-        setTimeout(this.hideOpenPdfMenu.bind(this), timeouts.openPdfMenu);
-    }
-
-    hideOpenPdfMenu(): void {
-        if (this.openPdfMenu) {
-            this.openPdfMenu.hide();
-        }
-        if (this.canvasCardMenu) {
-            this.canvasCardMenu.style.display = "";
-        }
     }
 
     // mobile

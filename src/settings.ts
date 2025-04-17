@@ -2,14 +2,12 @@ import CopyUrlInPreviewPlugin from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
 
 export interface CopyUrlInPreviewSettings {
-    pdfMenu: boolean;
     middleClickNewTab: boolean;
     revealInNavigation: boolean;
     enableDefaultOnCanvas: boolean;
 }
 
 export const DEFAULT_SETTINGS: CopyUrlInPreviewSettings = {
-    pdfMenu: false,
     middleClickNewTab: true,
     revealInNavigation: true,
     enableDefaultOnCanvas: false,
@@ -26,14 +24,6 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
         containerEl.createEl("h3", { text: "Image Context Menus settings" });
-        new Setting(containerEl)
-            .setName("PDF context menu")
-            .addToggle(toggle => {
-                toggle.setValue(this.plugin.settings.pdfMenu).onChange(value => {
-                    this.plugin.settings.pdfMenu = value;
-                    void this.plugin.saveSettings();
-                });
-            });
         new Setting(containerEl)
             .setName("Middle mouse click on image link to open in new tab")
             .addToggle(toggle => {

@@ -1,10 +1,9 @@
-import { App, FileSystemAdapter, Menu, MenuItem, Notice, Platform, TFile } from "obsidian";
+import { App, FileSystemAdapter, MenuItem, Notice, Platform, TFile } from "obsidian";
 
 export const timeouts = {
     loadImageBlob: 5_000,
     longTap: 500,
     deleteTempFile: 60_000,
-    openPdfMenu: 5_000,
     successNotice: 1_800,
 };
 
@@ -114,27 +113,13 @@ export function openImageInNewTabFromEvent(app: App, event: MouseEvent): void {
     }
 }
 
-export function registerEscapeButton(menu: Menu): void {
-    const document = activeDocument;
-    menu.register(onElementToOff(
-        document, "keydown", "*",
-        e => {
-            if (e.key === "Escape") {
-                e.preventDefault();
-                e.stopPropagation();
-                menu.hide();
-            }
-        }));
-}
-
 type menuType =
   "open-in-new-tab" |
   "copy-to-clipboard" |
   "open-in-default-app" |
   "show-in-explorer" |
   "reveal-in-navigation" |
-  "reveal-in-navigation-tree" |
-  "open-pdf";
+  "reveal-in-navigation-tree";
 
 export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSource: string | Promise<ArrayBuffer>): MenuItem;
 export function setMenuItem(item: MenuItem, type: menuType): MenuItem;
@@ -152,7 +137,6 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
         },
         "reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
         "reveal-in-navigation-tree": { section: "system", icon: "folder", title: "Reveal in File Tree Alternative" },
-        "open-pdf": { section: "system", icon: "arrow-up-right", title: "plugins.open-with-default-app.action-open-file" },
     };
     if (type === "copy-to-clipboard" && imageSource) {
         item.onClick(async () => {
