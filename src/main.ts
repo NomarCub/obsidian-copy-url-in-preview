@@ -1,4 +1,4 @@
-import { Menu, Plugin, Notice, Platform, TFile, MarkdownView } from "obsidian";
+import { Menu, Plugin, Notice, Platform, TFile } from "obsidian";
 import {
     loadImageBlob, onElementToOff, openImageInNewTabFromEvent, imageElementFromMouseEvent,
     getRelativePath, timeouts, openTfileInNewTab, setMenuItem,
@@ -10,7 +10,6 @@ import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS 
 
 export default class CopyUrlInPreview extends Plugin {
     longTapTimeoutId?: number;
-    lastHoveredLinkTarget?: string;
     canvasCardMenu?: HTMLElement;
     settings!: CopyUrlInPreviewSettings;
     async loadSettings(): Promise<void> {
@@ -64,10 +63,6 @@ export default class CopyUrlInPreview extends Plugin {
                     this.onImageContextMenu.bind(this)),
                 onElementToOff(document, "mouseup", "img",
                     this.onImageMouseUp.bind(this)),
-                onElementToOff(document, "mouseover", ".cm-link, .cm-hmd-internal-link",
-                    this.storeLastHoveredLinkInEditor.bind(this)),
-                onElementToOff(document, "mouseover", "a.internal-link",
-                    this.storeLastHoveredLinkInPreview.bind(this)),
             ];
         } else {
             offs = [
@@ -83,23 +78,6 @@ export default class CopyUrlInPreview extends Plugin {
         this.register(() => {
             offs.forEach(f => { f(); });
         });
-    }
-
-    storeLastHoveredLinkInEditor(event: MouseEvent): void {
-        const editor = this.app.workspace.getActiveViewOfType(MarkdownView)?.editor;
-        if (!editor) {
-            return;
-        }
-        const position = editor.posAtMouse(event);
-        const token = editor.getClickableTokenAt(position);
-        if (!token) {
-            return;
-        }
-        this.lastHoveredLinkTarget = token.text;
-    }
-
-    storeLastHoveredLinkInPreview(_event: MouseEvent, link: HTMLElement): void {
-        this.lastHoveredLinkTarget = link.getAttribute("data-href") ?? undefined;
     }
 
     // mobile
