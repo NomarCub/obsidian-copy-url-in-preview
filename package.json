@@ -1,7 +1,7 @@
 {
   "name": "copy-url-in-preview",
-  "version": "1.9.1",
-  "description": "Copy Image, Copy URL and Open PDF externally context menu in reading view (formerly preview mode) for Obsidian (https://obsidian.md)",
+  "version": "1.10.0",
+  "description": "Image context menus plugin for Obsidian (https://obsidian.md): Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab.",
   "main": "main.js",
   "engines": {
     "node": ">=22"
@@ -16,16 +16,16 @@
   "author": "NomarCub",
   "license": "MIT",
   "devDependencies": {
-    "@stylistic/eslint-plugin": "^2.12.1",
+    "@stylistic/eslint-plugin": "^4.2.0",
     "@types/node": "^22.9.0",
     "builtin-modules": "^4.0.0",
-    "esbuild": "^0.24.2",
-    "eslint": "^9.18.0",
+    "esbuild": "^0.25.2",
+    "eslint": "^9.24.0",
     "i18next": "^23.11.5",
     "obsidian": "~1.7.2",
-    "obsidian-typings": "2.13.2",
+    "obsidian-typings": "2.41.4",
     "tslib": "^2.8.1",
-    "typescript": "^5.7.3",
-    "typescript-eslint": "^8.19.1"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.29.0"
   }
 }
