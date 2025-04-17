@@ -1,7 +1,7 @@
 {
   "name": "copy-url-in-preview",
-  "version": "1.9.1",
-  "description": "Copy Image, Copy URL and Open PDF externally context menu in reading view (formerly preview mode) for Obsidian (https://obsidian.md)",
+  "version": "1.10.0",
+  "description": "Image context menus plugin for Obsidian (https://obsidian.md): Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab.",
   "main": "main.js",
   "engines": {
     "node": ">=22"
