@@ -91,6 +91,8 @@ export default class CopyUrlInPreview extends Plugin {
         } else {
             if (event.targetTouches.length === 1) {
                 this.longTapTimeoutId = window.setTimeout(async () => {
+                    if (this.isOnCanvas(event)) return;
+                    
                     await copyImageToClipboard(img.currentSrc);
                 }, timeouts.longTap);
             }
@@ -104,6 +106,16 @@ export default class CopyUrlInPreview extends Plugin {
             this.longTapTimeoutId = undefined;
         }
     }
+    
+    isOnCanvas(event: TouchEvent | MouseEvent): boolean {
+        if (
+            (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
+            || event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded"
+        ) {
+            return true;
+        }
+        return false;
+    }
 
     // Android gives a PointerEvent, a child to MouseEvent.
     // Positions are not accurate from PointerEvent.
@@ -112,11 +124,9 @@ export default class CopyUrlInPreview extends Plugin {
     onImageContextMenu(event: MouseEvent): void {
         const imageElement = imageElementFromMouseEvent(event);
         if (!imageElement) return;
+
         // check if the image is on a canvas
-        if ((!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
-          || event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded") {
-            return;
-        }
+        if (this.isOnCanvas(event)) return;
 
         const image = imageElement.currentSrc;
         const url = new URL(image);
