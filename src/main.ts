@@ -175,6 +175,17 @@ export default class CopyUrlInPreview extends Plugin {
                 menu.addItem(item => setMenuItem(item, "open-in-default-app")
                     .onClick(() => { this.app.openWithDefaultApp(relativePath); }),
                 );
+                menu.addItem((item) =>
+                    setMenuItem(item, "rename-file").onClick(() => {
+                        const img = imageElement.closest(".internal-embed")?.getAttribute("src");
+                        if (!img) return;
+    
+                        const path = this.app.vault.getAbstractFileByPath(img);
+                        if (!(path instanceof TFile)) return;
+    
+                        this.app.fileManager.promptForFileRename(path)
+                    }),
+                );
                 menu.addItem(item => setMenuItem(item, "show-in-explorer")
                     .onClick(() => { this.app.showInFolder(relativePath); }),
                 );
