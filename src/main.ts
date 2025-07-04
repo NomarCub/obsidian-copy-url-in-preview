@@ -2,6 +2,7 @@ import { Menu, Plugin, Notice, Platform, TFile } from "obsidian";
 import {
     loadImageBlob, onElementToOff, openImageInNewTabFromEvent, imageElementFromMouseEvent,
     getRelativePath, timeouts, openTfileInNewTab, setMenuItem,
+    copyImageToClipboard,
 } from "./helpers";
 import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -88,9 +89,10 @@ export default class CopyUrlInPreview extends Plugin {
             clearTimeout(this.longTapTimeoutId);
             this.longTapTimeoutId = undefined;
         } else {
-            if (event.targetTouches.length == 1) {
-                this.longTapTimeoutId = window.setTimeout(
-                    () => void this.processLongTap.bind(this, event, img)(), timeouts.longTap);
+            if (event.targetTouches.length === 1) {
+                this.longTapTimeoutId = window.setTimeout(async () => {
+                    await copyImageToClipboard(img.currentSrc);
+                }, timeouts.longTap);
             }
         }
     }
@@ -100,43 +102,6 @@ export default class CopyUrlInPreview extends Plugin {
         if (this.longTapTimeoutId) {
             clearTimeout(this.longTapTimeoutId);
             this.longTapTimeoutId = undefined;
-        }
-    }
-
-    // mobile
-    async processLongTap(event: TouchEvent, img: HTMLImageElement): Promise<void> {
-        event.stopPropagation();
-        this.longTapTimeoutId = undefined;
-        const adapter = this.app.vault.adapter as FileSystemAdapterWithInternalApi;
-        const electronWindow = window as unknown as ElectronWindow;
-        const basePath = adapter.getFullPath("");
-        const webviewServerUrl = electronWindow.WEBVIEW_SERVER_URL;
-        const localImagePrefixUrl = webviewServerUrl + "/_capacitor_file_" + basePath;
-        if (img.src.startsWith(localImagePrefixUrl)) {
-            const encodedImageFileRelativePath = img.src.replace(localImagePrefixUrl, "");
-            const imageFileRelativePath = decodeURIComponent(encodedImageFileRelativePath);
-            await adapter.open(imageFileRelativePath);
-        } else {
-            try {
-                const blob = await loadImageBlob(img.src);
-                if (!blob) throw new Error("blob was null");
-
-                if (!blob.type.startsWith("image/")) {
-                    new Notice(`Unsupported mime type ${blob.type}`);
-                    return;
-                }
-                const extension = blob.type.replace("image/", "");
-                const randomGuid = window.URL.createObjectURL(new Blob([])).split("/").pop();
-                const tempFileName = `/.temp-${randomGuid}.${extension}`;
-                const buffer = await blob.arrayBuffer();
-                await adapter.writeBinary(tempFileName, buffer);
-                setTimeout(() => void adapter.remove(tempFileName), timeouts.deleteTempFile);
-                new Notice("Image was temporarily saved and will be removed in 1 minute");
-                await adapter.open(tempFileName);
-            } catch (e) {
-                new Notice("Cannot open image");
-                console.error(e);
-            }
         }
     }
 
