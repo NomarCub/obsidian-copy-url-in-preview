@@ -1,16 +1,15 @@
 import { Menu, Plugin, Notice, Platform, TFile } from "obsidian";
 import {
-    loadImageBlob, onElementToOff, openImageInNewTabFromEvent, imageElementFromMouseEvent,
-    getRelativePath, timeouts, openTfileInNewTab, setMenuItem,
-    copyImageToClipboard,
+    openImageInNewTabFromEvent, imageElementFromMouseEvent,
+    getRelativePath, openTfileInNewTab, setMenuItem,
+    onElementToOff,
 } from "./helpers";
-import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
+import { CanvasNodeWithUrl } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as internal from "obsidian-typings";
 import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
 
 export default class CopyUrlInPreview extends Plugin {
-    longTapTimeoutId?: number;
     canvasCardMenu?: HTMLElement;
     settings!: CopyUrlInPreviewSettings;
     async loadSettings(): Promise<void> {
@@ -56,78 +55,44 @@ export default class CopyUrlInPreview extends Plugin {
     }
 
     registerDocument(document: Document): void {
-        let offs: (() => void)[];
-
-        if (Platform.isDesktop) {
-            offs = [
-                onElementToOff(document, "contextmenu", "img",
-                    this.onImageContextMenu.bind(this)),
-                onElementToOff(document, "mouseup", "img",
-                    this.onImageMouseUp.bind(this)),
-            ];
-        } else {
-            offs = [
-                onElementToOff(document, "touchstart", "img",
-                    this.startWaitingForLongTap.bind(this)),
-                onElementToOff(document, "touchend", "img",
-                    this.stopWaitingForLongTap.bind(this)),
-                onElementToOff(document, "touchmove", "img",
-                    this.stopWaitingForLongTap.bind(this)),
-            ];
-        }
+        const offs = [
+            onElementToOff(
+                document,
+                "contextmenu",
+                "img",
+                this.onImageContextMenu.bind(this),
+            ),
+            onElementToOff(
+                document,
+                "mouseup",
+                "img",
+                this.onImageMouseUp.bind(this),
+            ),
+        ];
 
         this.register(() => {
-            offs.forEach(f => { f(); });
-        });
-    }
-
-    // mobile
-    startWaitingForLongTap(event: TouchEvent, img: HTMLElement): void {
-        if (!(img instanceof HTMLImageElement)) return;
-
-        if (this.longTapTimeoutId) {
-            clearTimeout(this.longTapTimeoutId);
-            this.longTapTimeoutId = undefined;
-        } else {
-            if (event.targetTouches.length === 1) {
-                this.longTapTimeoutId = window.setTimeout(async () => {
-                    if (this.isOnCanvas(event)) return;
-                    
-                    await copyImageToClipboard(img.currentSrc);
-                }, timeouts.longTap);
+            for (const f of offs) {
+                f();
             }
-        }
-    }
-
-    // mobile
-    stopWaitingForLongTap(): void {
-        if (this.longTapTimeoutId) {
-            clearTimeout(this.longTapTimeoutId);
-            this.longTapTimeoutId = undefined;
-        }
-    }
-    
-    isOnCanvas(event: TouchEvent | MouseEvent): boolean {
-        if (
-            (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
-            || event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded"
-        ) {
-            return true;
-        }
-        return false;
+        });
     }
 
     // Android gives a PointerEvent, a child to MouseEvent.
     // Positions are not accurate from PointerEvent.
     // There's also TouchEvent
     // The event has target, path, toEvent (null on Android) for finding the link
-    onImageContextMenu(event: MouseEvent): void {
+    onImageContextMenu(event: TouchEvent | MouseEvent): void {
         const imageElement = imageElementFromMouseEvent(event);
         if (!imageElement) return;
 
         // check if the image is on a canvas
-        if (this.isOnCanvas(event)) return;
-
+        if (
+            (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
+            || event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded"
+        ) {
+            return;
+        }
+        
         const image = imageElement.currentSrc;
         const url = new URL(image);
         const protocol = url.protocol;
@@ -139,57 +104,82 @@ export default class CopyUrlInPreview extends Plugin {
         }
 
         event.preventDefault();
+        
         const menu = new Menu();
         const relativePath = getRelativePath(url, this.app);
-        menu.addSections(["open", "info", "system"]);
-        if (protocol === "app:" && relativePath) {
-            menu.addItem(item => setMenuItem(item, "open-in-new-tab")
-                .onClick(() => { openImageInNewTabFromEvent(this.app, event); }),
-            );
-            if (Platform.isDesktop) {
-                menu.addItem(item => setMenuItem(item, "open-in-default-app")
-                    .onClick(() => { this.app.openWithDefaultApp(relativePath); }),
-                );
-                menu.addItem(item => setMenuItem(item, "show-in-explorer")
-                    .onClick(() => { this.app.showInFolder(relativePath); }),
-                );
-                if (this.settings.revealInNavigation) {
-                    menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
-                        .onClick(() => {
-                            const file = this.app.vault.getFileByPath(relativePath);
-                            if (!file) {
-                                console.warn(`getFileByPath returned null for ${relativePath}`);
-                                return;
-                            }
-                            this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
-                        }),
-                    );
-                }
-                // see: https://github.com/ozntel/file-tree-alternative
-                if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
-                    menu.addItem(item => setMenuItem(item, "reveal-in-navigation-tree")
-                        .onClick(() => {
-                            const file = this.app.vault.getFileByPath(relativePath);
-                            if (!file) {
-                                console.warn(`getFileByPath returned null for ${relativePath}`);
-                                return;
-                            }
-                            window.dispatchEvent(new CustomEvent(
-                                "fta-reveal-file", { detail: { file: file } }));
-                        }),
-                    );
-                }
-            }
-        }
+
+        menu.addSections(["file", "open", "info", "system"]);
+
         menu.addItem(item => setMenuItem(item, "copy-to-clipboard", image));
 
-        menu.showAtPosition({ x: event.pageX, y: event.pageY });
-        this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
+        if (relativePath) {
+            // Add image filename to match with mobile menus
+            if (Platform.isMobile) {
+                menu.addItem(item => item
+                    .setTitle(relativePath)
+                    .setSection("file")
+                    .setIsLabel(true)
+                );
+            }
+
+            menu.addItem(item => setMenuItem(item, "open-in-new-tab")
+                .onClick(() => {
+                    openImageInNewTabFromEvent(this.app, event);
+                }),
+            );
+
+            if (Platform.isDesktop) {
+                menu.addItem(item => setMenuItem(item, "open-in-default-app")
+                    .onClick(() => {
+                        this.app.openWithDefaultApp(relativePath);
+                    }),
+                );
+
+                menu.addItem(item => setMenuItem(item, "show-in-explorer")
+                    .onClick(() => {
+                        this.app.showInFolder(relativePath);
+                    }),
+                );
+            }
+
+            if (this.settings.revealInNavigation) {
+                menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
+                    .onClick(() => {
+                        const file = this.app.vault.getFileByPath(relativePath);
+                        if (!file) {
+                            console.warn(`getFileByPath returned null for ${relativePath}`);
+                            return;
+                        }
+                        this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
+                    }),
+                );
+            }
+            // see: https://github.com/ozntel/file-tree-alternative
+            if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
+                menu.addItem(item => setMenuItem(item, "reveal-in-navigation-tree")
+                    .onClick(() => {
+                        const file = this.app.vault.getFileByPath(relativePath);
+                        if (!file) {
+                            console.warn(`getFileByPath returned null for ${relativePath}`);
+                            return;
+                        }
+                        window.dispatchEvent(new CustomEvent(
+                            "fta-reveal-file", { detail: { file: file } }));
+                    }),
+                );
+            }
+        }
+
+        menu.showAtPosition({
+            x: event instanceof MouseEvent ? event.pageX : event.touches[0].pageX,
+            y: event instanceof MouseEvent ? event.pageY : event.touches[0].pageY,
+        });
     }
 
     onImageMouseUp(event: MouseEvent): void {
         const middleButtonNumber = 1;
-        if (event.button == middleButtonNumber && this.settings.middleClickNewTab) {
+        
+        if (event.button === middleButtonNumber && this.settings.middleClickNewTab) {
             openImageInNewTabFromEvent(this.app, event);
         }
     }

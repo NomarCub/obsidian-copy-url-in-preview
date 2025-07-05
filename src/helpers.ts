@@ -1,4 +1,4 @@
-import { App, FileSystemAdapter, MenuItem, Notice, Platform, TFile } from "obsidian";
+import { App, MenuItem, Notice, Platform, TFile } from "obsidian";
 
 export const timeouts = {
     loadImageBlob: 5_000,
@@ -23,10 +23,10 @@ export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<v
     try {
         const data = new ClipboardItem({ [blob!.type]: blob! });
         await navigator.clipboard.write([data]);
-        new Notice("Image copied to the clipboard!", timeouts.successNotice);
+        new Notice("Image copied to clipboard", timeouts.successNotice);
     } catch (e) {
         console.error(e);
-        new Notice("Error, could not copy the image!");
+        new Notice("Error, could not copy the image");
     }
 }
 
@@ -69,10 +69,9 @@ export function onElementToOff<K extends keyof DocumentEventMap>(
     return () => { el.off(type, selector, listener); };
 }
 
-export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement | undefined {
+export function imageElementFromMouseEvent(event: TouchEvent | MouseEvent): HTMLImageElement | undefined {
     const imageElement = event.target;
     if (!(imageElement instanceof HTMLImageElement)) {
-        console.error("imageElement is supposed to be a HTMLImageElement. imageElement:", imageElement);
         return undefined;
     } else {
         return imageElement;
@@ -82,14 +81,18 @@ export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement 
 export function getRelativePath(url: URL, app: App): string | undefined {
     // getResourcePath("") also works for root path
     // could also use normalizePath(app.vault.adapter.basePath)
-    const baseFileUrl = (app.vault.adapter as FileSystemAdapter).getFilePath("");
-    const basePath = baseFileUrl.replace("file://", "");
+    const baseFullPath = app.vault.adapter.getFullPath("");
+    const basePath = baseFullPath.replace("file://", "");
 
-    const urlPathName: string = url.pathname;
-    if (urlPathName.startsWith(basePath)) {
-        const relativePath = urlPathName.substring(basePath.length + 1);
-        return decodeURI(relativePath);
+    // clear url on mobile
+    const urlPath = url.pathname.replace("/_capacitor_file_", "");
+
+    if (urlPath.startsWith(basePath)) {
+        const paths = urlPath.split("/");
+        const filename = paths[paths.length - 1];
+        return decodeURI(filename);
     }
+
     return undefined;
 }
 
@@ -97,7 +100,7 @@ export function openTfileInNewTab(app: App, tfile: TFile): void {
     void app.workspace.getLeaf(true).openFile(tfile, { active: true });
 }
 
-export function openImageInNewTabFromEvent(app: App, event: MouseEvent): void {
+export function openImageInNewTabFromEvent(app: App, event: TouchEvent | MouseEvent): void {
     const image = imageElementFromMouseEvent(event);
     if (!image) return;
 
