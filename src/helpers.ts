@@ -122,7 +122,8 @@ type menuType =
   "open-in-default-app" |
   "show-in-explorer" |
   "reveal-in-navigation" |
-  "reveal-in-navigation-tree";
+  "reveal-in-navigation-tree" |
+  "rename-file";
 
 export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSource: string | Promise<ArrayBuffer>): MenuItem;
 export function setMenuItem(item: MenuItem, type: menuType): MenuItem;
@@ -140,12 +141,19 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
         },
         "reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
         "reveal-in-navigation-tree": { section: "system", icon: "folder", title: "Reveal in File Tree Alternative" },
+        "rename-file": {
+			section: "info",
+			icon: "pencil",
+			title: "interface.menu.rename",
+		},
     };
+
     if (type === "copy-to-clipboard" && imageSource) {
         item.onClick(async () => {
             await copyImageToClipboard(typeof imageSource === "string" ? imageSource : await imageSource);
         });
     }
+    
     return item
         .setIcon(types[type].icon)
         .setTitle(i18next.t(types[type].title))

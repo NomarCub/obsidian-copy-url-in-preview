@@ -128,6 +128,15 @@ export default class CopyUrlInPreview extends Plugin {
                 }),
             );
 
+            menu.addItem((item) =>
+                setMenuItem(item, "rename-file").onClick(() => {
+                    const path = this.app.vault.getFileByPath(relativePath);
+                    if (!path) return;
+
+                    this.app.fileManager.promptForFileRename(path)
+                }),
+            );
+
             if (Platform.isDesktop) {
                 menu.addItem(item => setMenuItem(item, "open-in-default-app")
                     .onClick(() => {
