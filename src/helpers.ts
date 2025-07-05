@@ -81,16 +81,15 @@ export function imageElementFromMouseEvent(event: TouchEvent | MouseEvent): HTML
 export function getRelativePath(url: URL, app: App): string | undefined {
     // getResourcePath("") also works for root path
     // could also use normalizePath(app.vault.adapter.basePath)
-    const baseFullPath = app.vault.adapter.getFullPath("");
+    const baseFullPath = app.vault.adapter.basePath;
     const basePath = baseFullPath.replace("file://", "");
 
     // clear url on mobile
     const urlPath = url.pathname.replace("/_capacitor_file_", "");
 
     if (urlPath.startsWith(basePath)) {
-        const paths = urlPath.split("/");
-        const filename = paths[paths.length - 1];
-        return decodeURI(filename);
+        const relativePath = urlPath.slice(basePath.length + 1);
+        return decodeURI(relativePath);
     }
 
     return undefined;

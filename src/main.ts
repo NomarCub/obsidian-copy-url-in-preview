@@ -107,16 +107,25 @@ export default class CopyUrlInPreview extends Plugin {
         
         const menu = new Menu();
         const relativePath = getRelativePath(url, this.app);
+        const internalFile = this.app.vault.getFileByPath(relativePath ?? "");
 
         menu.addSections(["file", "open", "info", "system"]);
 
+        if (internalFile) {
+            menu.addItem((item) =>
+                setMenuItem(item, "rename-file").onClick(() => {
+                    this.app.fileManager.promptForFileRename(internalFile)
+                }),
+            );
+        }
+
         menu.addItem(item => setMenuItem(item, "copy-to-clipboard", image));
 
-        if (relativePath) {
+        if (internalFile) {
             // Add image filename to match with mobile menus
             if (Platform.isMobile) {
                 menu.addItem(item => item
-                    .setTitle(relativePath)
+                    .setTitle(internalFile.name)
                     .setSection("file")
                     .setIsLabel(true)
                 );
@@ -128,25 +137,16 @@ export default class CopyUrlInPreview extends Plugin {
                 }),
             );
 
-            menu.addItem((item) =>
-                setMenuItem(item, "rename-file").onClick(() => {
-                    const path = this.app.vault.getFileByPath(relativePath);
-                    if (!path) return;
-
-                    this.app.fileManager.promptForFileRename(path)
-                }),
-            );
-
             if (Platform.isDesktop) {
                 menu.addItem(item => setMenuItem(item, "open-in-default-app")
                     .onClick(() => {
-                        this.app.openWithDefaultApp(relativePath);
+                        this.app.openWithDefaultApp(internalFile.path);
                     }),
                 );
 
                 menu.addItem(item => setMenuItem(item, "show-in-explorer")
                     .onClick(() => {
-                        this.app.showInFolder(relativePath);
+                        this.app.showInFolder(internalFile.path);
                     }),
                 );
             }
@@ -154,12 +154,7 @@ export default class CopyUrlInPreview extends Plugin {
             if (this.settings.revealInNavigation) {
                 menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
                     .onClick(() => {
-                        const file = this.app.vault.getFileByPath(relativePath);
-                        if (!file) {
-                            console.warn(`getFileByPath returned null for ${relativePath}`);
-                            return;
-                        }
-                        this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
+                        this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(internalFile);
                     }),
                 );
             }
@@ -167,13 +162,8 @@ export default class CopyUrlInPreview extends Plugin {
             if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
                 menu.addItem(item => setMenuItem(item, "reveal-in-navigation-tree")
                     .onClick(() => {
-                        const file = this.app.vault.getFileByPath(relativePath);
-                        if (!file) {
-                            console.warn(`getFileByPath returned null for ${relativePath}`);
-                            return;
-                        }
                         window.dispatchEvent(new CustomEvent(
-                            "fta-reveal-file", { detail: { file: file } }));
+                            "fta-reveal-file", { detail: { file: internalFile } }));
                     }),
                 );
             }
