@@ -88,7 +88,7 @@ export function getRelativePath(url: URL, app: App): string | undefined {
     const urlPath = url.pathname.replace("/_capacitor_file_", "");
 
     if (urlPath.startsWith(basePath)) {
-        const relativePath = urlPath.slice(basePath.length + 1);
+        const relativePath = urlPath.substring(basePath.length + 1);
         return decodeURI(relativePath);
     }
 
