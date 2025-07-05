@@ -112,8 +112,8 @@ export default class CopyUrlInPreview extends Plugin {
         menu.addSections(["file", "open", "info", "system"]);
 
         if (internalFile) {
-            menu.addItem((item) =>
-                setMenuItem(item, "rename-file").onClick(() => {
+            menu.addItem((item) => setMenuItem(item, "rename-file")
+                .onClick(() => {
                     this.app.fileManager.promptForFileRename(internalFile)
                 }),
             );
