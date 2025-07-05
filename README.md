@@ -10,7 +10,7 @@ This plugin provides the following context menus for images in [Obsidian](https:
   - also available through middle mouse button click
 
 Context menus are also added to the canvas.  
-Most features work on mobile, but were only tested on Android. Mobile uses the native image sharing functionality instead of the clipboard, and it downloads online images temporarily so they can be shared.
+Most features work on mobile, but were only tested on Android.
 
 > This plugin used to be called "Copy Image and URL context menu". It had link URL copying functionality (see [1.5.2](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.5.2) and prior), but that was removed when it was included in Obsidian 1.5.  
 > It also used to have an `Open PDF externally` hover context menu for embedded PDFs, which was also removed when better Obsidian native functionality appeared (see [1.9.1](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.9.1)).
