@@ -23,10 +23,10 @@ export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<v
     try {
         const data = new ClipboardItem({ [blob!.type]: blob! });
         await navigator.clipboard.write([data]);
-        new Notice("Image copied to clipboard", timeouts.successNotice);
+        new Notice(i18next.t("interface.copied_generic"), timeouts.successNotice);
     } catch (e) {
         console.error(e);
-        new Notice("Error, could not copy the image");
+        new Notice(i18next.t("interface.copy_failed"));
     }
 }
 
