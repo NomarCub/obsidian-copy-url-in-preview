@@ -79,15 +79,6 @@ export function onElementToOff<K extends keyof DocumentEventMap>(
     };
 }
 
-export function imageElementFromMouseEvent(event: TouchEvent | MouseEvent): HTMLImageElement | undefined {
-    const imageElement = event.target;
-    if (!(imageElement instanceof HTMLImageElement)) {
-        return undefined;
-    } else {
-        return imageElement;
-    }
-}
-
 export function getRelativePath(url: URL, app: App): string | null {
     let basePath = normalizePath(app.vault.adapter.basePath);
     basePath = basePath.replace("file://", "");
@@ -106,22 +97,6 @@ export function getRelativePath(url: URL, app: App): string | null {
 
 export function openTfileInNewTab(app: App, tfile: TFile): void {
     void app.workspace.getLeaf(true).openFile(tfile, { active: true });
-}
-
-export function openImageInNewTabFromEvent(app: App, event: TouchEvent | MouseEvent): void {
-    const image = imageElementFromMouseEvent(event);
-    if (!image) return;
-
-    const activeFile = app.workspace.getActiveFile();
-    const link = getRelativePath(new URL(image.src), app);
-    if (!link) return;
-    const imageAsTFile = activeFile
-        ? app.metadataCache.getFirstLinkpathDest(link, activeFile.path)
-        : app.vault.getAbstractFileByPath(link);
-
-    if (imageAsTFile && imageAsTFile instanceof TFile) {
-        openTfileInNewTab(app, imageAsTFile);
-    }
 }
 
 type menuType

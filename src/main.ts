@@ -1,9 +1,6 @@
 import { Menu, Plugin, Notice, Platform, TFile } from "obsidian";
 import {
-    openImageInNewTabFromEvent,
-    getRelativePath, openTfileInNewTab, setMenuItem,
-    onElementToOff,
-    imageElementFromMouseEvent,
+    getTfileFromUrl, openTfileInNewTab, setMenuItem, onElementToOff
 } from "./helpers";
 import { CanvasNodeWithUrl } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -84,7 +81,7 @@ export default class CopyUrlInPreview extends Plugin {
     // There's also TouchEvent
     // The event has target, path, toEvent (null on Android) for finding the link
     onImageContextMenu(event: TouchEvent | MouseEvent): void {
-        const imageElement = imageElementFromMouseEvent(event);
+        const imageElement = event.target as HTMLImageElement;
         if (!imageElement) return;
 
         event.preventDefault();
@@ -97,7 +94,7 @@ export default class CopyUrlInPreview extends Plugin {
             return;
         }
 
-        const url = new URL(imageElement.currentSrc);
+        const url = new URL(imageElement.src);
         const protocols = ["app:", "data:", "http:", "https:"];
 
         if (!protocols.includes(url.protocol)) {
@@ -106,8 +103,7 @@ export default class CopyUrlInPreview extends Plugin {
         }
 
         const menu = new Menu();
-        const relativePath = getRelativePath(url, this.app);
-        const internalFile = this.app.vault.getFileByPath(relativePath ?? "");
+        const internalFile = getTfileFromUrl(this.app, url);
 
         menu.addSections(["file", "open", "info", "system"]);
 
@@ -119,7 +115,7 @@ export default class CopyUrlInPreview extends Plugin {
             );
         }
 
-        menu.addItem(item => setMenuItem(item, "copy-to-clipboard", imageElement.currentSrc));
+        menu.addItem(item => setMenuItem(item, "copy-to-clipboard", imageElement.src));
 
         if (internalFile) {
             // Add image filename to match with mobile menus
@@ -174,12 +170,21 @@ export default class CopyUrlInPreview extends Plugin {
             y: event instanceof MouseEvent ? event.pageY : event.touches[0].pageY,
         });
     }
-
+    
     onImageMouseUp(event: MouseEvent): void {
+        const imageElement = event.target as HTMLImageElement;
+        if (!imageElement) return;
+
         const middleButtonNumber = 1;
 
         if (event.button === middleButtonNumber && this.settings.middleClickNewTab) {
-            openImageInNewTabFromEvent(this.app, event);
+            const tfile = getTfileFromUrl(
+                this.app,
+                new URL(imageElement.src),
+            );
+            if (!tfile) return;
+
+            openTfileInNewTab(this.app, tfile);
         }
     }
 }
