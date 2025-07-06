@@ -87,10 +87,7 @@ export default class CopyUrlInPreview extends Plugin {
         const imageElement = imageElementFromMouseEvent(event);
         if (!imageElement) return;
 
-        // Avoid zoom the image on mobile
-        if (Platform.isMobile) {
-            event.stopImmediatePropagation();
-        }
+        event.preventDefault();
 
         // check if the image is on a canvas
         if (
