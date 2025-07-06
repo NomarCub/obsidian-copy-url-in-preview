@@ -1,4 +1,4 @@
-import { App, MenuItem, Notice, Platform, TFile } from "obsidian";
+import { App, MenuItem, normalizePath, Notice, Platform, TFile } from "obsidian";
 
 export const timeouts = {
     loadImageBlob: 5_000,
@@ -88,21 +88,20 @@ export function imageElementFromMouseEvent(event: TouchEvent | MouseEvent): HTML
     }
 }
 
-export function getRelativePath(url: URL, app: App): string | undefined {
-    // getResourcePath("") also works for root path
-    // could also use normalizePath(app.vault.adapter.basePath)
-    const baseFullPath = app.vault.adapter.basePath;
-    const basePath = baseFullPath.replace("file://", "");
-
-    // clear url on mobile
-    const urlPath = url.pathname.replace("/_capacitor_file_", "");
+export function getRelativePath(url: URL, app: App): string | null {
+    let basePath = normalizePath(app.vault.adapter.basePath);
+    basePath = basePath.replace("file://", "");
+    
+    let urlPath = url.pathname;
+    urlPath = urlPath.replace("/_capacitor_file_", ""); // clear url on mobile
+    urlPath = urlPath.split("/").filter(part => part !== '').join("/");
 
     if (urlPath.startsWith(basePath)) {
-        const relativePath = urlPath.substring(basePath.length + 1);
+        const relativePath = urlPath.slice(basePath.length + 1);
         return decodeURI(relativePath);
     }
 
-    return undefined;
+    return null;
 }
 
 export function openTfileInNewTab(app: App, tfile: TFile): void {
