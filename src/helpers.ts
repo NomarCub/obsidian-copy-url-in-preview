@@ -98,7 +98,7 @@ export function openTfileInNewTab(app: App, tfile: TFile): void {
     void app.workspace.getLeaf(true).openFile(tfile, { active: true });
 }
 
-type menuType
+type MenuType
   = "open-in-new-tab"
     | "copy-to-clipboard"
     | "open-in-default-app"
@@ -108,9 +108,9 @@ type menuType
     | "rename-file";
 
 export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSource: string | Promise<ArrayBuffer>): MenuItem;
-export function setMenuItem(item: MenuItem, type: menuType): MenuItem;
-export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string | Promise<ArrayBuffer>): MenuItem {
-    const types: Record<menuType, { icon: string; title: string; section: "info" | "system" | "open" }> = {
+export function setMenuItem(item: MenuItem, type: MenuType): MenuItem;
+export function setMenuItem(item: MenuItem, type: MenuType, imageSource?: string | Promise<ArrayBuffer>): MenuItem {
+    const types: Record<MenuType, { icon: string; title: string; section: "info" | "system" | "open" }> = {
         "copy-to-clipboard": { section: "info", icon: "image-file", title: "interface.label-copy" },
         "open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
         "open-in-default-app": {
@@ -119,7 +119,7 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
         },
         "show-in-explorer": {
             section: "system", icon: "arrow-up-right",
-            title: "plugins.open-with-default-app.action-show-in-folder" + (Platform.isMacOS ? "-mac" : ""),
+            title: `plugins.open-with-default-app.action-show-in-folder${Platform.isMacOS ? "-mac" : ""}`,
         },
         "reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
         "reveal-in-navigation-tree": { section: "system", icon: "folder", title: "Reveal in File Tree Alternative" },
