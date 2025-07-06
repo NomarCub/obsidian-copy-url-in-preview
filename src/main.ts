@@ -1,8 +1,9 @@
 import { Menu, Plugin, Notice, Platform, TFile } from "obsidian";
 import {
-    openImageInNewTabFromEvent, imageElementFromMouseEvent,
+    openImageInNewTabFromEvent,
     getRelativePath, openTfileInNewTab, setMenuItem,
     onElementToOff,
+    imageElementFromMouseEvent,
 } from "./helpers";
 import { CanvasNodeWithUrl } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -93,13 +94,11 @@ export default class CopyUrlInPreview extends Plugin {
             return;
         }
         
-        const image = imageElement.currentSrc;
-        const url = new URL(image);
-        const protocol = url.protocol;
+        const url = new URL(imageElement.currentSrc);
         const protocols = ["app:", "data:", "http:", "https:"];
 
-        if (!protocols.includes(protocol)) {
-            new Notice(`no handler for ${protocol} protocol`);
+        if (!protocols.includes(url.protocol)) {
+            new Notice(`No handler for ${url.protocol} protocol`);
             return;
         }
 
@@ -119,7 +118,7 @@ export default class CopyUrlInPreview extends Plugin {
             );
         }
 
-        menu.addItem(item => setMenuItem(item, "copy-to-clipboard", image));
+        menu.addItem(item => setMenuItem(item, "copy-to-clipboard", imageElement.currentSrc));
 
         if (internalFile) {
             // Add image filename to match with mobile menus
@@ -133,7 +132,7 @@ export default class CopyUrlInPreview extends Plugin {
 
             menu.addItem(item => setMenuItem(item, "open-in-new-tab")
                 .onClick(() => {
-                    openImageInNewTabFromEvent(this.app, event);
+                    openTfileInNewTab(this.app, internalFile);
                 }),
             );
 
