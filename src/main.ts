@@ -62,7 +62,7 @@ export default class CopyUrlInPreview extends Plugin {
                 "contextmenu",
                 "img",
                 this.onImageContextMenu.bind(this),
-                { capture: true }
+                { capture: true },
             ),
             onElementToOff(
                 document,
@@ -96,7 +96,7 @@ export default class CopyUrlInPreview extends Plugin {
         ) {
             return;
         }
-        
+
         const url = new URL(imageElement.currentSrc);
         const protocols = ["app:", "data:", "http:", "https:"];
 
@@ -112,9 +112,9 @@ export default class CopyUrlInPreview extends Plugin {
         menu.addSections(["file", "open", "info", "system"]);
 
         if (internalFile) {
-            menu.addItem((item) => setMenuItem(item, "rename-file")
+            menu.addItem(item => setMenuItem(item, "rename-file")
                 .onClick(() => {
-                    this.app.fileManager.promptForFileRename(internalFile)
+                    this.app.fileManager.promptForFileRename(internalFile);
                 }),
             );
         }
@@ -127,7 +127,7 @@ export default class CopyUrlInPreview extends Plugin {
                 menu.addItem(item => item
                     .setTitle(internalFile.name)
                     .setSection("file")
-                    .setIsLabel(true)
+                    .setIsLabel(true),
                 );
             }
 
@@ -177,7 +177,7 @@ export default class CopyUrlInPreview extends Plugin {
 
     onImageMouseUp(event: MouseEvent): void {
         const middleButtonNumber = 1;
-        
+
         if (event.button === middleButtonNumber && this.settings.middleClickNewTab) {
             openImageInNewTabFromEvent(this.app, event);
         }

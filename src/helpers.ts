@@ -62,21 +62,21 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 }
 
 export function onElementToOff<K extends keyof DocumentEventMap>(
-	element: Document,
-	type: K,
-	selector: string,
-	listener: (
-		this: Document,
-		ev: DocumentEventMap[K],
-		delegateTarget: HTMLElement,
-	) => unknown,
+    element: Document,
+    type: K,
+    selector: string,
+    listener: (
+        this: Document,
+        ev: DocumentEventMap[K],
+        delegateTarget: HTMLElement,
+    ) => unknown,
     options?: AddEventListenerOptions,
 ) {
-	element.on(type, selector, listener, options);
+    element.on(type, selector, listener, options);
 
-	return () => {
-		element.off(type, selector, listener, options);
-	};
+    return () => {
+        element.off(type, selector, listener, options);
+    };
 }
 
 export function imageElementFromMouseEvent(event: TouchEvent | MouseEvent): HTMLImageElement | undefined {
@@ -125,14 +125,14 @@ export function openImageInNewTabFromEvent(app: App, event: TouchEvent | MouseEv
     }
 }
 
-type menuType =
-  "open-in-new-tab" |
-  "copy-to-clipboard" |
-  "open-in-default-app" |
-  "show-in-explorer" |
-  "reveal-in-navigation" |
-  "reveal-in-navigation-tree" |
-  "rename-file";
+type menuType
+  = "open-in-new-tab"
+    | "copy-to-clipboard"
+    | "open-in-default-app"
+    | "show-in-explorer"
+    | "reveal-in-navigation"
+    | "reveal-in-navigation-tree"
+    | "rename-file";
 
 export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSource: string | Promise<ArrayBuffer>): MenuItem;
 export function setMenuItem(item: MenuItem, type: menuType): MenuItem;
@@ -151,10 +151,10 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
         "reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
         "reveal-in-navigation-tree": { section: "system", icon: "folder", title: "Reveal in File Tree Alternative" },
         "rename-file": {
-			section: "info",
-			icon: "pencil",
-			title: "interface.menu.rename",
-		},
+            section: "info",
+            icon: "pencil",
+            title: "interface.menu.rename",
+        },
     };
 
     if (type === "copy-to-clipboard" && imageSource) {
@@ -162,7 +162,7 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
             await copyImageToClipboard(typeof imageSource === "string" ? imageSource : await imageSource);
         });
     }
-    
+
     return item
         .setIcon(types[type].icon)
         .setTitle(i18next.t(types[type].title))
