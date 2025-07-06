@@ -62,11 +62,21 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 }
 
 export function onElementToOff<K extends keyof DocumentEventMap>(
-    el: Document, type: K, selector: string,
-    listener: (this: Document, ev: DocumentEventMap[K], delegateTarget: HTMLElement) => unknown,
+	element: Document,
+	type: K,
+	selector: string,
+	listener: (
+		this: Document,
+		ev: DocumentEventMap[K],
+		delegateTarget: HTMLElement,
+	) => unknown,
+    options?: AddEventListenerOptions,
 ) {
-    el.on(type, selector, listener);
-    return () => { el.off(type, selector, listener); };
+	element.on(type, selector, listener, options);
+
+	return () => {
+		element.off(type, selector, listener, options);
+	};
 }
 
 export function imageElementFromMouseEvent(event: TouchEvent | MouseEvent): HTMLImageElement | undefined {

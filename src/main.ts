@@ -62,6 +62,7 @@ export default class CopyUrlInPreview extends Plugin {
                 "contextmenu",
                 "img",
                 this.onImageContextMenu.bind(this),
+                { capture: true }
             ),
             onElementToOff(
                 document,
@@ -86,6 +87,11 @@ export default class CopyUrlInPreview extends Plugin {
         const imageElement = imageElementFromMouseEvent(event);
         if (!imageElement) return;
 
+        // Avoid zoom the image on mobile
+        if (Platform.isMobile) {
+            event.stopImmediatePropagation();
+        }
+
         // check if the image is on a canvas
         if (
             (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
@@ -102,8 +108,6 @@ export default class CopyUrlInPreview extends Plugin {
             return;
         }
 
-        event.preventDefault();
-        
         const menu = new Menu();
         const relativePath = getRelativePath(url, this.app);
         const internalFile = this.app.vault.getFileByPath(relativePath ?? "");
