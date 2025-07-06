@@ -7,7 +7,7 @@ import {
 } from "./helpers";
 import { CanvasNodeWithUrl } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import * as internal from "obsidian-typings";
+import * as _internal from "obsidian-typings";
 import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
 
 export default class CopyUrlInPreview extends Plugin {
@@ -162,7 +162,7 @@ export default class CopyUrlInPreview extends Plugin {
             if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
                 menu.addItem(item => setMenuItem(item, "reveal-in-navigation-tree")
                     .onClick(() => {
-                        window.dispatchEvent(new CustomEvent(
+                        self.dispatchEvent(new CustomEvent(
                             "fta-reveal-file", { detail: { file: internalFile } }));
                     }),
                 );
