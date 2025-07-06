@@ -2,8 +2,6 @@ import { App, MenuItem, normalizePath, Notice, Platform, TFile } from "obsidian"
 
 export const timeouts = {
     loadImageBlob: 5_000,
-    longTap: 500,
-    deleteTempFile: 60_000,
     successNotice: 1_800,
 };
 
@@ -79,7 +77,7 @@ export function onElementToOff<K extends keyof DocumentEventMap>(
     };
 }
 
-export function getRelativePath(url: URL, app: App): string | null {
+export function getTfileFromUrl(app: App, url: URL): TFile | null {
     let basePath = normalizePath(app.vault.adapter.basePath);
     basePath = basePath.replace("file://", "");
     
@@ -89,7 +87,8 @@ export function getRelativePath(url: URL, app: App): string | null {
 
     if (urlPath.startsWith(basePath)) {
         const relativePath = urlPath.slice(basePath.length + 1);
-        return decodeURI(relativePath);
+        const decodedPath = decodeURI(relativePath);
+        return app.vault.getFileByPath(decodedPath);
     }
 
     return null;
