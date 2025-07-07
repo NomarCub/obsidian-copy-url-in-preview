@@ -26,7 +26,7 @@ Copying images:
 ## Installation
 
 You can install the plugin via the Community Plugins tab within the Obsidian app.  
-[Here](https://obsidian.md/plugins?id=copy-url-in-preview)'s the plugin in Obsidian's Community Plugins website.  
+Here's the plugin on [Obsidian's Community Plugins website]((https://obsidian.md/plugins?id=copy-url-in-preview)).  
 You can install the plugin manually by copying a release to your `.obsidian/plugins/copy-url-in-preview` folder.
 
 ## This plugin on other sites

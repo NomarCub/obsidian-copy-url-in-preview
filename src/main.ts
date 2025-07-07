@@ -22,7 +22,8 @@ export default class CopyUrlInPreview extends Plugin {
         await this.loadSettings();
         this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
         this.registerDocument(document);
-        const imageFileRegex = /(avif|bmp|gif|jpe?g|png|svg|webp)$/gi;
+        const imageFileExtensions = ["avif", "bmp", "gif", "jpg", "jpeg", "png", "svg", "webp", "heic"];
+        const isImageFile = (path: string): boolean => imageFileExtensions.some(ext => path.toLowerCase().endsWith(ext));
         this.app.workspace.on("window-open", (_workspaceWindow, window) => {
             this.registerDocument(window.document);
         });
@@ -30,7 +31,7 @@ export default class CopyUrlInPreview extends Plugin {
         // register the image menu for canvas
         this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
             if (source === "canvas-menu" && file instanceof TFile
-              && (file.extension.match(imageFileRegex) ?? file.extension === "pdf")) {
+              && (isImageFile(file.extension))) {
                 menu.addItem(item => setMenuItem(item, "open-in-new-tab")
                     .onClick(() => { openTfileInNewTab(this.app, file); }),
                 );
@@ -46,7 +47,7 @@ export default class CopyUrlInPreview extends Plugin {
             }
         }));
         this.registerEvent(this.app.workspace.on("url-menu", (menu, url) => {
-            if (url.match(imageFileRegex)) {
+            if (isImageFile(url)) {
                 menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url));
             }
         }));
