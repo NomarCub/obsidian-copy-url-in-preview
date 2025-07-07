@@ -83,7 +83,6 @@ export default class CopyUrlInPreview extends Plugin {
     // The event has target, path, toEvent (null on Android) for finding the link
     onImageContextMenu(event: TouchEvent | MouseEvent): void {
         const imageElement = event.target as HTMLImageElement;
-        if (!imageElement) return;
 
         event.preventDefault();
 
@@ -174,15 +173,11 @@ export default class CopyUrlInPreview extends Plugin {
 
     onImageMouseUp(event: MouseEvent): void {
         const imageElement = event.target as HTMLImageElement;
-        if (!imageElement) return;
 
         const middleButtonNumber = 1;
 
         if (event.button === middleButtonNumber && this.settings.middleClickNewTab) {
-            const tfile = getTfileFromUrl(
-                this.app,
-                new URL(imageElement.src),
-            );
+            const tfile = getTfileFromUrl(this.app, new URL(imageElement.src));
             if (!tfile) return;
 
             openTfileInNewTab(this.app, tfile);
