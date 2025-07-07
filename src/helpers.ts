@@ -80,10 +80,10 @@ export function onElementToOff<K extends keyof DocumentEventMap>(
 export function getTfileFromUrl(app: App, url: URL): TFile | null {
     let basePath = normalizePath(app.vault.adapter.basePath);
     basePath = basePath.replace("file://", "");
-    
+
     let urlPath = url.pathname;
     urlPath = urlPath.replace("/_capacitor_file_", ""); // clear url on mobile
-    urlPath = urlPath.split("/").filter(part => part !== '').join("/");
+    urlPath = urlPath.split("/").filter(part => part !== "").join("/");
 
     if (urlPath.startsWith(basePath)) {
         const relativePath = urlPath.slice(basePath.length + 1);

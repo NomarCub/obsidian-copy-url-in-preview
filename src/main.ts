@@ -1,6 +1,6 @@
 import { Menu, Plugin, Notice, Platform, TFile } from "obsidian";
 import {
-    getTfileFromUrl, openTfileInNewTab, setMenuItem, onElementToOff
+    getTfileFromUrl, openTfileInNewTab, setMenuItem, onElementToOff,
 } from "./helpers";
 import { CanvasNodeWithUrl } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -170,7 +170,7 @@ export default class CopyUrlInPreview extends Plugin {
             y: event instanceof MouseEvent ? event.pageY : event.touches[0].pageY,
         });
     }
-    
+
     onImageMouseUp(event: MouseEvent): void {
         const imageElement = event.target as HTMLImageElement;
         if (!imageElement) return;
