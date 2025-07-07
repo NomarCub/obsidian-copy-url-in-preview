@@ -123,11 +123,7 @@ export function setMenuItem(item: MenuItem, type: MenuType, imageSource?: string
         },
         "reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
         "reveal-in-navigation-tree": { section: "system", icon: "folder", title: "Reveal in File Tree Alternative" },
-        "rename-file": {
-            section: "info",
-            icon: "pencil",
-            title: "interface.menu.rename",
-        },
+        "rename-file": { section: "info", icon: "pencil", title: "interface.menu.rename" },
     };
 
     if (type === "copy-to-clipboard" && imageSource) {
