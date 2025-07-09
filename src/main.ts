@@ -84,7 +84,7 @@ export default class CopyUrlInPreview extends Plugin {
     // Positions are not accurate from PointerEvent.
     // There's also TouchEvent
     // The event has target, path, toEvent (null on Android) for finding the link
-    onImageContextMenu(event: TouchEvent | MouseEvent): void {
+    onImageContextMenu(event: MouseEvent | PointerEvent): void {
         // check if the image is on a canvas
         if (
             (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
@@ -168,8 +168,8 @@ export default class CopyUrlInPreview extends Plugin {
         }
 
         menu.showAtPosition({
-            x: event instanceof MouseEvent ? event.pageX : event.touches[0].pageX,
-            y: event instanceof MouseEvent ? event.pageY : event.touches[0].pageY,
+            x: event.pageX,
+            y: event.pageY,
         });
     }
 
