@@ -5,30 +5,6 @@ export const timeouts = {
     successNotice: 1_800,
 };
 
-const imageFileExtensions = [
-    "avif",
-    "bmp",
-    "gif",
-    "jpg",
-    "jpeg",
-    "png",
-    "svg",
-    "webp",
-    "heic",
-];
-
-export function isImageFile(path: string): boolean {
-    path = path.toLowerCase()
-	return imageFileExtensions.some((ext) => path.endsWith(`.${ext}`));
-}
-
-/* Remove search params from URL */
-export function clearUrl(url: URL | string): string {
-    url = new URL(url);
-    url.search = "";
-    return url.toString();
-}
-
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
     const timeout = new Promise<never>((_, reject) =>
         setTimeout(() => { reject(new Error(`timed out after ${ms} ms`)); }, ms));
