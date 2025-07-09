@@ -82,10 +82,6 @@ export default class CopyUrlInPreview extends Plugin {
     // There's also TouchEvent
     // The event has target, path, toEvent (null on Android) for finding the link
     onImageContextMenu(event: TouchEvent | MouseEvent): void {
-        const imageElement = event.target as HTMLImageElement;
-
-        event.preventDefault();
-
         // check if the image is on a canvas
         if (
             (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
@@ -93,6 +89,10 @@ export default class CopyUrlInPreview extends Plugin {
         ) {
             return;
         }
+
+        event.preventDefault();
+
+        const imageElement = event.target as HTMLImageElement;
 
         const url = new URL(imageElement.src);
         const protocols = ["app:", "data:", "http:", "https:"];
