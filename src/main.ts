@@ -1,6 +1,7 @@
 import { Menu, Plugin, Notice, Platform, TFile } from "obsidian";
 import {
     getTfileFromUrl, openTfileInNewTab, setMenuItem, onElementToOff,
+    isImageFile, clearUrl,
 } from "./helpers";
 import { CanvasNodeWithUrl } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -22,8 +23,6 @@ export default class CopyUrlInPreview extends Plugin {
         await this.loadSettings();
         this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
         this.registerDocument(document);
-        const imageFileExtensions = ["avif", "bmp", "gif", "jpg", "jpeg", "png", "svg", "webp", "heic"];
-        const isImageFile = (path: string): boolean => imageFileExtensions.some(ext => path.toLowerCase().endsWith(ext));
         this.app.workspace.on("window-open", (_workspaceWindow, window) => {
             this.registerDocument(window.document);
         });
@@ -31,7 +30,7 @@ export default class CopyUrlInPreview extends Plugin {
         // register the image menu for canvas
         this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
             if (source === "canvas-menu" && file instanceof TFile
-              && (isImageFile(file.extension))) {
+              && (isImageFile(`.${file.extension}`))) {
                 menu.addItem(item => setMenuItem(item, "open-in-new-tab")
                     .onClick(() => { openTfileInNewTab(this.app, file); }),
                 );
@@ -41,12 +40,16 @@ export default class CopyUrlInPreview extends Plugin {
         this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node) => {
             const data = (node as CanvasNodeWithUrl).unknownData;
             if (data.type === "link") {
-                const url = data.url;
+                const url = clearUrl(data.url);
+                if (!isImageFile(url)) return;
+
                 menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url)
                     .setSection("canvas"));
             }
         }));
         this.registerEvent(this.app.workspace.on("url-menu", (menu, url) => {
+            url = clearUrl(url);
+
             if (isImageFile(url)) {
                 menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url));
             }
@@ -85,7 +88,6 @@ export default class CopyUrlInPreview extends Plugin {
         // check if the image is on a canvas
         if (
             (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
-            || event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded"
         ) {
             return;
         }
