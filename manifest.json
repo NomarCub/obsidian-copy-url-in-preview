@@ -1,7 +1,7 @@
 {
   "id": "copy-url-in-preview",
   "name": "Image Context Menus",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "minAppVersion": "1.6.6",
   "description": "Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab context menus for images.",
   "author": "NomarCub",

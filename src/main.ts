@@ -1,15 +1,14 @@
 import { Menu, Plugin, Notice, Platform, TFile } from "obsidian";
 import {
-    loadImageBlob, onElementToOff, openImageInNewTabFromEvent, imageElementFromMouseEvent,
-    getRelativePath, timeouts, openTfileInNewTab, setMenuItem,
+    getTfileFromUrl, openTfileInNewTab, setMenuItem, onElementToOff,
+    isImageFile, clearUrl,
 } from "./helpers";
-import { CanvasNodeWithUrl, FileSystemAdapterWithInternalApi, ElectronWindow } from "types";
+import { CanvasNodeWithUrl } from "types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import * as internal from "obsidian-typings";
+import * as _internal from "obsidian-typings";
 import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
 
 export default class CopyUrlInPreview extends Plugin {
-    longTapTimeoutId?: number;
     canvasCardMenu?: HTMLElement;
     settings!: CopyUrlInPreviewSettings;
     async loadSettings(): Promise<void> {
@@ -24,7 +23,6 @@ export default class CopyUrlInPreview extends Plugin {
         await this.loadSettings();
         this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
         this.registerDocument(document);
-        const imageFileRegex = /(avif|bmp|gif|jpe?g|png|svg|webp)$/gi;
         this.app.workspace.on("window-open", (_workspaceWindow, window) => {
             this.registerDocument(window.document);
         });
@@ -32,7 +30,7 @@ export default class CopyUrlInPreview extends Plugin {
         // register the image menu for canvas
         this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
             if (source === "canvas-menu" && file instanceof TFile
-              && (file.extension.match(imageFileRegex) ?? file.extension === "pdf")) {
+              && (isImageFile(`.${file.extension}`))) {
                 menu.addItem(item => setMenuItem(item, "open-in-new-tab")
                     .onClick(() => { openTfileInNewTab(this.app, file); }),
                 );
@@ -42,180 +40,149 @@ export default class CopyUrlInPreview extends Plugin {
         this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node) => {
             const data = (node as CanvasNodeWithUrl).unknownData;
             if (data.type === "link") {
-                const url = data.url;
+                const url = clearUrl(data.url);
+                if (!isImageFile(url)) return;
+
                 menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url)
                     .setSection("canvas"));
             }
         }));
         this.registerEvent(this.app.workspace.on("url-menu", (menu, url) => {
-            if (url.match(imageFileRegex)) {
+            url = clearUrl(url);
+
+            if (isImageFile(url)) {
                 menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url));
             }
         }));
     }
 
     registerDocument(document: Document): void {
-        let offs: (() => void)[];
-
-        if (Platform.isDesktop) {
-            offs = [
-                onElementToOff(document, "contextmenu", "img",
-                    this.onImageContextMenu.bind(this)),
-                onElementToOff(document, "mouseup", "img",
-                    this.onImageMouseUp.bind(this)),
-            ];
-        } else {
-            offs = [
-                onElementToOff(document, "touchstart", "img",
-                    this.startWaitingForLongTap.bind(this)),
-                onElementToOff(document, "touchend", "img",
-                    this.stopWaitingForLongTap.bind(this)),
-                onElementToOff(document, "touchmove", "img",
-                    this.stopWaitingForLongTap.bind(this)),
-            ];
-        }
+        const offs = [
+            onElementToOff(
+                document,
+                "contextmenu",
+                "img",
+                this.onImageContextMenu.bind(this),
+                { capture: true },
+            ),
+            onElementToOff(
+                document,
+                "mouseup",
+                "img",
+                this.onImageMouseUp.bind(this),
+            ),
+        ];
 
         this.register(() => {
-            offs.forEach(f => { f(); });
+            for (const f of offs) {
+                f();
+            }
         });
-    }
-
-    // mobile
-    startWaitingForLongTap(event: TouchEvent, img: HTMLElement): void {
-        if (!(img instanceof HTMLImageElement)) return;
-
-        if (this.longTapTimeoutId) {
-            clearTimeout(this.longTapTimeoutId);
-            this.longTapTimeoutId = undefined;
-        } else {
-            if (event.targetTouches.length == 1) {
-                this.longTapTimeoutId = window.setTimeout(
-                    () => void this.processLongTap.bind(this, event, img)(), timeouts.longTap);
-            }
-        }
-    }
-
-    // mobile
-    stopWaitingForLongTap(): void {
-        if (this.longTapTimeoutId) {
-            clearTimeout(this.longTapTimeoutId);
-            this.longTapTimeoutId = undefined;
-        }
-    }
-
-    // mobile
-    async processLongTap(event: TouchEvent, img: HTMLImageElement): Promise<void> {
-        event.stopPropagation();
-        this.longTapTimeoutId = undefined;
-        const adapter = this.app.vault.adapter as FileSystemAdapterWithInternalApi;
-        const electronWindow = window as unknown as ElectronWindow;
-        const basePath = adapter.getFullPath("");
-        const webviewServerUrl = electronWindow.WEBVIEW_SERVER_URL;
-        const localImagePrefixUrl = webviewServerUrl + "/_capacitor_file_" + basePath;
-        if (img.src.startsWith(localImagePrefixUrl)) {
-            const encodedImageFileRelativePath = img.src.replace(localImagePrefixUrl, "");
-            const imageFileRelativePath = decodeURIComponent(encodedImageFileRelativePath);
-            await adapter.open(imageFileRelativePath);
-        } else {
-            try {
-                const blob = await loadImageBlob(img.src);
-                if (!blob) throw new Error("blob was null");
-
-                if (!blob.type.startsWith("image/")) {
-                    new Notice(`Unsupported mime type ${blob.type}`);
-                    return;
-                }
-                const extension = blob.type.replace("image/", "");
-                const randomGuid = window.URL.createObjectURL(new Blob([])).split("/").pop();
-                const tempFileName = `/.temp-${randomGuid}.${extension}`;
-                const buffer = await blob.arrayBuffer();
-                await adapter.writeBinary(tempFileName, buffer);
-                setTimeout(() => void adapter.remove(tempFileName), timeouts.deleteTempFile);
-                new Notice("Image was temporarily saved and will be removed in 1 minute");
-                await adapter.open(tempFileName);
-            } catch (e) {
-                new Notice("Cannot open image");
-                console.error(e);
-            }
-        }
     }
 
     // Android gives a PointerEvent, a child to MouseEvent.
     // Positions are not accurate from PointerEvent.
     // There's also TouchEvent
     // The event has target, path, toEvent (null on Android) for finding the link
-    onImageContextMenu(event: MouseEvent): void {
-        const imageElement = imageElementFromMouseEvent(event);
-        if (!imageElement) return;
+    onImageContextMenu(event: MouseEvent | PointerEvent): void {
         // check if the image is on a canvas
-        if ((!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
-          || event.targetNode?.parentElement?.className === "canvas-node-content media-embed image-embed is-loaded") {
-            return;
-        }
-
-        const image = imageElement.currentSrc;
-        const url = new URL(image);
-        const protocol = url.protocol;
-        const protocols = ["app:", "data:", "http:", "https:"];
-
-        if (!protocols.includes(protocol)) {
-            new Notice(`no handler for ${protocol} protocol`);
+        if (
+            (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
+        ) {
             return;
         }
 
         event.preventDefault();
+
+        const imageElement = event.target as HTMLImageElement;
+
+        const url = new URL(imageElement.src);
+        const protocols = ["app:", "data:", "http:", "https:"];
+
+        if (!protocols.includes(url.protocol)) {
+            new Notice(`No handler for ${url.protocol} protocol`);
+            return;
+        }
+
         const menu = new Menu();
-        const relativePath = getRelativePath(url, this.app);
-        menu.addSections(["open", "info", "system"]);
-        if (protocol === "app:" && relativePath) {
-            menu.addItem(item => setMenuItem(item, "open-in-new-tab")
-                .onClick(() => { openImageInNewTabFromEvent(this.app, event); }),
+        const internalFile = getTfileFromUrl(this.app, url);
+
+        menu.addSections(["file", "open", "info", "system"]);
+
+        if (internalFile) {
+            menu.addItem(item => setMenuItem(item, "rename-file")
+                .onClick(() =>
+                    this.app.fileManager.promptForFileRename(internalFile),
+                ),
             );
+        }
+
+        menu.addItem(item => setMenuItem(item, "copy-to-clipboard", imageElement.src));
+
+        if (internalFile) {
+            // Add image filename to match with mobile menus
+            if (Platform.isMobile) {
+                menu.addItem(item => item
+                    .setTitle(internalFile.name)
+                    .setSection("file")
+                    .setIsLabel(true),
+                );
+            }
+
+            menu.addItem(item => setMenuItem(item, "open-in-new-tab")
+                .onClick(() => {
+                    openTfileInNewTab(this.app, internalFile);
+                }),
+            );
+
             if (Platform.isDesktop) {
                 menu.addItem(item => setMenuItem(item, "open-in-default-app")
-                    .onClick(() => { this.app.openWithDefaultApp(relativePath); }),
+                    .onClick(() => {
+                        this.app.openWithDefaultApp(internalFile.path);
+                    }),
                 );
+
                 menu.addItem(item => setMenuItem(item, "show-in-explorer")
-                    .onClick(() => { this.app.showInFolder(relativePath); }),
+                    .onClick(() => {
+                        this.app.showInFolder(internalFile.path);
+                    }),
                 );
-                if (this.settings.revealInNavigation) {
-                    menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
-                        .onClick(() => {
-                            const file = this.app.vault.getFileByPath(relativePath);
-                            if (!file) {
-                                console.warn(`getFileByPath returned null for ${relativePath}`);
-                                return;
-                            }
-                            this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(file);
-                        }),
-                    );
-                }
-                // see: https://github.com/ozntel/file-tree-alternative
-                if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
-                    menu.addItem(item => setMenuItem(item, "reveal-in-navigation-tree")
-                        .onClick(() => {
-                            const file = this.app.vault.getFileByPath(relativePath);
-                            if (!file) {
-                                console.warn(`getFileByPath returned null for ${relativePath}`);
-                                return;
-                            }
-                            window.dispatchEvent(new CustomEvent(
-                                "fta-reveal-file", { detail: { file: file } }));
-                        }),
-                    );
-                }
+            }
+
+            if (this.settings.revealInNavigation) {
+                menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
+                    .onClick(() => {
+                        this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(internalFile);
+                    }),
+                );
+            }
+            // see: https://github.com/ozntel/file-tree-alternative
+            if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
+                menu.addItem(item => setMenuItem(item, "reveal-in-navigation-tree")
+                    .onClick(() => {
+                        self.dispatchEvent(new CustomEvent(
+                            "fta-reveal-file", { detail: { file: internalFile } }));
+                    }),
+                );
             }
         }
-        menu.addItem(item => setMenuItem(item, "copy-to-clipboard", image));
 
-        menu.showAtPosition({ x: event.pageX, y: event.pageY });
-        this.app.workspace.trigger("copy-url-in-preview:contextmenu", menu);
+        menu.showAtPosition({
+            x: event.pageX,
+            y: event.pageY,
+        });
     }
 
     onImageMouseUp(event: MouseEvent): void {
+        const imageElement = event.target as HTMLImageElement;
+
         const middleButtonNumber = 1;
-        if (event.button == middleButtonNumber && this.settings.middleClickNewTab) {
-            openImageInNewTabFromEvent(this.app, event);
+
+        if (event.button === middleButtonNumber && this.settings.middleClickNewTab) {
+            const tfile = getTfileFromUrl(this.app, new URL(imageElement.src));
+            if (!tfile) return;
+
+            openTfileInNewTab(this.app, tfile);
         }
     }
 }

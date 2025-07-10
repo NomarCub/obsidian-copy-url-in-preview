@@ -1,11 +1,22 @@
-import { App, FileSystemAdapter, MenuItem, Notice, Platform, TFile } from "obsidian";
+import { App, MenuItem, normalizePath, Notice, Platform, TFile } from "obsidian";
 
 export const timeouts = {
     loadImageBlob: 5_000,
-    longTap: 500,
-    deleteTempFile: 60_000,
     successNotice: 1_800,
 };
+
+export function isImageFile(path: string): boolean {
+    const imageFileExtensions = ["avif", "bmp", "gif", "jpg", "jpeg", "png", "svg", "webp", "heic"];
+    path = path.toLowerCase();
+    return imageFileExtensions.some(ext => path.endsWith(`.${ext}`));
+}
+
+/* Remove search params from URL */
+export function clearUrl(url: URL | string): string {
+    url = new URL(url);
+    url.search = "";
+    return url.toString();
+}
 
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
     const timeout = new Promise<never>((_, reject) =>
@@ -23,16 +34,16 @@ export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<v
     try {
         const data = new ClipboardItem({ [blob!.type]: blob! });
         await navigator.clipboard.write([data]);
-        new Notice("Image copied to the clipboard!", timeouts.successNotice);
+        new Notice(i18next.t("interface.copied_generic"), timeouts.successNotice);
     } catch (e) {
         console.error(e);
-        new Notice("Error, could not copy the image!");
+        new Notice(i18next.t("interface.copy_failed"));
     }
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
-export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
+export function loadImageBlob(imgSrc: string): Promise<Blob | null> {
     const loadImageBlobCore = (): Promise<Blob | null> => new Promise<Blob | null>((resolve, reject) => {
         const image = new Image();
         image.crossOrigin = "anonymous";
@@ -62,69 +73,57 @@ export async function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 }
 
 export function onElementToOff<K extends keyof DocumentEventMap>(
-    el: Document, type: K, selector: string,
-    listener: (this: Document, ev: DocumentEventMap[K], delegateTarget: HTMLElement) => unknown,
+    element: Document,
+    type: K,
+    selector: string,
+    listener: (
+        this: Document,
+        ev: DocumentEventMap[K],
+        delegateTarget: HTMLElement,
+    ) => unknown,
+    options?: AddEventListenerOptions,
 ) {
-    el.on(type, selector, listener);
-    return () => { el.off(type, selector, listener); };
+    element.on(type, selector, listener, options);
+
+    return () => {
+        element.off(type, selector, listener, options);
+    };
 }
 
-export function imageElementFromMouseEvent(event: MouseEvent): HTMLImageElement | undefined {
-    const imageElement = event.target;
-    if (!(imageElement instanceof HTMLImageElement)) {
-        console.error("imageElement is supposed to be a HTMLImageElement. imageElement:", imageElement);
-        return undefined;
-    } else {
-        return imageElement;
-    }
-}
+export function getTfileFromUrl(app: App, url: URL): TFile | null {
+    let basePath = normalizePath(app.vault.adapter.basePath);
+    basePath = basePath.replace("file://", "");
 
-export function getRelativePath(url: URL, app: App): string | undefined {
-    // getResourcePath("") also works for root path
-    // could also use normalizePath(app.vault.adapter.basePath)
-    const baseFileUrl = (app.vault.adapter as FileSystemAdapter).getFilePath("");
-    const basePath = baseFileUrl.replace("file://", "");
+    let urlPath = url.pathname;
+    urlPath = urlPath.replace("/_capacitor_file_", ""); // clear url on mobile
+    urlPath = urlPath.split("/").filter(part => part !== "").join("/");
 
-    const urlPathName: string = url.pathname;
-    if (urlPathName.startsWith(basePath)) {
-        const relativePath = urlPathName.substring(basePath.length + 1);
-        return decodeURI(relativePath);
+    if (urlPath.startsWith(basePath)) {
+        const relativePath = urlPath.slice(basePath.length + 1);
+        const decodedPath = decodeURI(relativePath);
+        return app.vault.getFileByPath(decodedPath);
     }
-    return undefined;
+
+    return null;
 }
 
 export function openTfileInNewTab(app: App, tfile: TFile): void {
     void app.workspace.getLeaf(true).openFile(tfile, { active: true });
 }
 
-export function openImageInNewTabFromEvent(app: App, event: MouseEvent): void {
-    const image = imageElementFromMouseEvent(event);
-    if (!image) return;
-
-    const activeFile = app.workspace.getActiveFile();
-    const link = getRelativePath(new URL(image.src), app);
-    if (!link) return;
-    const imageAsTFile = activeFile
-        ? app.metadataCache.getFirstLinkpathDest(link, activeFile.path)
-        : app.vault.getAbstractFileByPath(link);
-
-    if (imageAsTFile && imageAsTFile instanceof TFile) {
-        openTfileInNewTab(app, imageAsTFile);
-    }
-}
-
-type menuType =
-  "open-in-new-tab" |
-  "copy-to-clipboard" |
-  "open-in-default-app" |
-  "show-in-explorer" |
-  "reveal-in-navigation" |
-  "reveal-in-navigation-tree";
+type MenuType
+  = "open-in-new-tab"
+    | "copy-to-clipboard"
+    | "open-in-default-app"
+    | "show-in-explorer"
+    | "reveal-in-navigation"
+    | "reveal-in-navigation-tree"
+    | "rename-file";
 
 export function setMenuItem(item: MenuItem, type: "copy-to-clipboard", imageSource: string | Promise<ArrayBuffer>): MenuItem;
-export function setMenuItem(item: MenuItem, type: menuType): MenuItem;
-export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string | Promise<ArrayBuffer>): MenuItem {
-    const types: Record<menuType, { icon: string; title: string; section: "info" | "system" | "open" }> = {
+export function setMenuItem(item: MenuItem, type: MenuType): MenuItem;
+export function setMenuItem(item: MenuItem, type: MenuType, imageSource?: string | Promise<ArrayBuffer>): MenuItem {
+    const types: Record<MenuType, { icon: string; title: string; section: "info" | "system" | "open" }> = {
         "copy-to-clipboard": { section: "info", icon: "image-file", title: "interface.label-copy" },
         "open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
         "open-in-default-app": {
@@ -133,16 +132,19 @@ export function setMenuItem(item: MenuItem, type: menuType, imageSource?: string
         },
         "show-in-explorer": {
             section: "system", icon: "arrow-up-right",
-            title: "plugins.open-with-default-app.action-show-in-folder" + (Platform.isMacOS ? "-mac" : ""),
+            title: `plugins.open-with-default-app.action-show-in-folder${Platform.isMacOS ? "-mac" : ""}`,
         },
         "reveal-in-navigation": { section: "system", icon: "folder", title: "plugins.file-explorer.action-reveal-file" },
         "reveal-in-navigation-tree": { section: "system", icon: "folder", title: "Reveal in File Tree Alternative" },
+        "rename-file": { section: "info", icon: "pencil", title: "interface.menu.rename" },
     };
+
     if (type === "copy-to-clipboard" && imageSource) {
         item.onClick(async () => {
             await copyImageToClipboard(typeof imageSource === "string" ? imageSource : await imageSource);
         });
     }
+
     return item
         .setIcon(types[type].icon)
         .setTitle(i18next.t(types[type].title))

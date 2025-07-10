@@ -10,7 +10,7 @@ This plugin provides the following context menus for images in [Obsidian](https:
   - also available through middle mouse button click
 
 Context menus are also added to the canvas.  
-Most features work on mobile, but were only tested on Android. Mobile uses the native image sharing functionality instead of the clipboard, and it downloads online images temporarily so they can be shared.
+Most features work on mobile, but were only tested on Android.
 
 > This plugin used to be called "Copy Image and URL context menu". It had link URL copying functionality (see [1.5.2](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.5.2) and prior), but that was removed when it was included in Obsidian 1.5.  
 > It also used to have an `Open PDF externally` hover context menu for embedded PDFs, which was also removed when better Obsidian native functionality appeared (see [1.9.1](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.9.1)).
@@ -26,7 +26,7 @@ Copying images:
 ## Installation
 
 You can install the plugin via the Community Plugins tab within the Obsidian app.  
-[Here](https://obsidian.md/plugins?id=copy-url-in-preview)'s the plugin in Obsidian's Community Plugins website.  
+Here's the plugin on [Obsidian's Community Plugins website]((https://obsidian.md/plugins?id=copy-url-in-preview)).  
 You can install the plugin manually by copying a release to your `.obsidian/plugins/copy-url-in-preview` folder.
 
 ## This plugin on other sites
@@ -45,6 +45,7 @@ Contributions are welcome.
 Original plugin by [NomarCub](https://github.com/NomarCub).  
 If you like this plugin you can sponsor me here on GitHub: [![Sponsor NomarCub](https://img.shields.io/static/v1?label=Sponsor%20NomarCub&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/NomarCub), on Ko-fi here: <a href='https://ko-fi.com/nomarcub' target='_blank'><img height='35' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' alt='Buy Me a Coffee at ko-fi.com' /></a>, or on PayPal here: [![Paypal](https://img.shields.io/badge/paypal-nomarcub-yellow?style=social&logo=paypal)](https://paypal.me/nomarcub).
 
+- [Renaming and mobile feature parity](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/55) developed by [Rikiub%](https://github.com/Rikiub)
 - [Open in new tab](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/37) developed by [waterproofsodium](https://github.com/waterproofsodium)
 - [Copying](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/2) [images](https://github.com/NomarCub/obsidian-copy-url-in-preview/pull/3) developed by [luckman212](https://github.com/luckman212).
 - [Android image sharing](https://github.com/NomarCub/obsidian-copy-url-in-preview/issues/5) developed by [mnaoumov](https://github.com/mnaoumov).
