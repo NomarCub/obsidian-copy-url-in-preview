@@ -5,21 +5,10 @@ export const timeouts = {
     successNotice: 1_800,
 };
 
-const imageFileExtensions = [
-    "avif",
-    "bmp",
-    "gif",
-    "jpg",
-    "jpeg",
-    "png",
-    "svg",
-    "webp",
-    "heic",
-];
-
 export function isImageFile(path: string): boolean {
-    path = path.toLowerCase()
-	return imageFileExtensions.some((ext) => path.endsWith(`.${ext}`));
+    const imageFileExtensions = ["avif", "bmp", "gif", "jpg", "jpeg", "png", "svg", "webp", "heic"];
+    path = path.toLowerCase();
+    return imageFileExtensions.some(ext => path.endsWith(`.${ext}`));
 }
 
 /* Remove search params from URL */
