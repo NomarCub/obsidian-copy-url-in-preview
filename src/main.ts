@@ -37,32 +37,54 @@ export default class CopyUrlInPreview extends Plugin {
         });
 
         // register the image menu for canvas
-        this.registerEvent(this.app.workspace.on("file-menu", (menu, file, source) => {
-            if (source === "canvas-menu" && file instanceof TFile
-              && (isImageFile(`.${file.extension}`))) {
-                menu.addItem(item => setMenuItem(item, "open-in-new-tab")
-                    .onClick(() => { openTfileInNewTab(this.app, file); }),
-                );
-                menu.addItem(item => setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file)));
-            }
-        }));
-        this.registerEvent(this.app.workspace.on("canvas:node-menu", (menu, node) => {
-            const data = (node as CanvasNodeWithUrl).unknownData;
-            if (data.type === "link") {
-                const url = clearUrl(data.url);
-                if (!isImageFile(url)) return;
+        this.registerEvent(
+			this.app.workspace.on("file-menu", (menu, file, source) => {
+				if (
+					source === "canvas-menu" &&
+					file instanceof TFile &&
+					isImageFile(`.${file.extension}`)
+				) {
+					menu.addItem((item) =>
+						setMenuItem(item, "open-in-new-tab").onClick(() => {
+							openTfileInNewTab(this.app, file);
+						}),
+					);
 
-                menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url)
-                    .setSection("canvas"));
-            }
-        }));
-        this.registerEvent(this.app.workspace.on("url-menu", (menu, url) => {
-            url = clearUrl(url);
+					menu.addItem((item) =>
+						setMenuItem(
+							item,
+							"copy-to-clipboard",
+							this.app.vault.readBinary(file),
+						),
+					);
+				}
+			}),
+		);
 
-            if (isImageFile(url)) {
-                menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url));
-            }
-        }));
+		this.registerEvent(
+			this.app.workspace.on("canvas:node-menu", (menu, node) => {
+				const data = (node as CanvasNodeWithUrl).unknownData;
+
+				if (data.type === "link") {
+					const url = clearUrl(data.url);
+					if (!isImageFile(url)) return;
+
+					menu.addItem((item) =>
+						setMenuItem(item, "copy-to-clipboard", url).setSection("canvas"),
+					);
+				}
+			}),
+		);
+        
+		this.registerEvent(
+			this.app.workspace.on("url-menu", (menu, url) => {
+				url = clearUrl(url);
+
+				if (isImageFile(url)) {
+					menu.addItem((item) => setMenuItem(item, "copy-to-clipboard", url));
+				}
+			}),
+		);
     }
 
     registerDocument(document: Document): void {
