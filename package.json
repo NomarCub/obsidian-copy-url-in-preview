@@ -9,8 +9,9 @@
   "scripts": {
     "dev": "node esbuild.config.mjs",
     "format": "biome format",
+    "format:fix": "biome format --write",
     "lint": "biome lint",
-    "lint:fix": "biome lint --fix",
+    "lint:fix": "biome lint --write",
     "type-check": "tsc -noEmit",
     "build": "tsc -noEmit && node esbuild.config.mjs production",
     "version": "node version-bump.mjs"
