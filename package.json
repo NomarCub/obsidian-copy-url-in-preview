@@ -20,6 +20,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "~22.15.0",
+    "biome": "^0.3.3",
     "builtin-modules": "^4.0.0",
     "esbuild": "^0.25.5",
     "i18next": "^23.11.5",
