@@ -1,12 +1,21 @@
-import { Menu, Plugin, Notice, Platform, TFile } from "obsidian";
+import { Menu, Notice, Platform, Plugin, TFile } from "obsidian";
+// biome-ignore lint/correctness/noUnusedImports: <obsidian internals>
+import * as _obsidian_typings from "obsidian-typings";
+
 import {
-    getTfileFromUrl, openTfileInNewTab, setMenuItem, onElementToOff,
-    isImageFile, clearUrl,
+	clearUrl,
+	getTfileFromUrl,
+	isImageFile,
+	onElementToOff,
+	openTfileInNewTab,
+	setMenuItem,
 } from "./helpers";
-import { CanvasNodeWithUrl } from "types";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import * as _internal from "obsidian-typings";
-import { CopyUrlInPreviewSettingTab, CopyUrlInPreviewSettings, DEFAULT_SETTINGS } from "settings";
+import {
+	type CopyUrlInPreviewSettings,
+	CopyUrlInPreviewSettingTab,
+	DEFAULT_SETTINGS,
+} from "./settings";
+import type { CanvasNodeWithUrl } from "./types";
 
 export default class CopyUrlInPreview extends Plugin {
     canvasCardMenu?: HTMLElement;

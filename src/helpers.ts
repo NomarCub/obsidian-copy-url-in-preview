@@ -1,4 +1,11 @@
-import { App, MenuItem, normalizePath, Notice, Platform, TFile } from "obsidian";
+import {
+	type App,
+	type MenuItem,
+	Notice,
+	normalizePath,
+	Platform,
+	type TFile,
+} from "obsidian";
 
 export const timeouts = {
     loadImageBlob: 5_000,

@@ -1,5 +1,5 @@
-import CopyUrlInPreviewPlugin from "main";
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { type App, PluginSettingTab, Setting } from "obsidian";
+import type CopyUrlInPreviewPlugin from "./main";
 
 export interface CopyUrlInPreviewSettings {
     middleClickNewTab: boolean;
