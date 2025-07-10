@@ -96,10 +96,11 @@ export default class CopyUrlInPreview extends Plugin {
     onImageContextMenu(event: MouseEvent | PointerEvent): void {
         // check if the image is on a canvas
         if (
-            (!this.settings.enableDefaultOnCanvas && this.app.workspace.getActiveFile()?.extension === "canvas")
-        ) {
-            return;
-        }
+			!this.settings.enableDefaultOnCanvas &&
+			this.app.workspace.getActiveFile()?.extension === "canvas"
+		) {
+			return;
+		}
 
         event.preventDefault();
 
@@ -119,61 +120,67 @@ export default class CopyUrlInPreview extends Plugin {
         menu.addSections(["file", "open", "info", "system"]);
 
         if (internalFile) {
-            menu.addItem(item => setMenuItem(item, "rename-file")
-                .onClick(() =>
-                    this.app.fileManager.promptForFileRename(internalFile),
-                ),
-            );
-        }
+			menu.addItem((item) =>
+				setMenuItem(item, "rename-file").onClick(() =>
+					this.app.fileManager.promptForFileRename(internalFile),
+				),
+			);
+		}
 
-        menu.addItem(item => setMenuItem(item, "copy-to-clipboard", imageElement.src));
+        menu.addItem((item) =>
+			setMenuItem(item, "copy-to-clipboard", imageElement.src),
+		);
 
         if (internalFile) {
             // Add image filename to match with mobile menus
             if (Platform.isMobile) {
-                menu.addItem(item => item
-                    .setTitle(internalFile.name)
-                    .setSection("file")
-                    .setIsLabel(true),
-                );
-            }
+				menu.addItem((item) =>
+					item.setTitle(internalFile.name).setSection("file").setIsLabel(true),
+				);
+			}
 
-            menu.addItem(item => setMenuItem(item, "open-in-new-tab")
-                .onClick(() => {
-                    openTfileInNewTab(this.app, internalFile);
-                }),
-            );
+            menu.addItem((item) =>
+				setMenuItem(item, "open-in-new-tab").onClick(() => {
+					openTfileInNewTab(this.app, internalFile);
+				}),
+			);
 
-            if (Platform.isDesktop) {
-                menu.addItem(item => setMenuItem(item, "open-in-default-app")
-                    .onClick(() => {
-                        this.app.openWithDefaultApp(internalFile.path);
-                    }),
-                );
+			if (Platform.isDesktop) {
+				menu.addItem((item) =>
+					setMenuItem(item, "open-in-default-app").onClick(() => {
+						this.app.openWithDefaultApp(internalFile.path);
+					}),
+				);
 
-                menu.addItem(item => setMenuItem(item, "show-in-explorer")
-                    .onClick(() => {
-                        this.app.showInFolder(internalFile.path);
-                    }),
-                );
-            }
+				menu.addItem((item) =>
+					setMenuItem(item, "show-in-explorer").onClick(() => {
+						this.app.showInFolder(internalFile.path);
+					}),
+				);
+			}
 
             if (this.settings.revealInNavigation) {
-                menu.addItem(item => setMenuItem(item, "reveal-in-navigation")
-                    .onClick(() => {
-                        this.app.internalPlugins.getEnabledPluginById("file-explorer")?.revealInFolder(internalFile);
-                    }),
-                );
-            }
-            // see: https://github.com/ozntel/file-tree-alternative
-            if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
-                menu.addItem(item => setMenuItem(item, "reveal-in-navigation-tree")
-                    .onClick(() => {
-                        self.dispatchEvent(new CustomEvent(
-                            "fta-reveal-file", { detail: { file: internalFile } }));
-                    }),
-                );
-            }
+				menu.addItem((item) =>
+					setMenuItem(item, "reveal-in-navigation").onClick(() => {
+						this.app.internalPlugins
+							.getEnabledPluginById("file-explorer")
+							?.revealInFolder(internalFile);
+					}),
+				);
+			}
+            
+			// see: https://github.com/ozntel/file-tree-alternative
+			if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
+				menu.addItem((item) =>
+					setMenuItem(item, "reveal-in-navigation-tree").onClick(() => {
+						self.dispatchEvent(
+							new CustomEvent("fta-reveal-file", {
+								detail: { file: internalFile },
+							}),
+						);
+					}),
+				);
+			}
         }
 
         menu.showAtPosition({
@@ -187,7 +194,10 @@ export default class CopyUrlInPreview extends Plugin {
 
         const middleButtonNumber = 1;
 
-        if (event.button === middleButtonNumber && this.settings.middleClickNewTab) {
+        if (
+			event.button === middleButtonNumber &&
+			this.settings.middleClickNewTab
+		) {
             const tfile = getTfileFromUrl(this.app, new URL(imageElement.src));
             if (!tfile) return;
 
