@@ -17,6 +17,7 @@
   "author": "NomarCub",
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "^9.31.0",
     "@stylistic/eslint-plugin": "^5.1.0",
     "@types/node": "~22.15.0",
     "builtin-modules": "^4.0.0",
