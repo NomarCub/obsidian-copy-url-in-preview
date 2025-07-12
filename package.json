@@ -10,8 +10,8 @@
     "dev": "node esbuild.config.mjs",
     "format": "biome format",
     "format:fix": "biome format --write",
-    "lint": "biome lint",
-    "lint:fix": "biome lint --write",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "type-check": "tsc -noEmit",
     "build": "tsc -noEmit && node esbuild.config.mjs production",
     "version": "node version-bump.mjs"
@@ -20,9 +20,12 @@
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^2.1.1",
+    "@eslint/js": "^9.31.0",
+    "@stylistic/eslint-plugin": "^5.1.0",
     "@types/node": "~22.15.0",
     "builtin-modules": "^4.0.0",
     "esbuild": "^0.25.5",
+    "eslint": "^9.31.0",
     "i18next": "^23.11.5",
     "obsidian": "~1.7.2",
     "obsidian-typings": "2.41.4",
