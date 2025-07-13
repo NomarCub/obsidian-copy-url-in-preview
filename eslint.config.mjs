@@ -12,14 +12,8 @@ export default tseslint.config({
         parserOptions: { projectService: true, project: true },
     },
     rules: {
-        "@typescript-eslint/explicit-function-return-type": [
-            "error",
-            { allowExpressions: true },
-        ],
-        "@typescript-eslint/restrict-template-expressions": [
-            "error",
-            { allowNumber: true },
-        ],
+        "@typescript-eslint/explicit-function-return-type": ["error", { allowExpressions: true }],
+        "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
         "@typescript-eslint/no-non-null-assertion": "off",
     },
 });

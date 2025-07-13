@@ -10,7 +10,8 @@
     "enabled": true,
     "indentStyle": "space",
     "indentWidth": 4,
-    "bracketSameLine": true
+    "bracketSameLine": true,
+    "lineWidth": 100
   },
   "linter": {
     "enabled": false,
