@@ -1,7 +1,7 @@
 {
   "name": "copy-url-in-preview",
   "version": "1.11.0",
-  "description": "Image context menus plugin for Obsidian (https://obsidian.md): Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab.",
+  "description": "Image context menus plugin for Obsidian (https://obsidian.md): Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab, Rename.",
   "main": "main.js",
   "engines": {
     "node": ">=22.15"
