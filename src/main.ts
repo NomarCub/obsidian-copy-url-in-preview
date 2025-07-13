@@ -1,5 +1,6 @@
 import { Menu, Notice, Platform, Plugin, TFile } from "obsidian";
 // biome-ignore lint/correctness/noUnusedImports: <obsidian internals>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as _obsidian_typings from "obsidian-typings";
 
 import {
