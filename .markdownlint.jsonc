@@ -1,5 +1,5 @@
 {
-    "blanks-around-lists": false,
-    "line-length": false,
-    "no-inline-html": false
+  "blanks-around-lists": false,
+  "line-length": false,
+  "no-inline-html": false
 }
