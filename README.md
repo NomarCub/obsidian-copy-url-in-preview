@@ -9,6 +9,7 @@ This plugin provides the following context menus for images in [Obsidian](https:
 - Open in new tab
   - also available through middle mouse button click
 
+For online image embeds, only the "Copy to clipboard" option is available.  
 Context menus are also added to the canvas.  
 Most features work on mobile, but were only tested on Android.
 
