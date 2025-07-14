@@ -68,10 +68,9 @@ export default class CopyUrlInPreview extends Plugin {
         this.registerEvent(
             this.app.workspace.on("url-menu", (menu, url) => {
                 url = clearUrl(url);
+                if (!isImageFile(url)) return;
 
-                if (isImageFile(url)) {
-                    menu.addItem((item) => setMenuItem(item, "copy-to-clipboard", url));
-                }
+                menu.addItem((item) => setMenuItem(item, "copy-to-clipboard", url));
             }),
         );
     }
