@@ -3,11 +3,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config({
     files: ["**/*.ts", "**/*.mjs"],
-    extends: [
-        eslint.configs.recommended,
-        tseslint.configs.strictTypeChecked,
-        tseslint.configs.stylisticTypeChecked,
-    ],
+    extends: [eslint.configs.recommended, tseslint.configs.strictTypeChecked, tseslint.configs.stylisticTypeChecked],
     languageOptions: {
         parserOptions: { projectService: true, project: true },
     },
