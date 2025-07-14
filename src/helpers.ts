@@ -8,7 +8,7 @@ export const timeouts = {
 export function isImageFile(path: string): boolean {
     const imageFileExtensions = ["avif", "bmp", "gif", "jpg", "jpeg", "png", "svg", "webp", "heic"];
     path = path.toLowerCase();
-    return imageFileExtensions.some(ext => path.endsWith(`.${ext}`));
+    return imageFileExtensions.some((ext) => path.endsWith(`.${ext}`));
 }
 
 /* Remove search params from URL */
@@ -53,7 +53,7 @@ export function loadImageBlob(imgSrc: string): Promise<Blob | null> {
                 canvas.height = image.height;
                 const ctx = canvas.getContext("2d")!;
                 ctx.drawImage(image, 0, 0);
-                canvas.toBlob(blob => {
+                canvas.toBlob((blob) => {
                     resolve(blob);
                 });
             };
@@ -98,7 +98,7 @@ export function getTfileFromUrl(app: App, url: URL): TFile | null {
     urlPath = urlPath.replace("/_capacitor_file_", ""); // clear url on mobile
     urlPath = urlPath
         .split("/")
-        .filter(part => part !== "")
+        .filter((part) => part !== "")
         .join("/");
 
     if (urlPath.startsWith(basePath)) {

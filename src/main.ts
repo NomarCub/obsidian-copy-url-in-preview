@@ -40,12 +40,12 @@ export default class CopyUrlInPreview extends Plugin {
         this.registerEvent(
             this.app.workspace.on("file-menu", (menu, file, source) => {
                 if (source === "canvas-menu" && file instanceof TFile && isImageFile(`.${file.extension}`)) {
-                    menu.addItem(item =>
+                    menu.addItem((item) =>
                         setMenuItem(item, "open-in-new-tab").onClick(() => {
                             openTfileInNewTab(this.app, file);
                         }),
                     );
-                    menu.addItem(item =>
+                    menu.addItem((item) =>
                         setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file)),
                     );
                 }
@@ -58,7 +58,7 @@ export default class CopyUrlInPreview extends Plugin {
                     const url = clearUrl(data.url);
                     if (!isImageFile(url)) return;
 
-                    menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url).setSection("canvas"));
+                    menu.addItem((item) => setMenuItem(item, "copy-to-clipboard", url).setSection("canvas"));
                 }
             }),
         );
@@ -67,7 +67,7 @@ export default class CopyUrlInPreview extends Plugin {
                 url = clearUrl(url);
 
                 if (isImageFile(url)) {
-                    menu.addItem(item => setMenuItem(item, "copy-to-clipboard", url));
+                    menu.addItem((item) => setMenuItem(item, "copy-to-clipboard", url));
                 }
             }),
         );
@@ -119,35 +119,35 @@ export default class CopyUrlInPreview extends Plugin {
         menu.addSections(["file", "open", "info", "system"]);
 
         if (internalFile) {
-            menu.addItem(item =>
+            menu.addItem((item) =>
                 setMenuItem(item, "rename-file").onClick(() =>
                     this.app.fileManager.promptForFileRename(internalFile),
                 ),
             );
         }
 
-        menu.addItem(item => setMenuItem(item, "copy-to-clipboard", imageElement.src));
+        menu.addItem((item) => setMenuItem(item, "copy-to-clipboard", imageElement.src));
 
         if (internalFile) {
             // Add image filename to match with mobile menus
             if (Platform.isMobile) {
-                menu.addItem(item => item.setTitle(internalFile.name).setSection("file").setIsLabel(true));
+                menu.addItem((item) => item.setTitle(internalFile.name).setSection("file").setIsLabel(true));
             }
 
-            menu.addItem(item =>
+            menu.addItem((item) =>
                 setMenuItem(item, "open-in-new-tab").onClick(() => {
                     openTfileInNewTab(this.app, internalFile);
                 }),
             );
 
             if (Platform.isDesktop) {
-                menu.addItem(item =>
+                menu.addItem((item) =>
                     setMenuItem(item, "open-in-default-app").onClick(() => {
                         this.app.openWithDefaultApp(internalFile.path);
                     }),
                 );
 
-                menu.addItem(item =>
+                menu.addItem((item) =>
                     setMenuItem(item, "show-in-explorer").onClick(() => {
                         this.app.showInFolder(internalFile.path);
                     }),
@@ -155,7 +155,7 @@ export default class CopyUrlInPreview extends Plugin {
             }
 
             if (this.settings.revealInNavigation) {
-                menu.addItem(item =>
+                menu.addItem((item) =>
                     setMenuItem(item, "reveal-in-navigation").onClick(() => {
                         this.app.internalPlugins
                             .getEnabledPluginById("file-explorer")
@@ -165,7 +165,7 @@ export default class CopyUrlInPreview extends Plugin {
             }
             // see: https://github.com/ozntel/file-tree-alternative
             if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
-                menu.addItem(item =>
+                menu.addItem((item) =>
                     setMenuItem(item, "reveal-in-navigation-tree").onClick(() => {
                         self.dispatchEvent(
                             new CustomEvent("fta-reveal-file", { detail: { file: internalFile } }),

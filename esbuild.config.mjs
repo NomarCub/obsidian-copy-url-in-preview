@@ -18,8 +18,8 @@ if (fs.existsSync("./.devtarget")) {
         .readFileSync("./.devtarget", "utf8")
         .trim()
         .split("\n")
-        .map(line => line.trim())
-        .find(line => !line.startsWith("#") && !line.startsWith("//"));
+        .map((line) => line.trim())
+        .find((line) => !line.startsWith("#") && !line.startsWith("//"));
     if (outFolderOverride) {
         outfile = path.join(outFolderOverride, outfile);
         console.log("Temporary output location:", outfile);
