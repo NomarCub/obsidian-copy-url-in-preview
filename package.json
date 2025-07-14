@@ -8,7 +8,8 @@
   },
   "scripts": {
     "dev": "node esbuild.config.mjs",
-    "build": "tsc -noEmit && node esbuild.config.mjs production",
+    "build": "node esbuild.config.mjs production",
+    "check": "npm run type-check && npm run lint && npm run format",
     "type-check": "tsc -noEmit",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
