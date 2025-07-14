@@ -7,10 +7,8 @@
   },
   "files": { "ignoreUnknown": false },
   "formatter": {
-    "enabled": true,
     "indentStyle": "space",
     "indentWidth": 4,
-    "bracketSameLine": true,
     "lineWidth": 110
   },
   "linter": {
@@ -23,13 +21,6 @@
       "source": {
         "organizeImports": "on"
       }
-    }
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "double",
-      "semicolons": "always",
-      "arrowParentheses": "asNeeded"
     }
   },
   "json": {
