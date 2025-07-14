@@ -16,6 +16,7 @@ import type { CanvasNodeWithUrl } from "./types";
 export default class CopyUrlInPreview extends Plugin {
     canvasCardMenu?: HTMLElement;
     settings!: CopyUrlInPreviewSettings;
+
     async loadSettings(): Promise<void> {
         this.settings = Object.assign(
             {},
@@ -31,6 +32,7 @@ export default class CopyUrlInPreview extends Plugin {
     override async onload(): Promise<void> {
         await this.loadSettings();
         this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
+
         this.registerDocument(document);
         this.app.workspace.on("window-open", (_workspaceWindow, window) => {
             this.registerDocument(window.document);
@@ -54,6 +56,7 @@ export default class CopyUrlInPreview extends Plugin {
         this.registerEvent(
             this.app.workspace.on("canvas:node-menu", (menu, node) => {
                 const data = (node as CanvasNodeWithUrl).unknownData;
+
                 if (data.type === "link") {
                     const url = clearUrl(data.url);
                     if (!isImageFile(url)) return;
@@ -183,7 +186,6 @@ export default class CopyUrlInPreview extends Plugin {
 
     onImageMouseUp(event: MouseEvent): void {
         const imageElement = event.target as HTMLImageElement;
-
         const middleButtonNumber = 1;
 
         if (event.button === middleButtonNumber && this.settings.middleClickNewTab) {

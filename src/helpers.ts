@@ -30,6 +30,7 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<void> {
     const blob =
         url instanceof ArrayBuffer ? new Blob([url], { type: "image/png" }) : await loadImageBlob(url);
+
     try {
         const data = new ClipboardItem({ [blob!.type]: blob! });
         await navigator.clipboard.write([data]);
@@ -47,6 +48,7 @@ export function loadImageBlob(imgSrc: string): Promise<Blob | null> {
         new Promise<Blob | null>((resolve, reject) => {
             const image = new Image();
             image.crossOrigin = "anonymous";
+
             image.onload = () => {
                 const canvas = document.createElement("canvas");
                 canvas.width = image.width;
@@ -71,6 +73,7 @@ export function loadImageBlob(imgSrc: string): Promise<Blob | null> {
                     reject(new Error());
                 }
             };
+
             image.src = imgSrc;
         });
     return withTimeout(timeouts.loadImageBlob, loadImageBlobCore());
