@@ -11,6 +11,11 @@
     "indentWidth": 4,
     "lineWidth": 110
   },
+  "json": {
+    "formatter": {
+      "indentWidth": 2
+    }
+  },
   "linter": {
     "enabled": false,
     "rules": { "recommended": true }
@@ -21,11 +26,6 @@
       "source": {
         "organizeImports": "on"
       }
-    }
-  },
-  "json": {
-    "formatter": {
-      "indentWidth": 2
     }
   }
 }
