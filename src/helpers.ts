@@ -28,7 +28,8 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 }
 
 export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<void> {
-    const blob = url instanceof ArrayBuffer ? new Blob([url], { type: "image/png" }) : await loadImageBlob(url);
+    const blob =
+        url instanceof ArrayBuffer ? new Blob([url], { type: "image/png" }) : await loadImageBlob(url);
     try {
         const data = new ClipboardItem({ [blob!.type]: blob! });
         await navigator.clipboard.write([data]);
@@ -128,10 +129,18 @@ export function setMenuItem(
     imageSource: string | Promise<ArrayBuffer>,
 ): MenuItem;
 export function setMenuItem(item: MenuItem, type: MenuType): MenuItem;
-export function setMenuItem(item: MenuItem, type: MenuType, imageSource?: string | Promise<ArrayBuffer>): MenuItem {
+export function setMenuItem(
+    item: MenuItem,
+    type: MenuType,
+    imageSource?: string | Promise<ArrayBuffer>,
+): MenuItem {
     const types: Record<MenuType, { icon: string; title: string; section: "info" | "system" | "open" }> = {
         "copy-to-clipboard": { section: "info", icon: "image-file", title: "interface.label-copy" },
-        "open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
+        "open-in-new-tab": {
+            section: "open",
+            icon: "file-plus",
+            title: "interface.menu.open-in-new-tab",
+        },
         "open-in-default-app": {
             section: "system",
             icon: "arrow-up-right",
@@ -147,7 +156,11 @@ export function setMenuItem(item: MenuItem, type: MenuType, imageSource?: string
             icon: "folder",
             title: "plugins.file-explorer.action-reveal-file",
         },
-        "reveal-in-navigation-tree": { section: "system", icon: "folder", title: "Reveal in File Tree Alternative" },
+        "reveal-in-navigation-tree": {
+            section: "system",
+            icon: "folder",
+            title: "Reveal in File Tree Alternative",
+        },
         "rename-file": { section: "info", icon: "pencil", title: "interface.menu.rename" },
     };
 
@@ -157,5 +170,8 @@ export function setMenuItem(item: MenuItem, type: MenuType, imageSource?: string
         });
     }
 
-    return item.setIcon(types[type].icon).setTitle(i18next.t(types[type].title)).setSection(types[type].section);
+    return item
+        .setIcon(types[type].icon)
+        .setTitle(i18next.t(types[type].title))
+        .setSection(types[type].section);
 }

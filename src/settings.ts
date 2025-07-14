@@ -24,12 +24,14 @@ export class CopyUrlInPreviewSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
         containerEl.createEl("h3", { text: "Image Context Menus settings" });
-        new Setting(containerEl).setName("Middle mouse click on image link to open in new tab").addToggle(toggle => {
-            toggle.setValue(this.plugin.settings.middleClickNewTab).onChange(value => {
-                this.plugin.settings.middleClickNewTab = value;
-                void this.plugin.saveSettings();
+        new Setting(containerEl)
+            .setName("Middle mouse click on image link to open in new tab")
+            .addToggle(toggle => {
+                toggle.setValue(this.plugin.settings.middleClickNewTab).onChange(value => {
+                    this.plugin.settings.middleClickNewTab = value;
+                    void this.plugin.saveSettings();
+                });
             });
-        });
         new Setting(containerEl)
             .setName("Reveal file in navigation menu item")
             .setDesc(
