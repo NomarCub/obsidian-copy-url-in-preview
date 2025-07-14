@@ -15,9 +15,7 @@
   },
   "linter": {
     "enabled": false,
-    "rules": {
-      "recommended": true
-    }
+    "rules": { "recommended": true }
   },
   "assist": {
     "enabled": true,
