@@ -10,9 +10,7 @@
       "indentWidth": 2
     }
   },
-  "linter": {
-    "enabled": false
-  },
+  "linter": { "enabled": false },
   "assist": {
     "enabled": true,
     "actions": {
