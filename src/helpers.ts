@@ -139,11 +139,7 @@ export function setMenuItem(
 ): MenuItem {
     const types: Record<MenuType, { icon: string; title: string; section: "info" | "system" | "open" }> = {
         "copy-to-clipboard": { section: "info", icon: "image-file", title: "interface.label-copy" },
-        "open-in-new-tab": {
-            section: "open",
-            icon: "file-plus",
-            title: "interface.menu.open-in-new-tab",
-        },
+        "open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
         "open-in-default-app": {
             section: "system",
             icon: "arrow-up-right",
