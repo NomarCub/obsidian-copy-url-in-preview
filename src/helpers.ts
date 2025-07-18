@@ -1,4 +1,4 @@
-import { type App, type MenuItem, Notice, normalizePath, Platform, type TFile } from "obsidian";
+import { type App, Notice, normalizePath, type TFile } from "obsidian";
 
 export const timeouts = {
     loadImageBlob: 5_000,
@@ -115,62 +115,4 @@ export function getTfileFromUrl(app: App, url: URL): TFile | null {
 
 export function openTfileInNewTab(app: App, tfile: TFile): void {
     void app.workspace.getLeaf(true).openFile(tfile, { active: true });
-}
-
-type MenuType =
-    | "open-in-new-tab"
-    | "copy-to-clipboard"
-    | "open-in-default-app"
-    | "show-in-explorer"
-    | "reveal-in-navigation"
-    | "reveal-in-navigation-tree"
-    | "rename-file";
-
-export function setMenuItem(
-    item: MenuItem,
-    type: "copy-to-clipboard",
-    imageSource: string | Promise<ArrayBuffer>,
-): MenuItem;
-export function setMenuItem(item: MenuItem, type: MenuType): MenuItem;
-export function setMenuItem(
-    item: MenuItem,
-    type: MenuType,
-    imageSource?: string | Promise<ArrayBuffer>,
-): MenuItem {
-    const types: Record<MenuType, { icon: string; title: string; section: "info" | "system" | "open" }> = {
-        "copy-to-clipboard": { section: "info", icon: "image-file", title: "interface.label-copy" },
-        "open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
-        "open-in-default-app": {
-            section: "system",
-            icon: "arrow-up-right",
-            title: "plugins.open-with-default-app.action-open-file",
-        },
-        "show-in-explorer": {
-            section: "system",
-            icon: "arrow-up-right",
-            title: `plugins.open-with-default-app.action-show-in-folder${Platform.isMacOS ? "-mac" : ""}`,
-        },
-        "reveal-in-navigation": {
-            section: "system",
-            icon: "folder",
-            title: "plugins.file-explorer.action-reveal-file",
-        },
-        "reveal-in-navigation-tree": {
-            section: "system",
-            icon: "folder",
-            title: "Reveal in File Tree Alternative",
-        },
-        "rename-file": { section: "info", icon: "pencil", title: "interface.menu.rename" },
-    };
-
-    if (type === "copy-to-clipboard" && imageSource) {
-        item.onClick(async () => {
-            await copyImageToClipboard(typeof imageSource === "string" ? imageSource : await imageSource);
-        });
-    }
-
-    return item
-        .setIcon(types[type].icon)
-        .setTitle(i18next.t(types[type].title))
-        .setSection(types[type].section);
 }
