@@ -1,4 +1,4 @@
-import { MenuItem, Platform } from "obsidian";
+import { type IconName, type MenuItem, Platform } from "obsidian";
 
 type ItemType =
     | "open-in-new-tab"
@@ -13,7 +13,7 @@ type Section = "info" | "system" | "open";
 
 interface Item {
     section: Section;
-    icon: string;
+    icon: IconName;
     title: string;
 }
 
