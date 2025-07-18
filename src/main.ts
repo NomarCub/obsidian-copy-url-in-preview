@@ -4,12 +4,13 @@ import * as _obsidian_typings from "obsidian-typings";
 
 import {
     clearUrl,
+    copyImageToClipboard,
     getTfileFromUrl,
     isImageFile,
     onElementToOff,
     openTfileInNewTab,
-    setMenuItem,
 } from "./helpers";
+import { setItem } from "./menu";
 import { type CopyUrlInPreviewSettings, CopyUrlInPreviewSettingTab, DEFAULT_SETTINGS } from "./settings";
 import type { CanvasNodeWithUrl } from "./types";
 
@@ -43,12 +44,14 @@ export default class CopyUrlInPreview extends Plugin {
             this.app.workspace.on("file-menu", (menu, file, source) => {
                 if (source === "canvas-menu" && file instanceof TFile && isImageFile(`.${file.extension}`)) {
                     menu.addItem((item) =>
-                        setMenuItem(item, "open-in-new-tab").onClick(() => {
+                        setItem(item, "open-in-new-tab").onClick(() => {
                             openTfileInNewTab(this.app, file);
                         }),
                     );
                     menu.addItem((item) =>
-                        setMenuItem(item, "copy-to-clipboard", this.app.vault.readBinary(file)),
+                        setItem(item, "copy-to-clipboard").onClick(async () => {
+                            void copyImageToClipboard(await this.app.vault.readBinary(file));
+                        }),
                     );
                 }
             }),
@@ -61,7 +64,13 @@ export default class CopyUrlInPreview extends Plugin {
                     const url = clearUrl(data.url);
                     if (!isImageFile(url)) return;
 
-                    menu.addItem((item) => setMenuItem(item, "copy-to-clipboard", url).setSection("canvas"));
+                    menu.addItem((item) =>
+                        setItem(item, "copy-to-clipboard")
+                            .setSection("canvas")
+                            .onClick(() => {
+                                void copyImageToClipboard(url);
+                            }),
+                    );
                 }
             }),
         );
@@ -70,7 +79,11 @@ export default class CopyUrlInPreview extends Plugin {
                 url = clearUrl(url);
                 if (!isImageFile(url)) return;
 
-                menu.addItem((item) => setMenuItem(item, "copy-to-clipboard", url));
+                menu.addItem((item) =>
+                    setItem(item, "copy-to-clipboard").onClick(() => {
+                        void copyImageToClipboard(url);
+                    }),
+                );
             }),
         );
     }
@@ -122,13 +135,17 @@ export default class CopyUrlInPreview extends Plugin {
 
         if (internalFile) {
             menu.addItem((item) =>
-                setMenuItem(item, "rename-file").onClick(() =>
+                setItem(item, "rename-file").onClick(() =>
                     this.app.fileManager.promptForFileRename(internalFile),
                 ),
             );
         }
 
-        menu.addItem((item) => setMenuItem(item, "copy-to-clipboard", imageElement.src));
+        menu.addItem((item) =>
+            setItem(item, "copy-to-clipboard").onClick(() => {
+                void copyImageToClipboard(imageElement.src);
+            }),
+        );
 
         if (internalFile) {
             // Add image filename to match with mobile menus
@@ -137,20 +154,20 @@ export default class CopyUrlInPreview extends Plugin {
             }
 
             menu.addItem((item) =>
-                setMenuItem(item, "open-in-new-tab").onClick(() => {
+                setItem(item, "open-in-new-tab").onClick(() => {
                     openTfileInNewTab(this.app, internalFile);
                 }),
             );
 
             if (Platform.isDesktop) {
                 menu.addItem((item) =>
-                    setMenuItem(item, "open-in-default-app").onClick(() => {
+                    setItem(item, "open-in-default-app").onClick(() => {
                         this.app.openWithDefaultApp(internalFile.path);
                     }),
                 );
 
                 menu.addItem((item) =>
-                    setMenuItem(item, "show-in-explorer").onClick(() => {
+                    setItem(item, "show-in-explorer").onClick(() => {
                         this.app.showInFolder(internalFile.path);
                     }),
                 );
@@ -158,7 +175,7 @@ export default class CopyUrlInPreview extends Plugin {
 
             if (this.settings.revealInNavigation) {
                 menu.addItem((item) =>
-                    setMenuItem(item, "reveal-in-navigation").onClick(() => {
+                    setItem(item, "reveal-in-navigation").onClick(() => {
                         this.app.internalPlugins
                             .getEnabledPluginById("file-explorer")
                             ?.revealInFolder(internalFile);
@@ -168,7 +185,7 @@ export default class CopyUrlInPreview extends Plugin {
             // see: https://github.com/ozntel/file-tree-alternative
             if (this.app.plugins.enabledPlugins.has("file-tree-alternative")) {
                 menu.addItem((item) =>
-                    setMenuItem(item, "reveal-in-navigation-tree").onClick(() => {
+                    setItem(item, "reveal-in-navigation-tree").onClick(() => {
                         self.dispatchEvent(
                             new CustomEvent("fta-reveal-file", { detail: { file: internalFile } }),
                         );
