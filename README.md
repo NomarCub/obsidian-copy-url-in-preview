@@ -15,8 +15,9 @@ Context menus are also added to the canvas.
 Most features work on mobile, but were only tested on Android.
 
 See these other plugins for related functionality:
-- [Ozan's Image in Editor Plugin](https://github.com/ozntel/oz-image-in-editor-obsidian)
 - [Image Toolkit](https://github.com/sissilab/obsidian-image-toolkit)
+- [Pixel Perfect Image](https://github.com/johansan/pixel-perfect-image)
+- [Ozan's Image in Editor](https://github.com/ozntel/oz-image-in-editor-obsidian)
 
 Copying images:
 
