@@ -9,10 +9,10 @@ type ItemType =
     | "reveal-in-navigation-tree"
     | "rename-file";
 
-type Section = "info" | "system" | "open";
+export const MENU_SECTIONS = ["file", "open", "info", "system"] as const;
 
 interface Item {
-    section: Section;
+    section: (typeof MENU_SECTIONS)[number];
     icon: IconName;
     title: string;
 }
@@ -45,7 +45,7 @@ const types: Record<ItemType, Item> = {
 
 export function setItem(item: MenuItem, type: ItemType): MenuItem {
     return item
+        .setSection(types[type].section)
         .setIcon(types[type].icon)
-        .setTitle(i18next.t(types[type].title))
-        .setSection(types[type].section);
+        .setTitle(i18next.t(types[type].title));
 }
