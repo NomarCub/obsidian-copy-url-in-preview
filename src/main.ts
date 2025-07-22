@@ -131,7 +131,7 @@ export default class CopyUrlInPreview extends Plugin {
         const menu = new Menu();
         const internalFile = getTfileFromUrl(this.app, url);
 
-        menu.addSections(MENU_SECTIONS as unknown as string[]);
+        menu.addSections(Array.from(MENU_SECTIONS));
 
         if (internalFile) {
             menu.addItem((item) =>
