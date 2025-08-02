@@ -143,7 +143,7 @@ export default class CopyUrlInPreview extends Plugin {
 
         menu.addItem((item) =>
             setItem(item, "copy-to-clipboard").onClick(() => {
-                void copyImageToClipboard(imageElement.src);
+                void copyImageToClipboard(internalFile ?? imageElement.src);
             }),
         );
 
