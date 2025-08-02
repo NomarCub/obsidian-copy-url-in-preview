@@ -31,9 +31,10 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
 
 export async function copyImageToClipboard(url: ImageType): Promise<void> {
     const blob = await getImageBlob(url);
+    if (!blob) return;
 
     try {
-        const data = new ClipboardItem({ [blob!.type]: blob! });
+        const data = new ClipboardItem({ [blob.type]: blob });
         await navigator.clipboard.write([data]);
         new Notice(i18next.t("interface.copied_generic"), timeouts.successNotice);
     } catch (e) {
@@ -50,7 +51,7 @@ async function getImageBlob(file: ImageType): Promise<Blob | null> {
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
-export function loadImageBlob(imgSrc: string): Promise<Blob | null> {
+function loadImageBlob(imgSrc: string): Promise<Blob | null> {
     const loadImageBlobCore = (): Promise<Blob | null> =>
         new Promise<Blob | null>((resolve, reject) => {
             const image = new Image();
