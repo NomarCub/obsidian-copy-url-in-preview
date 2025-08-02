@@ -1,5 +1,6 @@
 import { type App, Notice, normalizePath, TFile } from "obsidian";
 
+/** URL string or internal image. */
 type ImageType = string | TFile;
 
 export const timeouts = {
@@ -20,8 +21,8 @@ export function clearUrl(url: URL | string): string {
     return url.toString();
 }
 
-export async function copyImageToClipboard(url: ImageType): Promise<void> {
-    const blob = await getImageBlob(url);
+export async function copyImageToClipboard(image: ImageType): Promise<void> {
+    const blob = await getImageBlob(image);
     if (!blob) return;
 
     try {
