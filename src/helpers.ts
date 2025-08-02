@@ -1,4 +1,6 @@
-import { type App, Notice, normalizePath, type TFile } from "obsidian";
+import { type App, Notice, normalizePath, TFile } from "obsidian";
+
+type ImageType = string | TFile;
 
 export const timeouts = {
     loadImageBlob: 5_000,
@@ -27,9 +29,8 @@ export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
     return Promise.race([promise, timeout]);
 }
 
-export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<void> {
-    const blob =
-        url instanceof ArrayBuffer ? new Blob([url], { type: "image/png" }) : await loadImageBlob(url);
+export async function copyImageToClipboard(url: ImageType): Promise<void> {
+    const blob = await getImageBlob(url);
 
     try {
         const data = new ClipboardItem({ [blob!.type]: blob! });
@@ -39,6 +40,12 @@ export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<v
         console.error(e);
         new Notice(i18next.t("interface.copy_failed"));
     }
+}
+
+async function getImageBlob(file: ImageType): Promise<Blob | null> {
+    return file instanceof TFile
+        ? new Blob([await file.vault.readBinary(file)], { type: "image/png" })
+        : await loadImageBlob(file);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
