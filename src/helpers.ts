@@ -38,13 +38,13 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
 async function getImageBlob(file: ImageType): Promise<Blob | null> {
     return file instanceof TFile
         ? new Blob([await file.vault.readBinary(file)], { type: "image/png" })
-        : await loadImageBlob(file);
+        : await getExternImageBlob(file);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
-function loadImageBlob(imgSrc: string): Promise<Blob | null> {
-    const loadImageBlobCore = (): Promise<Blob | null> =>
+function getExternImageBlob(url: string): Promise<Blob | null> {
+    const fetchImage = (): Promise<Blob | null> =>
         new Promise<Blob | null>((resolve, reject) => {
             const image = new Image();
             image.crossOrigin = "anonymous";
@@ -65,8 +65,8 @@ function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 
                     // console.log("possible CORS violation, falling back to allOrigins proxy");
                     // https://github.com/gnuns/allOrigins
-                    const blob = await loadImageBlob(
-                        `https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`,
+                    const blob = await getExternImageBlob(
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
                     );
                     resolve(blob);
                 } catch {
@@ -74,9 +74,9 @@ function loadImageBlob(imgSrc: string): Promise<Blob | null> {
                 }
             };
 
-            image.src = imgSrc;
+            image.src = url;
         });
-    return withTimeout(timeouts.loadImageBlob, loadImageBlobCore());
+    return withTimeout(timeouts.loadImageBlob, fetchImage());
 }
 
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
