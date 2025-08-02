@@ -20,15 +20,6 @@ export function clearUrl(url: URL | string): string {
     return url.toString();
 }
 
-export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
-    const timeout = new Promise<never>((_, reject) =>
-        setTimeout(() => {
-            reject(new Error(`timed out after ${ms} ms`));
-        }, ms),
-    );
-    return Promise.race([promise, timeout]);
-}
-
 export async function copyImageToClipboard(url: ImageType): Promise<void> {
     const blob = await getImageBlob(url);
     if (!blob) return;
@@ -85,6 +76,15 @@ function loadImageBlob(imgSrc: string): Promise<Blob | null> {
             image.src = imgSrc;
         });
     return withTimeout(timeouts.loadImageBlob, loadImageBlobCore());
+}
+
+export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
+    const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => {
+            reject(new Error(`timed out after ${ms} ms`));
+        }, ms),
+    );
+    return Promise.race([promise, timeout]);
 }
 
 export function onElementToOff<K extends keyof DocumentEventMap>(
