@@ -22,22 +22,37 @@ export function clearUrl(url: URL | string): string {
 }
 
 export async function copyImageToClipboard(image: ImageType): Promise<void> {
-    const blob = await getImageBlob(image);
+    let blob = await getImageBlob(image);
     if (!blob) return;
 
-    try {
-        const data = new ClipboardItem({ [blob.type]: blob });
-        await navigator.clipboard.write([data]);
+    const successNotice = (): void => {
         new Notice(i18next.t("interface.copied_generic"), timeouts.successNotice);
-    } catch (e) {
-        console.error(e);
-        new Notice(i18next.t("interface.copy_failed"));
+    };
+    const errorNotice = (): void => {
+        new Notice(i18next.t("interface.copy_failed"), timeouts.successNotice);
+    };
+
+    try {
+        /* Copy with original extension */
+        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+        successNotice();
+    } catch {
+        /* Fallback to PNG */
+        blob = new Blob([blob], { type: "image/png" });
+
+        try {
+            await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+            successNotice();
+        } catch (e) {
+            console.error(e);
+            errorNotice();
+        }
     }
 }
 
 async function getImageBlob(file: ImageType): Promise<Blob | null> {
     return file instanceof TFile
-        ? new Blob([await file.vault.readBinary(file)], { type: "image/png" })
+        ? new Blob([await file.vault.readBinary(file)], { type: `image/${file.extension}` })
         : await getExternImageBlob(file);
 }
 
