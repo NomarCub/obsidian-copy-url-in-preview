@@ -14,7 +14,7 @@ export function isImageFile(path: string): boolean {
     return imageFileExtensions.some((ext) => path.endsWith(`.${ext}`));
 }
 
-/* Remove search params from URL */
+/** Remove search params from URL */
 export function clearUrl(url: URL | string): string {
     url = new URL(url);
     url.search = "";
@@ -33,11 +33,11 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
     };
 
     try {
-        /* Copy with original extension */
+        // Copy with original extension
         await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
         successNotice();
     } catch {
-        /* Fallback to PNG */
+        // Fallback to PNG
         blob = new Blob([blob], { type: "image/png" });
 
         try {
