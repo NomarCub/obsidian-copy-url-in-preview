@@ -1,4 +1,7 @@
-import { type App, Notice, normalizePath, type TFile } from "obsidian";
+import { type App, Notice, normalizePath, TFile } from "obsidian";
+
+/** URL string or internal image. */
+type ImageType = string | TFile;
 
 export const timeouts = {
     loadImageBlob: 5_000,
@@ -18,21 +21,12 @@ export function clearUrl(url: URL | string): string {
     return url.toString();
 }
 
-export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
-    const timeout = new Promise<never>((_, reject) =>
-        setTimeout(() => {
-            reject(new Error(`timed out after ${ms} ms`));
-        }, ms),
-    );
-    return Promise.race([promise, timeout]);
-}
-
-export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<void> {
-    const blob =
-        url instanceof ArrayBuffer ? new Blob([url], { type: "image/png" }) : await loadImageBlob(url);
+export async function copyImageToClipboard(image: ImageType): Promise<void> {
+    const blob = await getImageBlob(image);
+    if (!blob) return;
 
     try {
-        const data = new ClipboardItem({ [blob!.type]: blob! });
+        const data = new ClipboardItem({ [blob.type]: blob });
         await navigator.clipboard.write([data]);
         new Notice(i18next.t("interface.copied_generic"), timeouts.successNotice);
     } catch (e) {
@@ -41,10 +35,16 @@ export async function copyImageToClipboard(url: string | ArrayBuffer): Promise<v
     }
 }
 
+async function getImageBlob(file: ImageType): Promise<Blob | null> {
+    return file instanceof TFile
+        ? new Blob([await file.vault.readBinary(file)], { type: "image/png" })
+        : await getExternImageBlob(file);
+}
+
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
-export function loadImageBlob(imgSrc: string): Promise<Blob | null> {
-    const loadImageBlobCore = (): Promise<Blob | null> =>
+function getExternImageBlob(url: string): Promise<Blob | null> {
+    const fetchImage = (): Promise<Blob | null> =>
         new Promise<Blob | null>((resolve, reject) => {
             const image = new Image();
             image.crossOrigin = "anonymous";
@@ -65,8 +65,8 @@ export function loadImageBlob(imgSrc: string): Promise<Blob | null> {
 
                     // console.log("possible CORS violation, falling back to allOrigins proxy");
                     // https://github.com/gnuns/allOrigins
-                    const blob = await loadImageBlob(
-                        `https://api.allorigins.win/raw?url=${encodeURIComponent(imgSrc)}`,
+                    const blob = await getExternImageBlob(
+                        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
                     );
                     resolve(blob);
                 } catch {
@@ -74,9 +74,18 @@ export function loadImageBlob(imgSrc: string): Promise<Blob | null> {
                 }
             };
 
-            image.src = imgSrc;
+            image.src = url;
         });
-    return withTimeout(timeouts.loadImageBlob, loadImageBlobCore());
+    return withTimeout(timeouts.loadImageBlob, fetchImage());
+}
+
+export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
+    const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => {
+            reject(new Error(`timed out after ${ms} ms`));
+        }, ms),
+    );
+    return Promise.race([promise, timeout]);
 }
 
 export function onElementToOff<K extends keyof DocumentEventMap>(
