@@ -5,7 +5,7 @@ type ImageType = string | TFile;
 
 export const timeouts = {
     loadImageBlob: 5_000,
-    successNotice: 1_800,
+    notice: 1_800,
 };
 
 export function isImageFile(path: string): boolean {
@@ -26,10 +26,10 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
     if (!blob) return;
 
     const successNotice = (): void => {
-        new Notice(i18next.t("interface.copied_generic"), timeouts.successNotice);
+        new Notice(i18next.t("interface.copied_generic"), timeouts.notice);
     };
     const errorNotice = (): void => {
-        new Notice(i18next.t("interface.copy_failed"), timeouts.successNotice);
+        new Notice(i18next.t("interface.copy_failed"), timeouts.notice);
     };
 
     try {
@@ -53,12 +53,12 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
 async function getImageBlob(file: ImageType): Promise<Blob | null> {
     return file instanceof TFile
         ? new Blob([await file.vault.readBinary(file)], { type: `image/${file.extension}` })
-        : await getExternImageBlob(file);
+        : await getExternalImageBlob(file);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
-function getExternImageBlob(url: string): Promise<Blob | null> {
+function getExternalImageBlob(url: string): Promise<Blob | null> {
     const fetchImage = (): Promise<Blob | null> =>
         new Promise<Blob | null>((resolve, reject) => {
             const image = new Image();
@@ -80,7 +80,7 @@ function getExternImageBlob(url: string): Promise<Blob | null> {
 
                     // console.log("possible CORS violation, falling back to allOrigins proxy");
                     // https://github.com/gnuns/allOrigins
-                    const blob = await getExternImageBlob(
+                    const blob = await getExternalImageBlob(
                         `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
                     );
                     resolve(blob);
