@@ -34,13 +34,15 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
 
     try {
         // Copy with original extension
+        // Windows uses this for online images
         await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
         successNotice();
-    } catch {
-        // Fallback to PNG
+    } catch (e) {
+        console.warn("Failed copying image, falling back to PNG - ", e);
         blob = new Blob([blob], { type: "image/png" });
 
         try {
+            // Windows uses this for offline images
             await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
             successNotice();
         } catch (e) {
