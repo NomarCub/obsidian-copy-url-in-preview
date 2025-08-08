@@ -28,9 +28,6 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
     const successNotice = (): void => {
         new Notice(i18next.t("interface.copied_generic"), timeouts.notice);
     };
-    const errorNotice = (): void => {
-        new Notice(i18next.t("Failed to copy image to clipboard"), timeouts.notice);
-    };
 
     try {
         // Copy with original extension
@@ -52,7 +49,7 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
         console.warn("Failed copying image with PNG mimetype - ", e);
     }
 
-    errorNotice();
+    new Notice(i18next.t("Failed to copy image to clipboard"), timeouts.notice);
 }
 
 async function getImageBlob(file: ImageType): Promise<Blob | null> {
