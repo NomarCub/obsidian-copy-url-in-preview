@@ -29,7 +29,7 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
         new Notice(i18next.t("interface.copied_generic"), timeouts.notice);
     };
     const errorNotice = (): void => {
-        new Notice(i18next.t("interface.copy_failed"), timeouts.notice);
+        new Notice(i18next.t("Failed to copy image to clipboard"), timeouts.notice);
     };
 
     try {
