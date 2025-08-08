@@ -37,19 +37,22 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
         // Windows uses this for online images
         await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
         successNotice();
+        return;
     } catch (e) {
-        console.warn("Failed copying image, falling back to PNG - ", e);
-        blob = new Blob([blob], { type: "image/png" });
-
-        try {
-            // Windows uses this for offline images
-            await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-            successNotice();
-        } catch (e) {
-            console.error(e);
-            errorNotice();
-        }
+        console.warn("Failed copying image with original mimetype, using PNG fallback - ", e);
     }
+
+    try {
+        // Windows uses this for offline images
+        blob = new Blob([blob], { type: "image/png" });
+        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+        successNotice();
+        return;
+    } catch (e) {
+        console.warn("Failed copying image with PNG mimetype - ", e);
+    }
+
+    errorNotice();
 }
 
 async function getImageBlob(file: ImageType): Promise<Blob | null> {
