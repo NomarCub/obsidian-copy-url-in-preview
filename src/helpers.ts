@@ -5,7 +5,7 @@ type ImageType = string | TFile;
 
 export const timeouts = {
     loadImageBlob: 5_000,
-    successNotice: 1_800,
+    notice: 1_800,
 };
 
 export function isImageFile(path: string): boolean {
@@ -14,7 +14,7 @@ export function isImageFile(path: string): boolean {
     return imageFileExtensions.some((ext) => path.endsWith(`.${ext}`));
 }
 
-/* Remove search params from URL */
+/** Remove search params from URL */
 export function clearUrl(url: URL | string): string {
     url = new URL(url);
     url.search = "";
@@ -22,28 +22,45 @@ export function clearUrl(url: URL | string): string {
 }
 
 export async function copyImageToClipboard(image: ImageType): Promise<void> {
-    const blob = await getImageBlob(image);
+    let blob = await getImageBlob(image);
     if (!blob) return;
 
+    const successNotice = (): void => {
+        new Notice(i18next.t("interface.copied_generic"), timeouts.notice);
+    };
+
     try {
-        const data = new ClipboardItem({ [blob.type]: blob });
-        await navigator.clipboard.write([data]);
-        new Notice(i18next.t("interface.copied_generic"), timeouts.successNotice);
+        // Copy with original extension
+        // Windows uses this for online images
+        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+        successNotice();
+        return;
     } catch (e) {
-        console.error(e);
-        new Notice(i18next.t("interface.copy_failed"));
+        console.warn("Failed copying image with original mimetype, using PNG fallback - ", e);
     }
+
+    try {
+        // Windows uses this for offline images
+        blob = new Blob([blob], { type: "image/png" });
+        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+        successNotice();
+        return;
+    } catch (e) {
+        console.warn("Failed copying image with PNG mimetype - ", e);
+    }
+
+    new Notice(i18next.t("Failed to copy image to clipboard"), timeouts.notice);
 }
 
 async function getImageBlob(file: ImageType): Promise<Blob | null> {
     return file instanceof TFile
-        ? new Blob([await file.vault.readBinary(file)], { type: "image/png" })
-        : await getExternImageBlob(file);
+        ? new Blob([await file.vault.readBinary(file)], { type: `image/${file.extension}` })
+        : await getExternalImageBlob(file);
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
 // option?: https://www.npmjs.com/package/html-to-image
-function getExternImageBlob(url: string): Promise<Blob | null> {
+function getExternalImageBlob(url: string): Promise<Blob | null> {
     const fetchImage = (): Promise<Blob | null> =>
         new Promise<Blob | null>((resolve, reject) => {
             const image = new Image();
@@ -65,7 +82,7 @@ function getExternImageBlob(url: string): Promise<Blob | null> {
 
                     // console.log("possible CORS violation, falling back to allOrigins proxy");
                     // https://github.com/gnuns/allOrigins
-                    const blob = await getExternImageBlob(
+                    const blob = await getExternalImageBlob(
                         `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
                     );
                     resolve(blob);
