@@ -15,7 +15,16 @@
       "indentWidth": 2
     }
   },
-  "linter": { "enabled": false },
+  "linter": {
+    "rules": {
+      "correctness": { "noUnusedImports": "off" },
+      "complexity": { "useLiteralKeys": "off" },
+      "style": {
+        "useNodejsImportProtocol": "off",
+        "noNonNullAssertion": "off"
+      }
+    }
+  },
   "assist": {
     "enabled": true,
     "actions": {
