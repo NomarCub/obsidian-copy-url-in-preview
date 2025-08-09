@@ -22,84 +22,111 @@ export function clearUrl(url: URL | string): string {
 }
 
 export async function copyImageToClipboard(image: ImageType): Promise<void> {
-    let blob = await getImageBlob(image);
-    if (!blob) return;
-
     const successNotice = (): void => {
         new Notice(i18next.t("interface.copied_generic"), timeouts.notice);
     };
+    const failureNotice = (): void => {
+        new Notice(i18next.t("Failed to copy image to clipboard"), timeouts.notice);
+    };
 
-    try {
-        // Copy with original extension
-        // Windows uses this for online images
-        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+    if (image instanceof TFile) {
+        const blob = new Blob([await image.vault.readBinary(image)], { type: `image/${image.extension}` });
+        if (await copyBlobToClipboardWithPNGFallback(blob)) {
+            successNotice();
+            return;
+        } else {
+            failureNotice();
+            return;
+        }
+    }
+
+    let blob = await getExternalImageBlob(image);
+    if (blob && (await copyBlobToClipboardWithPNGFallback(blob))) {
         successNotice();
         return;
+    }
+
+    // see https://allorigins.win/
+    // see also
+    // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
+    // https://www.npmjs.com/package/html-to-image
+    // also consider the Obsidian API that has no CORS restriction, but also no blob type: https://docs.obsidian.md/Reference/TypeScript+API/requestUrl
+    const corsFreeUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(image)}`;
+    blob = await getExternalImageBlob(corsFreeUrl);
+    if (blob && (await copyBlobToClipboardWithPNGFallback(blob))) {
+        successNotice();
+        return;
+    }
+
+    blob = await withTimeout(timeouts.loadImageBlob, getExternalImageBlobWithCanvas(image));
+    if (blob && (await copyBlobToClipboardWithPNGFallback(blob))) {
+        successNotice();
+        return;
+    }
+
+    blob = await withTimeout(timeouts.loadImageBlob, getExternalImageBlobWithCanvas(corsFreeUrl));
+    if (blob && (await copyBlobToClipboardWithPNGFallback(blob))) {
+        successNotice();
+        return;
+    }
+
+    failureNotice();
+}
+
+async function copyBlobToClipboardWithPNGFallback(blob: Blob): Promise<boolean> {
+    try {
+        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+        return true;
     } catch (e) {
         console.warn("Failed copying image with original mimetype, using PNG fallback - ", e);
     }
 
     try {
-        // Windows uses this for offline images
         blob = new Blob([blob], { type: "image/png" });
         await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-        successNotice();
-        return;
+        return true;
     } catch (e) {
         console.warn("Failed copying image with PNG mimetype - ", e);
     }
 
-    new Notice(i18next.t("Failed to copy image to clipboard"), timeouts.notice);
+    return false;
 }
 
-async function getImageBlob(file: ImageType): Promise<Blob | null> {
-    return file instanceof TFile
-        ? new Blob([await file.vault.readBinary(file)], { type: `image/${file.extension}` })
-        : await getExternalImageBlob(file);
+async function getExternalImageBlob(url: string): Promise<Blob | null> {
+    try {
+        const response = await fetch(url, { signal: AbortSignal.timeout(timeouts.loadImageBlob) });
+        return await response.blob();
+    } catch (e) {
+        console.warn("Failed to fetch image - ", e);
+    }
+    return null;
 }
 
-// https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
-// option?: https://www.npmjs.com/package/html-to-image
-function getExternalImageBlob(url: string): Promise<Blob | null> {
-    const fetchImage = (): Promise<Blob | null> =>
-        new Promise<Blob | null>((resolve, reject) => {
-            const image = new Image();
-            image.crossOrigin = "anonymous";
+function getExternalImageBlobWithCanvas(url: string): Promise<Blob | null> {
+    return new Promise<Blob | null>((resolve) => {
+        const image = new Image();
+        image.crossOrigin = "anonymous";
 
-            image.onload = () => {
-                const canvas = document.createElement("canvas");
-                canvas.width = image.width;
-                canvas.height = image.height;
-                const ctx = canvas.getContext("2d")!;
-                ctx.drawImage(image, 0, 0);
-                canvas.toBlob((blob) => {
-                    resolve(blob);
-                });
-            };
-            image.onerror = async () => {
-                try {
-                    await fetch(image.src, { mode: "no-cors" });
-
-                    // console.log("possible CORS violation, falling back to allOrigins proxy");
-                    // https://github.com/gnuns/allOrigins
-                    const blob = await getExternalImageBlob(
-                        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-                    );
-                    resolve(blob);
-                } catch {
-                    reject(new Error());
-                }
-            };
-
-            image.src = url;
-        });
-    return withTimeout(timeouts.loadImageBlob, fetchImage());
+        image.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = image.width;
+            canvas.height = image.height;
+            canvas.getContext("2d")!.drawImage(image, 0, 0);
+            canvas.toBlob((blob) => {
+                resolve(blob);
+            });
+        };
+        image.onerror = () => {
+            resolve(null);
+        };
+        image.src = url;
+    });
 }
 
-export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T> {
-    const timeout = new Promise<never>((_, reject) =>
+function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T | null> {
+    const timeout = new Promise<null>((resolve) =>
         setTimeout(() => {
-            reject(new Error(`timed out after ${ms} ms`));
+            resolve(null);
         }, ms),
     );
     return Promise.race([promise, timeout]);
