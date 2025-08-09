@@ -1,5 +1,7 @@
 import { Menu, Notice, Platform, Plugin, TFile } from "obsidian";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars --
+   biome-ignore lint/correctness/noUnusedImports: see below
+   using the recommended `import "obsidian-typings";` breaks esBuild */
 import * as _obsidian_typings from "obsidian-typings";
 
 import {

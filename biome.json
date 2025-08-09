@@ -17,7 +17,6 @@
   },
   "linter": {
     "rules": {
-      "correctness": { "noUnusedImports": "off" },
       "complexity": { "useLiteralKeys": "off" },
       "style": {
         "useNodejsImportProtocol": "off",
