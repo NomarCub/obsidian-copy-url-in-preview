@@ -75,8 +75,10 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
 
 async function copyBlobToClipboardWithPNGFallback(blob: Blob): Promise<boolean> {
     try {
-        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-        return true;
+        if (ClipboardItem.supports(blob.type)) {
+            await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+            return true;
+        }
     } catch (e) {
         console.warn("Failed copying image with original mimetype, using PNG fallback - ", e);
     }
