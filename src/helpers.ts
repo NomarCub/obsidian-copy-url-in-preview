@@ -75,7 +75,8 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
 
 async function copyBlobToClipboardWithPNGFallback(blob: Blob): Promise<boolean> {
     try {
-        if (ClipboardItem.supports(blob.type)) {
+        // copying SVGs this way doesn't seem to work on Windows
+        if (ClipboardItem.supports(blob.type) && blob.type !== "image/svg+xml") {
             await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
             return true;
         }
