@@ -160,10 +160,10 @@ export function getTfileFromUrl(app: App, url: URL): TFile | null {
         .filter((part) => part !== "")
         .join("/");
 
-    if (urlPath.startsWith(basePath)) {
-        const relativePath = urlPath.slice(basePath.length + 1);
-        const decodedPath = decodeURI(relativePath);
-        return app.vault.getFileByPath(decodedPath);
+    const decodedPath = decodeURI(urlPath);
+    if (decodedPath.startsWith(basePath)) {
+        const relativePath = decodedPath.slice(basePath.length + 1);
+        return app.vault.getFileByPath(relativePath);
     }
 
     return null;
