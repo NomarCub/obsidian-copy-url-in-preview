@@ -31,7 +31,7 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
 
     if (image instanceof TFile) {
         const blob = new Blob([await image.vault.readBinary(image)], { type: `image/${image.extension}` });
-        if (await copyBlobToClipboardWithPNGFallback(blob)) {
+        if (await copyBlobToClipboard(blob)) {
             successNotice();
             return;
         } else {
@@ -40,12 +40,14 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
         }
     }
 
+    // 1. original image, normal fetch
     let blob = await getExternalImageBlob(image);
-    if (blob && (await copyBlobToClipboardWithPNGFallback(blob))) {
+    if (blob && (await copyBlobToClipboard(blob))) {
         successNotice();
         return;
     }
 
+    // 2. original image, fallback using bypassing CORS restrictions
     // see https://allorigins.win/
     // see also
     // https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
@@ -53,19 +55,21 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
     // also consider the Obsidian API that has no CORS restriction, but also no blob type: https://docs.obsidian.md/Reference/TypeScript+API/requestUrl
     const corsFreeUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(image)}`;
     blob = await getExternalImageBlob(corsFreeUrl);
-    if (blob && (await copyBlobToClipboardWithPNGFallback(blob))) {
+    if (blob && (await copyBlobToClipboard(blob))) {
         successNotice();
         return;
     }
 
+    // 3. image copied to a canvas, then converted to blob as fallback
     blob = await withTimeout(timeouts.loadImageBlob, getExternalImageBlobWithCanvas(image));
-    if (blob && (await copyBlobToClipboardWithPNGFallback(blob))) {
+    if (blob && (await copyBlobToClipboard(blob))) {
         successNotice();
         return;
     }
 
+    // 4. image copied to a canvas, then converted to blob, bypassing CORS restrictions as fallback
     blob = await withTimeout(timeouts.loadImageBlob, getExternalImageBlobWithCanvas(corsFreeUrl));
-    if (blob && (await copyBlobToClipboardWithPNGFallback(blob))) {
+    if (blob && (await copyBlobToClipboard(blob))) {
         successNotice();
         return;
     }
@@ -73,7 +77,9 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
     failureNotice();
 }
 
-async function copyBlobToClipboardWithPNGFallback(blob: Blob): Promise<boolean> {
+/** Copy image blob to clipboard. Falls back to PNG if blob type is not supported.
+ * @returns success */
+async function copyBlobToClipboard(blob: Blob): Promise<boolean> {
     try {
         // copying SVGs this way doesn't seem to work on Windows
         if (ClipboardItem.supports(blob.type) && blob.type !== "image/svg+xml") {
