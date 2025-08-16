@@ -81,8 +81,10 @@ export async function copyImageToClipboard(image: ImageType): Promise<void> {
  * @returns success */
 async function copyBlobToClipboard(blob: Blob): Promise<boolean> {
     try {
-        // copying SVGs this way doesn't seem to work on Windows
-        if (ClipboardItem.supports(blob.type) && blob.type !== "image/svg+xml") {
+        // checking with ClipboardItem.supports here was inconsistent:
+        //   Android returns no support for GIFs but copying works
+        // copying SVGs this way didn't work on Windows
+        if (blob.type !== "image/svg+xml") {
             await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
             return true;
         }
