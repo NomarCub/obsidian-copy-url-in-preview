@@ -2,7 +2,7 @@ import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config({
-    files: ["**/*.ts", "**/*.mjs"],
+    files: ["**/*.{ts,mts,mjs}"],
     extends: [
         eslint.configs.recommended,
         tseslint.configs.strictTypeChecked,
