@@ -1,6 +1,8 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 
+/* eslint-disable-next-line @typescript-eslint/no-deprecated --
+ * TODO: fix deprecated, see: https://typescript-eslint.io/packages/typescript-eslint/#config-deprecated. */
 export default tseslint.config({
     files: ["**/*.{ts,mts,mjs}"],
     extends: [
@@ -9,7 +11,7 @@ export default tseslint.config({
         tseslint.configs.stylisticTypeChecked,
     ],
     languageOptions: {
-        parserOptions: { projectService: true, project: true },
+        parserOptions: { projectService: true },
     },
     rules: {
         "@typescript-eslint/explicit-function-return-type": ["error", { allowExpressions: true }],
