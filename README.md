@@ -14,14 +14,15 @@ For online image embeds, only the "Copy to clipboard" option is available.
 Context menus are also added to the canvas.  
 Most features work on mobile, but were only tested on Android.
 
-See these other plugins for related functionality:
-- [Image Toolkit](https://github.com/sissilab/obsidian-image-toolkit)
-- [Pixel Perfect Image](https://github.com/johansan/pixel-perfect-image)
-- [Ozan's Image in Editor](https://github.com/ozntel/oz-image-in-editor-obsidian)
-
 Copying images:
 
 [Copying images video](https://user-images.githubusercontent.com/1992842/132140547-fead74c1-4bec-489a-945c-f28cbba43493.mp4)
+
+See these other plugins for related functionality:
+- [Image Toolkit](https://github.com/sissilab/obsidian-image-toolkit)
+- [Pixel Perfect Image](https://github.com/johansan/pixel-perfect-image)
+- [AttachFlow](https://github.com/Yaozhuwa/AttachFlow)
+- [Ozan's Image in Editor](https://github.com/ozntel/oz-image-in-editor-obsidian)
 
 > This plugin used to be called "Copy Image and URL context menu". It had link URL copying functionality (see [1.5.2](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.5.2) and prior), but that was removed when it was included in Obsidian 1.5.  
 > It also used to have an `Open PDF externally` hover context menu for embedded PDFs, which was also removed when better Obsidian native functionality appeared (see [1.9.1](https://github.com/NomarCub/obsidian-copy-url-in-preview/tree/1.9.1)).
