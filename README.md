@@ -30,7 +30,7 @@ See these other plugins for related functionality:
 ## Installation
 
 You can install the plugin via the Community Plugins tab within the Obsidian app.  
-Here's the plugin on [Obsidian's Community Plugins website]((https://obsidian.md/plugins?id=copy-url-in-preview)).  
+Here's the plugin on [Obsidian's Community Plugins website](https://obsidian.md/plugins?id=copy-url-in-preview).  
 You can install the plugin manually by copying a release to your `.obsidian/plugins/copy-url-in-preview` folder.
 
 ## This plugin on other sites
