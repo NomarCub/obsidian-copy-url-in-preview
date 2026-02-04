@@ -76,7 +76,7 @@ export async function copyBlobToClipboard(blob: Blob): Promise<boolean> {
     return false;
 }
 
-export async function getExternalImageBlob(url: string): Promise<Blob | null> {
+async function getExternalImageBlob(url: string): Promise<Blob | null> {
     try {
         const response = await fetch(url, { signal: AbortSignal.timeout(BLOB_TIMEOUT) });
         return await response.blob();
@@ -86,7 +86,7 @@ export async function getExternalImageBlob(url: string): Promise<Blob | null> {
     return null;
 }
 
-export function getExternalImageBlobWithCanvas(url: string): Promise<Blob | null> {
+async function getExternalImageBlobWithCanvas(url: string): Promise<Blob | null> {
     return new Promise<Blob | null>((resolve) => {
         const image = new Image();
         image.crossOrigin = "anonymous";
