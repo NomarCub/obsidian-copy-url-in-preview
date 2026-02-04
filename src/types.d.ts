@@ -1,5 +1,5 @@
 import type { i18n } from "i18next";
-import type { CanvasNode } from "obsidian";
+import type { CanvasNode, TFile } from "obsidian";
 
 export type ImageType = string | TFile;
 
