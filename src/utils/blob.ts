@@ -31,12 +31,13 @@ export async function copyBlobToClipboard(blob: Blob): Promise<boolean> {
 
 export async function resolveImage(
     image: ImageType,
-    callback: (blob: Blob) => Promise<boolean>,
+    /** uses the blob and returns true if successful */
+    useBlob: (blob: Blob) => Promise<boolean>,
 ): Promise<boolean> {
     // original local image file
     if (image instanceof TFile) {
         const blob = new Blob([await image.vault.readBinary(image)], { type: `image/${image.extension}` });
-        return callback(blob);
+        return useBlob(blob);
     }
 
     // fetch image
@@ -47,7 +48,7 @@ export async function resolveImage(
     // also consider the Obsidian API that has no CORS restriction, but also no blob type: https://docs.obsidian.md/Reference/TypeScript+API/requestUrl
     const corsFreeUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(image)}`;
 
-    const tests = [
+    const blobRetrievalMethods = [
         // 1. original image, normal fetch
         () => getExternalImageBlob(image),
         // 2. original image, fallback using bypassing CORS restrictions
@@ -58,9 +59,9 @@ export async function resolveImage(
         () => withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(corsFreeUrl)),
     ];
 
-    for (const run of tests) {
-        const blob = await run();
-        if (blob && (await callback(blob))) return true;
+    for (const retrieveBlob of blobRetrievalMethods) {
+        const blob = await retrieveBlob();
+        if (blob && (await useBlob(blob))) return true;
     }
 
     return false;
