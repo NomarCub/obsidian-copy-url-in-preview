@@ -4,6 +4,31 @@ import { withTimeout } from "./helpers";
 
 const BLOB_TIMEOUT = 5_000;
 
+/** Copy image blob to clipboard. Falls back to PNG if blob type is not supported. */
+export async function copyBlobToClipboard(blob: Blob): Promise<boolean> {
+    try {
+        // checking with ClipboardItem.supports here was inconsistent:
+        //   Android returns no support for GIFs but copying works
+        // copying SVGs this way didn't work on Windows
+        if (blob.type !== "image/svg+xml") {
+            await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+            return true;
+        }
+    } catch (e) {
+        console.warn("Failed copying image with original mimetype, using PNG fallback - ", e);
+    }
+
+    try {
+        blob = new Blob([blob], { type: "image/png" });
+        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+        return true;
+    } catch (e) {
+        console.warn("Failed copying image with PNG mimetype - ", e);
+    }
+
+    return false;
+}
+
 export async function resolveImage(
     image: ImageType,
     callback: (blob: Blob) => Promise<boolean>,
@@ -45,32 +70,6 @@ export async function resolveImage(
     blob = await withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(corsFreeUrl));
     if (blob && (await callback(blob))) {
         return true;
-    }
-
-    return false;
-}
-
-/** Copy image blob to clipboard. Falls back to PNG if blob type is not supported.
- * @returns success */
-export async function copyBlobToClipboard(blob: Blob): Promise<boolean> {
-    try {
-        // checking with ClipboardItem.supports here was inconsistent:
-        //   Android returns no support for GIFs but copying works
-        // copying SVGs this way didn't work on Windows
-        if (blob.type !== "image/svg+xml") {
-            await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-            return true;
-        }
-    } catch (e) {
-        console.warn("Failed copying image with original mimetype, using PNG fallback - ", e);
-    }
-
-    try {
-        blob = new Blob([blob], { type: "image/png" });
-        await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-        return true;
-    } catch (e) {
-        console.warn("Failed copying image with PNG mimetype - ", e);
     }
 
     return false;
