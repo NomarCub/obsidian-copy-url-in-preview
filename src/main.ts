@@ -1,17 +1,11 @@
 import { Menu, Notice, Platform, Plugin, TFile } from "obsidian";
 import type {} from "obsidian-typings";
-
-import {
-    clearUrl,
-    copyImageToClipboard,
-    getTfileFromUrl,
-    isImageFile,
-    onElementToOff,
-    openTfileInNewTab,
-} from "./helpers";
-import { MENU_SECTIONS, setItem } from "./menu";
 import { type CopyUrlInPreviewSettings, CopyUrlInPreviewSettingTab, DEFAULT_SETTINGS } from "./settings";
 import type { CanvasNodeWithUrl } from "./types";
+import { clearUrl, onElementToOff } from "./utils/helpers";
+import { copyImageToClipboard, isImageFile } from "./utils/images";
+import { MENU_SECTIONS, setItem } from "./utils/menu";
+import { getTfileFromUrl, openTfileInNewTab } from "./utils/tfile";
 
 export default class CopyUrlInPreview extends Plugin {
     canvasCardMenu?: HTMLElement;

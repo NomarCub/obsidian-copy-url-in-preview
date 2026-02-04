@@ -1,5 +1,7 @@
 import type { i18n } from "i18next";
-import type { CanvasNode } from "obsidian";
+import type { CanvasNode, TFile } from "obsidian";
+
+export type ImageType = string | TFile;
 
 export interface ElectronWindow extends Window {
     WEBVIEW_SERVER_URL: string;
