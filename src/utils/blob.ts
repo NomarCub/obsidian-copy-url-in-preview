@@ -43,7 +43,7 @@ export async function getBlobFromImage(image: ImageType): Promise<Blob | null> {
     // also consider the Obsidian API that has no CORS restriction, but also no blob type: https://docs.obsidian.md/Reference/TypeScript+API/requestUrl
     const corsFreeUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(image)}`;
 
-    const result =
+    return (
         // 1. original image, normal fetch
         (await getExternalImageBlob(image)) ??
         // 2. original image, fallback using bypassing CORS restrictions
@@ -51,8 +51,8 @@ export async function getBlobFromImage(image: ImageType): Promise<Blob | null> {
         // 3. image copied to a canvas, then converted to blob as fallback
         (await withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(image))) ??
         // 4. image copied to a canvas, then converted to blob, bypassing CORS restrictions as fallback
-        (await withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(corsFreeUrl)));
-    return result;
+        (await withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(corsFreeUrl)))
+    );
 }
 
 async function getExternalImageBlob(url: string): Promise<Blob | null> {
