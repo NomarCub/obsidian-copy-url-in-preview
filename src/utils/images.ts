@@ -1,6 +1,6 @@
 import { Notice } from "obsidian";
 import type { ImageType } from "../types";
-import { copyBlobToClipboard, getBlobFromImage } from "./blob";
+import { copyBlobToClipboard, resolveImage } from "./blob";
 
 export function isImageFile(path: string): boolean {
     const imageFileExtensions = ["avif", "bmp", "gif", "jpg", "jpeg", "png", "svg", "webp", "heic"];
@@ -10,9 +10,8 @@ export function isImageFile(path: string): boolean {
 
 export async function copyImageToClipboard(image: ImageType): Promise<void> {
     const timeout = 1_800;
-    const blob = await getBlobFromImage(image);
 
-    if (blob && (await copyBlobToClipboard(blob))) {
+    if (await resolveImage(image, copyBlobToClipboard)) {
         new Notice(i18next.t("interface.copied_generic"), timeout);
     } else {
         new Notice(i18next.t("Failed to copy image to clipboard"), timeout);

@@ -29,10 +29,14 @@ export async function copyBlobToClipboard(blob: Blob): Promise<boolean> {
     return false;
 }
 
-export async function getBlobFromImage(image: ImageType): Promise<Blob | null> {
+export async function resolveImage(
+    image: ImageType,
+    callback: (blob: Blob) => Promise<boolean>,
+): Promise<boolean> {
     // original local image file
     if (image instanceof TFile) {
-        return new Blob([await image.vault.readBinary(image)], { type: `image/${image.extension}` });
+        const blob = new Blob([await image.vault.readBinary(image)], { type: `image/${image.extension}` });
+        return callback(blob);
     }
 
     // fetch image
@@ -43,16 +47,23 @@ export async function getBlobFromImage(image: ImageType): Promise<Blob | null> {
     // also consider the Obsidian API that has no CORS restriction, but also no blob type: https://docs.obsidian.md/Reference/TypeScript+API/requestUrl
     const corsFreeUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(image)}`;
 
-    return (
+    const tests = [
         // 1. original image, normal fetch
-        (await getExternalImageBlob(image)) ??
+        () => getExternalImageBlob(image),
         // 2. original image, fallback using bypassing CORS restrictions
-        (await getExternalImageBlob(corsFreeUrl)) ??
+        () => getExternalImageBlob(corsFreeUrl),
         // 3. image copied to a canvas, then converted to blob as fallback
-        (await withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(image))) ??
+        () => withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(image)),
         // 4. image copied to a canvas, then converted to blob, bypassing CORS restrictions as fallback
-        (await withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(corsFreeUrl)))
-    );
+        () => withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(corsFreeUrl)),
+    ];
+
+    for (const run of tests) {
+        const blob = await run();
+        if (blob && (await callback(blob))) return true;
+    }
+
+    return false;
 }
 
 async function getExternalImageBlob(url: string): Promise<Blob | null> {
