@@ -45,11 +45,11 @@ export async function getBlobFromImage(image: ImageType): Promise<Blob | null> {
 
     const result =
         // 1. original image, normal fetch
-        (await getExternalImageBlob(image)) ||
+        (await getExternalImageBlob(image)) ??
         // 2. original image, fallback using bypassing CORS restrictions
-        (await getExternalImageBlob(corsFreeUrl)) ||
+        (await getExternalImageBlob(corsFreeUrl)) ??
         // 3. image copied to a canvas, then converted to blob as fallback
-        (await withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(image))) ||
+        (await withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(image))) ??
         // 4. image copied to a canvas, then converted to blob, bypassing CORS restrictions as fallback
         (await withTimeout(BLOB_TIMEOUT, getExternalImageBlobWithCanvas(corsFreeUrl)));
     return result;
