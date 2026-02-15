@@ -2,6 +2,7 @@
 
 This plugin provides the following context menus for images in [Obsidian](https://obsidian.md/):
 - Copy to clipboard
+- Copy URL to clipboard
 - Open in default app
 - Show in system explorer
 - Reveal file in navigation
