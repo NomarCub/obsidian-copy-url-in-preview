@@ -185,6 +185,14 @@ export default class CopyUrlInPreview extends Plugin {
                     }),
                 );
             }
+        } else {
+            // external link
+            menu.addItem((item) =>
+                setItem(item, "copy-url").onClick(() => {
+                    void navigator.clipboard.writeText(url.href);
+                    new Notice(i18next.t("interface.copied", { item: "URL" }), 1_000);
+                }),
+            );
         }
 
         menu.showAtPosition({

@@ -1,6 +1,7 @@
 import { type IconName, type MenuItem, Platform } from "obsidian";
 
 type ItemType =
+    | "copy-url"
     | "open-in-new-tab"
     | "copy-to-clipboard"
     | "open-in-default-app"
@@ -17,7 +18,9 @@ interface Item {
     title: string;
 }
 
+// see: https://github.com/obsidianmd/obsidian-translations/blob/master/translations/en.txt
 const types: Record<ItemType, Item> = {
+    "copy-url": { section: "info", icon: "link", title: "interface.menu.copy-url" },
     "copy-to-clipboard": { section: "info", icon: "image-file", title: "interface.label-copy" },
     "open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
     "open-in-default-app": {
