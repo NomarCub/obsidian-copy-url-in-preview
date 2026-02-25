@@ -20,17 +20,17 @@
   "author": "NomarCub",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^2.3.15",
-    "@eslint/js": "^9.39.2",
+    "@biomejs/biome": "^2.4.4",
+    "@eslint/js": "^9.39.3",
     "@types/node": "~22.18.0",
     "builtin-modules": "^4.0.0",
     "esbuild": "^0.27.3",
-    "eslint": "^9.39.2",
+    "eslint": "^9.39.3",
     "i18next": "^23.11.5",
     "obsidian": "1.8.7",
     "obsidian-typings": "4.19.0",
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.55.0"
+    "typescript-eslint": "^8.56.1"
   }
 }
