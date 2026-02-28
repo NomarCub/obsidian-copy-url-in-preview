@@ -100,7 +100,7 @@ export default class CopyUrlInPreview extends Plugin {
     // Positions are not accurate from PointerEvent.
     // There's also TouchEvent
     // The event has target, path, toEvent (null on Android) for finding the link
-    onImageContextMenu(event: MouseEvent | PointerEvent): void {
+    onImageContextMenu(event: MouseEvent): void {
         // check if the image is on a canvas
         if (
             !this.settings.enableDefaultOnCanvas &&
@@ -121,26 +121,27 @@ export default class CopyUrlInPreview extends Plugin {
             return;
         }
 
-        const menu = new Menu();
+        const menu = Menu.forEvent(event);
         const internalFile = getTfileFromUrl(this.app, url);
+        // most functionality is already implemented in editing mode
+        // so we only add menus if the image is in a reading view
+        const isInReadingView = !!imageElement.closest(".markdown-reading-view");
 
         menu.addSections(Array.from(MENU_SECTIONS));
 
-        if (internalFile) {
+        if (internalFile && isInReadingView) {
             menu.addItem((item) =>
                 setItem(item, "rename-file").onClick(() =>
                     this.app.fileManager.promptForFileRename(internalFile),
                 ),
             );
-        }
 
-        menu.addItem((item) =>
-            setItem(item, "copy-to-clipboard").onClick(() => {
-                void copyImageToClipboard(internalFile ?? imageElement.src);
-            }),
-        );
+            menu.addItem((item) =>
+                setItem(item, "copy-to-clipboard").onClick(() => {
+                    void copyImageToClipboard(internalFile);
+                }),
+            );
 
-        if (internalFile) {
             // Add image filename to match with mobile menus
             if (Platform.isMobile) {
                 menu.addItem((item) => item.setTitle(internalFile.name).setSection("file").setIsLabel(true));
@@ -185,8 +186,16 @@ export default class CopyUrlInPreview extends Plugin {
                     }),
                 );
             }
-        } else {
+        } else if (!internalFile) {
             // external link
+            if (isInReadingView) {
+                menu.addItem((item) =>
+                    setItem(item, "copy-to-clipboard").onClick(() => {
+                        void copyImageToClipboard(imageElement.src);
+                    }),
+                );
+            }
+
             menu.addItem((item) =>
                 setItem(item, "copy-url").onClick(() => {
                     void navigator.clipboard.writeText(url.href);
@@ -195,10 +204,7 @@ export default class CopyUrlInPreview extends Plugin {
             );
         }
 
-        menu.showAtPosition({
-            x: event.pageX,
-            y: event.pageY,
-        });
+        menu.showAtMouseEvent(event);
     }
 
     onImageMouseUp(event: MouseEvent): void {
