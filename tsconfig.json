@@ -1,10 +1,11 @@
 {
+  "include": ["src/**/*.ts", "**/*.mts", "**/*.mjs"],
   "compilerOptions": {
-    "paths": { "*": ["./src/*"] },
     "inlineSourceMap": true,
     "inlineSources": true,
     "module": "ESNext",
-    "target": "ESNext",
+    "target": "ES2021",
+    "lib": ["DOM", "ES5", "ES6", "ES7", "ES2021"],
     "allowJs": true,
     "skipLibCheck": true,
     "moduleResolution": "node",
@@ -13,15 +14,13 @@
     "noEmit": true,
     "checkJs": true,
     "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     // rules to make checking stricter
     "strict": true,
-    "noImplicitOverride": true,
-    "allowSyntheticDefaultImports": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "lib": ["DOM", "ES5", "ES6", "ES7", "ES2021"]
-  },
-  "include": ["src/**/*.ts", "**/*.mts", "**/*.mjs"]
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true
+  }
 }

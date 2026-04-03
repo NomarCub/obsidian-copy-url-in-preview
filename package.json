@@ -3,6 +3,8 @@
   "version": "1.12.1",
   "description": "Image context menus plugin for Obsidian (https://obsidian.md): Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab, Rename.",
   "main": "main.js",
+  "author": "NomarCub",
+  "license": "MIT",
   "engines": {
     "node": ">=22.18"
   },
@@ -10,15 +12,13 @@
     "dev": "node esbuild.config.mts",
     "build": "node esbuild.config.mts production",
     "check": "npm run type-check && npm run lint && npm run format",
-    "type-check": "tsc -noEmit",
+    "type-check": "tsc",
     "lint": "biome lint && eslint",
     "lint:fix": "biome lint --fix && eslint --fix",
     "format": "biome format",
     "format:fix": "biome format --write",
     "version": "node version-bump.mts"
   },
-  "author": "NomarCub",
-  "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
     "@eslint/js": "^9.39.3",
