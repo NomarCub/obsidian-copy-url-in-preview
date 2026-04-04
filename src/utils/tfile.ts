@@ -1,7 +1,9 @@
 import { type App, normalizePath, type TFile } from "obsidian";
+import type { DataAdapterEx } from "obsidian-typings";
 
 export function getTfileFromUrl(app: App, url: URL): TFile | null {
-    let basePath = normalizePath(app.vault.adapter.basePath);
+    // TODO: consider using getDataAdapterEx (unofficial)
+    let basePath = normalizePath((app.vault.adapter as DataAdapterEx).basePath);
     basePath = basePath.replace("file://", "");
 
     let urlPath = url.pathname;
