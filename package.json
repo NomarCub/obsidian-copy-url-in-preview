@@ -5,6 +5,7 @@
   "main": "main.js",
   "author": "NomarCub",
   "license": "MIT",
+  "type": "module",
   "engines": {
     "node": ">=22.18"
   },

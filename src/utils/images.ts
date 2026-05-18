@@ -1,6 +1,6 @@
 import { Notice } from "obsidian";
-import type { ImageType } from "../types";
-import { copyBlobToClipboard, resolveImage } from "./blob";
+import type { ImageType } from "../types.d.ts";
+import { copyBlobToClipboard, resolveImage } from "./blob.ts";
 
 export function isImageFile(path: string): boolean {
     const imageFileExtensions = ["avif", "bmp", "gif", "jpg", "jpeg", "png", "svg", "webp", "heic"];

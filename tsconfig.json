@@ -16,6 +16,7 @@
     "checkJs": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
     // rules to make checking stricter
     "strict": true,
     "verbatimModuleSyntax": true,
