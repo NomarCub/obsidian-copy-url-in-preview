@@ -7,6 +7,11 @@ on:
     tags:
       - "*"
 
+permissions:
+    id-token: write
+    contents: read
+    attestations: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,3 +41,9 @@ jobs:
             --title="$tag" \
             --draft \
             main.js manifest.json
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            ./build/main.js
+            ./build/manifest.json
