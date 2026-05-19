@@ -11,9 +11,7 @@
     "lineWidth": 110
   },
   "json": {
-    "formatter": {
-      "indentWidth": 2
-    }
+    "formatter": { "indentWidth": 2 }
   },
   "linter": {
     "rules": {
