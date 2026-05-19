@@ -7,6 +7,11 @@ on:
     tags:
       - "*"
 
+permissions:
+    id-token: write
+    contents: read
+    attestations: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,7 +23,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "22.x"
+          node-version: "24.x"
 
       - name: Build plugin
         run: |
@@ -36,3 +41,9 @@ jobs:
             --title="$tag" \
             --draft \
             main.js manifest.json
+      - name: Generate artifact attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            ./build/main.js
+            ./build/manifest.json

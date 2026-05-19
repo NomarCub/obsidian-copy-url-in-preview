@@ -1,6 +1,6 @@
 import { TFile } from "obsidian";
-import type { ImageType } from "../types";
-import { withTimeout } from "./helpers";
+import type { ImageType } from "../types.ts";
+import { withTimeout } from "./helpers.ts";
 
 const BLOB_TIMEOUT = 5_000;
 
