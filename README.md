@@ -36,8 +36,10 @@ You can install the plugin manually by copying a release to your `.obsidian/plug
 
 ## This plugin on other sites
 
+Official Obsidian Community site: [Obsidian Plugins - Image Context menus](https://community.obsidian.md/account/plugins/copy-url-in-preview)
+
+Unofficial:  
 [Obsidian Stats page](https://www.moritzjung.dev/obsidian-stats/plugins/copy-url-in-preview/)  
-[Obsidian Addict page](https://obsidianaddict.com/plugin/copy-url-in-preview/)  
 [Obsidian Hub page](https://publish.obsidian.md/hub/02+-+Community+Expansions/02.05+All+Community+Expansions/Plugins/copy-url-in-preview)
 
 ## Development
