@@ -15,10 +15,10 @@ jobs:
       id-token: write
       attestations: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Use Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "24.x"
 
@@ -42,5 +42,5 @@ jobs:
         uses: actions/attest@v4
         with:
           subject-path: |
-            ./build/main.js
-            ./build/manifest.json
+            main.js
+            manifest.json
