@@ -19,10 +19,6 @@ export default class CopyUrlInPreview extends Plugin {
         );
     }
 
-    async saveSettings(): Promise<void> {
-        await this.saveData(this.settings);
-    }
-
     override async onload(): Promise<void> {
         await this.loadSettings();
         this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
