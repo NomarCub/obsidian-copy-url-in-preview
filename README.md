@@ -1,6 +1,6 @@
 # Image Context Menus
 
-This plugin provides the following context menus for images in [Obsidian](https://obsidian.md/):
+This plugin provides the following context menus for images in [Obsidian](https://obsidian.md/)'s reading view:
 - Copy to clipboard
 - Copy URL to clipboard
 - Open in default app
