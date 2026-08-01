@@ -9,7 +9,7 @@ import { getTfileFromUrl, openTfileInNewTab } from "./utils/tfile.ts";
 
 export default class CopyUrlInPreview extends Plugin {
     canvasCardMenu?: HTMLElement;
-    settings!: CopyUrlInPreviewSettings;
+    override settings!: CopyUrlInPreviewSettings;
 
     async loadSettings(): Promise<void> {
         this.settings = Object.assign(
@@ -17,10 +17,6 @@ export default class CopyUrlInPreview extends Plugin {
             DEFAULT_SETTINGS,
             (await this.loadData()) as CopyUrlInPreviewSettings,
         );
-    }
-
-    async saveSettings(): Promise<void> {
-        await this.saveData(this.settings);
     }
 
     override async onload(): Promise<void> {
