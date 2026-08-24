@@ -25,7 +25,7 @@ export default defineConfig([
         },
     },
     {
-        // Node.js is allowed in .mts build files
+        // Obsidian-specific rules are not needed in .mts build files
         files: ["**/*.mts"],
         rules: {
             "obsidianmd/no-nodejs-modules": "off",
