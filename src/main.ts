@@ -12,11 +12,7 @@ export default class CopyUrlInPreview extends Plugin {
     override settings!: CopyUrlInPreviewSettings;
 
     async loadSettings(): Promise<void> {
-        this.settings = Object.assign(
-            {},
-            DEFAULT_SETTINGS,
-            (await this.loadData()) as CopyUrlInPreviewSettings,
-        );
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
     }
 
     override async onload(): Promise<void> {

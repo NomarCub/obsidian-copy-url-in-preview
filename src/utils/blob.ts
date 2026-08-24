@@ -69,6 +69,7 @@ export async function resolveImage(
 
 async function getExternalImageBlob(url: string): Promise<Blob | null> {
     try {
+        // eslint-disable-next-line no-restricted-globals -- TODO(75): change to requestUrl after testing
         const response = await fetch(url, { signal: AbortSignal.timeout(BLOB_TIMEOUT) });
         return await response.blob();
     } catch (e) {
@@ -83,6 +84,7 @@ async function getExternalImageBlobWithCanvas(url: string): Promise<Blob | null>
         image.crossOrigin = "anonymous";
 
         image.onload = () => {
+            // eslint-disable-next-line obsidianmd/prefer-create-el -- TODO(75): change to createEl after testing
             const canvas = document.createElement("canvas");
             canvas.width = image.width;
             canvas.height = image.height;

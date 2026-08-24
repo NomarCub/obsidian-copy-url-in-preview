@@ -7,6 +7,7 @@ export function clearUrl(url: URL | string): string {
 
 export function withTimeout<T>(ms: number, promise: Promise<T>): Promise<T | null> {
     const timeout = new Promise<null>((resolve) =>
+        // eslint-disable-next-line obsidianmd/prefer-window-timers -- TODO(75): change to window.setTimeout() after testing
         setTimeout(() => {
             resolve(null);
         }, ms),
