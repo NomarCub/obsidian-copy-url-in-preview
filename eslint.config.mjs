@@ -20,6 +20,16 @@ export default defineConfig([
             "@typescript-eslint/explicit-function-return-type": ["error", { allowExpressions: true }],
             "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
             "@typescript-eslint/no-non-null-assertion": "off",
+            // TODO(75): re-enable
+            "eslint-comments/no-restricted-disable": ["off"],
+        },
+    },
+    {
+        // Node.js is allowed in .mts build files
+        files: ["**/*.mts"],
+        rules: {
+            "obsidianmd/no-nodejs-modules": "off",
+            "obsidianmd/rule-custom-message": "off",
         },
     },
 ]);
