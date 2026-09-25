@@ -1,7 +1,7 @@
 {
   "name": "copy-url-in-preview",
   "version": "1.12.2",
-  "description": "Image context menus plugin for Obsidian (https://obsidian.md): Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab, Rename.",
+  "description": "Image context menus plugin for Obsidian (https://obsidian.md): Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab, Open in new window, Rename.",
   "main": "main.js",
   "author": "NomarCub",
   "license": "MIT",
