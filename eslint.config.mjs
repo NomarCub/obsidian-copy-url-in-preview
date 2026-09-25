@@ -25,6 +25,7 @@ export default defineConfig([
         },
     },
     // Obsidian-specific rules are not needed in .mts build files
+    // See also: https://github.com/obsidianmd/eslint-plugin/issues/90
     {
         files: ["**/*.mts"],
         rules: {
