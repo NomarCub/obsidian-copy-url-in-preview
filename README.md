@@ -9,6 +9,7 @@ This plugin provides the following context menus for images in [Obsidian](https:
   - Reveal in [File Tree Alternative](https://github.com/ozntel/file-tree-alternative)
 - Open in new tab
   - also available through middle mouse button click
+- Open in new window
 - Rename
 
 For online image embeds, only the "Copy to clipboard" option is available.  

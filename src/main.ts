@@ -5,7 +5,7 @@ import type { CanvasNodeWithUrl } from "./types.ts";
 import { clearUrl, onElementToOff } from "./utils/helpers.ts";
 import { copyImageToClipboard, isImageFile } from "./utils/images.ts";
 import { MENU_SECTIONS, setItem } from "./utils/menu.ts";
-import { getTfileFromUrl, openTfileInNewTab } from "./utils/tfile.ts";
+import { getTfileFromUrl, openTfileInNewTab, openTfileInNewWindow } from "./utils/tfile.ts";
 
 export default class CopyUrlInPreview extends Plugin {
     canvasCardMenu?: HTMLElement;
@@ -146,6 +146,12 @@ export default class CopyUrlInPreview extends Plugin {
             );
 
             if (Platform.isDesktop) {
+                menu.addItem((item) =>
+                    setItem(item, "open-in-new-window").onClick(() => {
+                        openTfileInNewWindow(this.app, internalFile);
+                    }),
+                );
+
                 menu.addItem((item) =>
                     setItem(item, "open-in-default-app").onClick(() => {
                         this.app.openWithDefaultApp(internalFile.path);

@@ -24,8 +24,9 @@ export default defineConfig([
             "eslint-comments/no-restricted-disable": ["off"],
         },
     },
+    // Obsidian-specific rules are not needed in .mts build files
+    // See also: https://github.com/obsidianmd/eslint-plugin/issues/90
     {
-        // Node.js is allowed in .mts build files
         files: ["**/*.mts"],
         rules: {
             "obsidianmd/no-nodejs-modules": "off",

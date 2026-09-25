@@ -25,3 +25,7 @@ export function getTfileFromUrl(app: App, url: URL): TFile | null {
 export function openTfileInNewTab(app: App, tfile: TFile): void {
     void app.workspace.getLeaf(true).openFile(tfile, { active: true });
 }
+
+export function openTfileInNewWindow(app: App, tfile: TFile): void {
+    void app.workspace.getLeaf("window").openFile(tfile, { active: true });
+}

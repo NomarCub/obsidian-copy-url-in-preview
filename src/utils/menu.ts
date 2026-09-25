@@ -3,6 +3,7 @@ import { type IconName, type MenuItem, Platform } from "obsidian";
 type ItemType =
     | "copy-url"
     | "open-in-new-tab"
+    | "open-in-new-window"
     | "copy-to-clipboard"
     | "open-in-default-app"
     | "show-in-explorer"
@@ -23,6 +24,11 @@ const types: Record<ItemType, Item> = {
     "copy-url": { section: "info", icon: "link", title: "interface.menu.copy-url" },
     "copy-to-clipboard": { section: "info", icon: "image-file", title: "interface.label-copy" },
     "open-in-new-tab": { section: "open", icon: "file-plus", title: "interface.menu.open-in-new-tab" },
+    "open-in-new-window": {
+        section: "open",
+        icon: "picture-in-picture-2",
+        title: "interface.menu.open-in-new-window",
+    },
     "open-in-default-app": {
         section: "system",
         icon: "arrow-up-right",
