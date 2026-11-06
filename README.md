@@ -1,6 +1,7 @@
 # Image Context Menus
 
 This plugin provides the following context menus for images in [Obsidian](https://obsidian.md/)'s reading view:
+
 - Copy to clipboard
 - Copy URL to clipboard
 - Open in default app
@@ -21,6 +22,7 @@ Copying images:
 [Copying images video](https://user-images.githubusercontent.com/1992842/132140547-fead74c1-4bec-489a-945c-f28cbba43493.mp4)
 
 See these other plugins for related functionality:
+
 - [Image Toolkit](https://github.com/sissilab/obsidian-image-toolkit)
 - [Pixel Perfect Image](https://github.com/johansan/pixel-perfect-image)
 - [AttachFlow](https://github.com/Yaozhuwa/AttachFlow)

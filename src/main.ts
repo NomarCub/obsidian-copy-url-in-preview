@@ -19,6 +19,7 @@ export default class CopyUrlInPreview extends Plugin {
         await this.loadSettings();
         this.addSettingTab(new CopyUrlInPreviewSettingTab(this.app, this));
 
+        // eslint-disable-next-line obsidianmd/prefer-active-doc -- Register the main document; popout documents are registered on window-open.
         this.registerDocument(document);
         this.app.workspace.on("window-open", (_workspaceWindow, window) => {
             this.registerDocument(window.document);

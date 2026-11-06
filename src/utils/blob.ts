@@ -85,7 +85,7 @@ async function getExternalImageBlobWithCanvas(url: string): Promise<Blob | null>
 
         image.onload = () => {
             // eslint-disable-next-line obsidianmd/prefer-create-el -- TODO(75): change to createEl after testing
-            const canvas = document.createElement("canvas");
+            const canvas = activeDocument.createElement("canvas");
             canvas.width = image.width;
             canvas.height = image.height;
             canvas.getContext("2d")!.drawImage(image, 0, 0);
